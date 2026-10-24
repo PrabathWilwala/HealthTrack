@@ -1,0 +1,21 @@
+@* Flash messages set through TempData by controllers. *@
+@{
+    var messages = new (string Key, string Label)[]
+    {
+        ("Success", "Success"),
+        ("Error", "Error"),
+        ("Warning", "Warning"),
+        ("Info", "Info")
+    };
+}
+@foreach (var (key, label) in messages)
+{
+    if (TempData[key] is string text && !string.IsNullOrWhiteSpace(text))
+    {
+        <p role="alert"><b>@label:</b> @text</p>
+    }
+}
+@if (TempData["DevLink"] is string devLink)
+{
+    <p role="alert"><b>Development mode:</b> no real email was sent. <a href="@devLink">Open the confirmation link</a>.</p>
+}

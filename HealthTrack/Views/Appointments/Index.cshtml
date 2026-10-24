@@ -1,0 +1,82 @@
+@model AppointmentIndexViewModel
+@{
+    ViewData["Title"] = "Appointments";
+    var isClient = Model.Role == RoleNames.Client;
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<h1>Appointments</h1>
+<p>@(isClient ? "Consultations with your trainer or healthcare professional." : "Consultation requests and sessions with your clients.")</p>
+<p>
+    @if (isClient)
+    {
+        <a asp-action="Create">Request appointment</a>
+    }
+    else
+    {
+        <a asp-action="Calendar">Calendar</a> <text>|</text>
+        <a asp-controller="Trainer" asp-action="Availability">Availability</a>
+    }
+</p>
+
+@if (!isClient && Model.PendingCount > 0)
+{
+    <p><b>You have @Model.PendingCount request(s) awaiting your response.</b></p>
+}
+@if (Model.RescheduleRequests > 0)
+{
+    <p><b>@Model.RescheduleRequests appointment(s) have a new time waiting for your confirmation.</b></p>
+}
+
+<p>
+    <a asp-route-tab="upcoming" asp-route-status="@Model.StatusFilter">Upcoming</a> |
+    <a asp-route-tab="past" asp-route-status="@Model.StatusFilter">History</a>
+    (current: @Model.Tab)
+</p>
+<form method="get">
+    <input type="hidden" name="tab" value="@Model.Tab" />
+    <label for="status">Status:</label>
+    <select id="status" name="status" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        @foreach (var s in Enum.GetValues<AppointmentStatus>())
+        {
+            if (Model.StatusFilter == s) { <option value="@s" selected>@s</option> }
+            else { <option value="@s">@s</option> }
+        }
+    </select>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p>No appointments here.
+        @if (isClient) { <a asp-action="Create">Request a consultation</a> }
+    </p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>When</th><th>@(isClient ? "Trainer" : "Client")</th><th>Purpose</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                var a = item.Appointment;
+                <tr>
+                    <td>@a.StartTime.ToString("ddd dd MMM yyyy") @a.StartTime.ToString("HH:mm") - @a.EndTime.ToString("HH:mm")</td>
+                    <td>@item.OtherPartyName</td>
+                    <td>@a.Purpose</td>
+                    <td>@a.DurationMinutes min</td>
+                    <td><partial name="_AppointmentStatus" model="a" /></td>
+                    <td>
+                        @if (!isClient && a.Status == AppointmentStatus.Pending && a.StartTime > DateTime.Now)
+                        {
+                            <form asp-action="Approve" asp-route-id="@a.Id" method="post">
+                                <input type="hidden" name="returnUrl" value="@currentUrl" />
+                                <button type="submit">Approve</button>
+                            </form>
+                        }
+                        <a asp-action="Details" asp-route-id="@a.Id">Open</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

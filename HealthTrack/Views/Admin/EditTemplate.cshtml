@@ -1,0 +1,18 @@
+@model TemplateEditViewModel
+@{
+    ViewData["Title"] = "Edit template";
+}
+<p><a asp-action="Templates">&lt; Templates</a></p>
+<h1>@Model.Name</h1>
+<p><code>@Model.Key</code></p>
+<form asp-action="EditTemplate" method="post">
+    <input type="hidden" asp-for="Id" />
+    <p><label asp-for="Name"></label><br /><input asp-for="Name" size="50" /><span asp-validation-for="Name"></span></p>
+    <p><label asp-for="TitleTemplate"></label><br /><input asp-for="TitleTemplate" size="60" /><span asp-validation-for="TitleTemplate"></span></p>
+    <p><label asp-for="BodyTemplate"></label><br /><textarea asp-for="BodyTemplate" rows="4" cols="60"></textarea><span asp-validation-for="BodyTemplate"></span></p>
+    <button type="submit">Save template</button>
+</form>
+<h3>Available tokens</h3>
+@if (Model.AvailableTokens.Count == 0) { <p>This template has no tokens.</p> }
+<ul>@foreach (var token in Model.AvailableTokens) { <li><code>@token</code></li> }</ul>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

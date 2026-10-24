@@ -1,0 +1,49 @@
+@model List<ClientSummaryRow>
+@{
+    ViewData["Title"] = "Comparative analysis";
+    var all = ViewData["AllClients"] as List<KeyValuePair<string, string>> ?? new List<KeyValuePair<string, string>>();
+    var selected = ViewData["Selected"] as List<string> ?? new List<string>();
+    var adherence = new ChartData { Labels = Model.Select(r => r.Name).ToList() };
+    adherence.Datasets.Add(new ChartDataset { Label = "Workout adherence %", Data = Model.Select(r => r.WorkoutAdherence).ToList() });
+    adherence.Datasets.Add(new ChartDataset { Label = "Diet adherence %", Data = Model.Select(r => r.DietAdherence).ToList() });
+    var weight = new ChartData { Labels = Model.Select(r => r.Name).ToList() };
+    weight.Datasets.Add(new ChartDataset { Label = "Weight change 30 d (kg)", Data = Model.Select(r => r.WeightChange30Days).ToList() });
+    var activity = new ChartData { Labels = Model.Select(r => r.Name).ToList() };
+    activity.Datasets.Add(new ChartDataset { Label = "Workouts (30 d)", Data = Model.Select(r => (decimal?)r.Workouts30Days).ToList() });
+    activity.Datasets.Add(new ChartDataset { Label = "All log entries (30 d)", Data = Model.Select(r => (decimal?)r.Logs30Days).ToList() });
+    var query = string.Join("&", selected.Select(s => "clientIds=" + Uri.EscapeDataString(s)));
+}
+<p><a asp-action="Index">&lt; Reports</a></p>
+<h1>Comparative client analysis</h1>
+<p>Compare performance across @Model.Count client(s) over the last 30 days.</p>
+<p>Export: <a href="?@query&format=csv">CSV</a> | <a href="?@query&format=pdf">PDF</a></p>
+<form method="get">
+    <p>Clients to compare (none selected = all):</p>
+    @foreach (var c in all)
+    {
+        <label><input type="checkbox" name="clientIds" value="@c.Key" checked="@selected.Contains(c.Key)" /> @c.Value</label><br />
+    }
+    <button type="submit">Compare</button>
+</form>
+
+<h2>Adherence</h2>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(adherence)" data-type="bar" data-max="100"></canvas>
+<h2>Weight change</h2>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(weight)" data-type="bar"></canvas>
+<h2>Activity</h2>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(activity)" data-type="bar"></canvas>
+
+<h2>Clients</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>Client</th><th>Weight</th><th>30 d change</th><th>BMI</th><th>Overall adh.</th><th>Workouts</th><th>Logs</th><th>Goal</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var r in Model.OrderByDescending(r => r.AdherencePercent ?? -1))
+        {
+            <tr>
+                <td>@r.Name</td><td>@(r.CurrentWeight?.ToString("0.0") ?? "-")</td><td>@DisplayHelpers.Signed(r.WeightChange30Days, " kg")</td>
+                <td>@(r.Bmi?.ToString("0.0") ?? "-")</td><td>@DisplayHelpers.Percent(r.AdherencePercent)</td><td>@r.Workouts30Days</td><td>@r.Logs30Days</td><td>@DisplayHelpers.Percent(r.GoalPercent)</td>
+                <td><a asp-action="Client" asp-route-id="@r.ClientId">Report</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

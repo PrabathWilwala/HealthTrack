@@ -1,0 +1,30 @@
+@model TwoFactorViewModel
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+<h1>Profile &amp; security</h1>
+<partial name="_ProfileTabs" />
+<h2>Two-factor authentication (2FA)</h2>
+<p>Status: <b>@(Model.IsEnabled ? "Enabled" : "Not enabled")</b></p>
+@if (Model.IsAdministrator && !Model.IsEnabled)
+{
+    <p><b>Warning:</b> Administrator accounts have full system access. Multi-factor authentication is strongly recommended.</p>
+}
+@if (Model.IsEnabled)
+{
+    <p>Each time you sign in you will be asked for a code from your authenticator app.</p>
+    <p>Recovery codes left: <b>@Model.RecoveryCodesLeft</b>
+        @if (Model.RecoveryCodesLeft <= 3) { <text>(generate new codes)</text> }
+    </p>
+    <form asp-action="GenerateRecoveryCodes" method="post" data-confirm="Generate new recovery codes? Your old codes will stop working.">
+        <button type="submit">New recovery codes</button>
+    </form>
+    <form asp-action="DisableTwoFactor" method="post" data-confirm="Turn off two-factor authentication? Your account will be less secure.">
+        <button type="submit">Turn off 2FA</button>
+    </form>
+}
+else
+{
+    <p>Protect your account even if your password is stolen. You'll need an app such as Microsoft Authenticator, Google Authenticator or Authy.</p>
+    <p><a asp-action="EnableAuthenticator">Set up authenticator app</a></p>
+}

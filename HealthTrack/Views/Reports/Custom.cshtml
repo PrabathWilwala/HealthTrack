@@ -1,0 +1,99 @@
+@model CustomReportResult?
+@{
+    ViewData["Title"] = "Report builder";
+    var request = ViewData["Request"] as CustomReportRequest ?? new CustomReportRequest();
+    var trainers = ViewData["Trainers"] as List<TrainerOption> ?? new List<TrainerOption>();
+    var metrics = Enum.GetValues<ReportMetric>();
+    string ExportUrl(string format)
+    {
+        var parts = new List<string>
+        {
+            "from=" + request.From.ToString("yyyy-MM-dd"),
+            "to=" + request.To.ToString("yyyy-MM-dd"),
+            "grouping=" + request.Grouping,
+            "format=" + format
+        };
+        parts.AddRange(request.Metrics.Select(m => "metrics=" + m));
+        if (!string.IsNullOrEmpty(request.TrainerId)) parts.Add("trainerId=" + Uri.EscapeDataString(request.TrainerId));
+        if (!string.IsNullOrEmpty(request.Gender)) parts.Add("gender=" + Uri.EscapeDataString(request.Gender));
+        return "?" + string.Join("&", parts);
+    }
+}
+<h1>Custom report builder</h1>
+<p>Choose metrics, a date range, a grouping and an optional user segment.</p>
+@if (Model != null)
+{
+    <p>Export: <a href="@ExportUrl("csv")">CSV</a> | <a href="@ExportUrl("pdf")">PDF</a></p>
+}
+<form method="get">
+    <input type="hidden" name="run" value="true" />
+    <fieldset>
+        <legend>Metrics</legend>
+        @foreach (var m in metrics)
+        {
+            <input type="checkbox" name="metrics" value="@m" id="@("m" + (int)m)" checked="@request.Metrics.Contains(m)" />
+            <label for="@("m" + (int)m)">@AnalyticsService.MetricName(m)</label><br />
+        }
+    </fieldset>
+    <p>
+        <label for="from">From</label>
+        <input type="date" id="from" name="from" value="@request.From.ToString("yyyy-MM-dd")" />
+        <label for="to">To</label>
+        <input type="date" id="to" name="to" value="@request.To.ToString("yyyy-MM-dd")" />
+    </p>
+    <p>
+        <label for="grouping">Group by</label>
+        <select id="grouping" name="grouping">
+            @foreach (var g in Enum.GetValues<ReportGrouping>())
+            {
+                if (g == request.Grouping) { <option value="@g" selected>@g</option> }
+                else { <option value="@g">@g</option> }
+            }
+        </select>
+    </p>
+    <p>
+        <label for="trainerId">Segment: trainer</label>
+        <select id="trainerId" name="trainerId">
+            <option value="">All users</option>
+            @foreach (var t in trainers)
+            {
+                if (t.UserId == request.TrainerId) { <option value="@t.UserId" selected>Clients of @t.FullName</option> }
+                else { <option value="@t.UserId">Clients of @t.FullName</option> }
+            }
+        </select>
+    </p>
+    <p>
+        <label for="gender">Segment: gender</label>
+        <select id="gender" name="gender">
+            <option value="">Any</option>
+            @foreach (var gender in new[] { "Female", "Male", "Non-binary", "Other", "Prefer not to say" })
+            {
+                if (gender == request.Gender) { <option selected>@gender</option> }
+                else { <option>@gender</option> }
+            }
+        </select>
+    </p>
+    <button type="submit">Run report</button>
+</form>
+
+@if (Model != null)
+{
+    <h2>Results (@Model.SegmentDescription)</h2>
+    <canvas width="800" height="350" data-chart="@ChartJson.Serialize(Model.Chart)" data-type="@(request.Grouping == ReportGrouping.Day ? "line" : "bar")"></canvas>
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Period</th>@foreach (var s in Model.Series) { <th>@AnalyticsService.MetricName(s.Metric)</th> }</tr></thead>
+        <tbody>
+            @for (var i = 0; i < Model.Periods.Count; i++)
+            {
+                <tr><td>@Model.Periods[i]</td>@foreach (var s in Model.Series) { <td>@(s.Values[i]?.ToString("0.#") ?? "-")</td> }</tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr><th>Total / avg.</th>@foreach (var s in Model.Series)
+            {
+                var vals = s.Values.Where(v => v.HasValue).Select(v => v!.Value).ToList();
+                <th>@(vals.Count == 0 ? "-" : (s.Metric == ReportMetric.AverageWeight ? vals.Average().ToString("0.#") : vals.Sum().ToString("0.#")))</th>
+            }</tr>
+        </tfoot>
+    </table>
+}

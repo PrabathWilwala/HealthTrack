@@ -1,0 +1,58 @@
+@model ClientProgressReport
+@* Shared progress analytics used by the client's Progress page and the trainer/admin client report. *@
+<h3>Summary</h3>
+<table border="1" cellpadding="4">
+    <tr><th>Current weight</th><td>@Model.CurrentWeight.ToString("0.0") kg</td><td>Change in period: @DisplayHelpers.Signed(Model.WeightChange, " kg")</td></tr>
+    <tr><th>BMI</th><td>@Model.CurrentBmi.ToString("0.0")</td><td>@Model.BmiCategory, height @Model.HeightCm.ToString("0") cm</td></tr>
+    <tr><th>Calories burned</th><td>@Model.TotalCaloriesBurned.ToString("N0") kcal</td><td>@Model.TotalWorkouts sessions, @Model.TotalWorkoutMinutes min</td></tr>
+    <tr><th>Avg. daily intake</th><td>@Model.AverageDailyIntake.ToString("N0") kcal</td><td>Target @Model.CalorieTarget kcal</td></tr>
+</table>
+
+<h3>Weight trend (by @Model.Grouping.ToString().ToLower())</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.WeightChart)" data-type="line" data-y-label="kg"></canvas>
+
+<h3>Goal progress</h3>
+<p>Progress: @DisplayHelpers.Percent(Model.Goal.Percent)</p>
+<p>@Model.Goal.Description</p>
+<p>
+    Start: @Model.Goal.StartWeight.ToString("0.0") kg |
+    Now: @Model.Goal.CurrentWeight.ToString("0.0") kg |
+    Target: @(Model.Goal.TargetWeight?.ToString("0.0") ?? "-") kg
+</p>
+<p>
+    Workout adherence: @DisplayHelpers.Percent(Model.Adherence.WorkoutPercent) |
+    Diet adherence: @DisplayHelpers.Percent(Model.Adherence.DietPercent)
+</p>
+
+<h3>BMI trend</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.BmiChart)" data-type="line"></canvas>
+
+<h3>Calories burned</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.CaloriesBurnedChart)" data-type="bar" data-y-label="kcal"></canvas>
+
+<h3>Calorie intake vs target</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.NutritionChart)" data-type="bar" data-y-label="kcal"></canvas>
+
+<h3>Macronutrients vs targets</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.MacroChart)" data-type="bar" data-y-label="g / day"></canvas>
+
+<h3>Workout frequency (per week)</h3>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.WorkoutFrequencyChart)" data-type="bar" data-y-label="sessions"></canvas>
+
+<h3>This month vs last month</h3>
+<table border="1" cellpadding="4">
+    <thead><tr><th>Metric</th><th>Last month</th><th>This month</th><th>Change</th></tr></thead>
+    <tbody>
+        @foreach (var c in Model.MonthComparison)
+        {
+            <tr>
+                <td>@c.Metric</td>
+                <td>@(c.Previous?.ToString("0.#") ?? "-") @c.Unit</td>
+                <td>@(c.Current?.ToString("0.#") ?? "-") @c.Unit</td>
+                <td>@(c.Change.HasValue ? c.Change.Value.ToString("+0.#;-0.#;0") : "-")
+                    @if (c.IsImprovement == true) { <text>(better)</text> } else if (c.IsImprovement == false) { <text>(worse)</text> }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

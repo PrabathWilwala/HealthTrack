@@ -1,0 +1,27 @@
+@model UserActivityViewModel
+@{
+    ViewData["Title"] = "User activity";
+}
+<p><a asp-action="Users">&lt; Users</a></p>
+<h1>@Model.User.FullName</h1>
+<p>@Model.User.Role | @Model.User.Email | joined @(Model.User.JoinedUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "-")</p>
+<p><a asp-action="EditUser" asp-route-id="@Model.User.Id">Edit</a></p>
+<p>Workouts: @Model.Workouts | Meals: @Model.Meals | Measurements: @Model.Measurements | Appointments: @Model.Appointments</p>
+
+<h2>Activity log (latest 200 events)</h2>
+@if (Model.Entries.Count == 0)
+{
+    <p>No activity recorded.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>When</th><th>Area</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
+        <tbody>
+            @foreach (var e in Model.Entries)
+            {
+                <tr><td>@e.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss")</td><td>@e.Category</td><td>@e.Action@(e.IsSecurityEvent ? " (security)" : "")</td><td>@e.Details</td><td>@e.IpAddress</td></tr>
+            }
+        </tbody>
+    </table>
+}

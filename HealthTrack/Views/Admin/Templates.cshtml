@@ -1,0 +1,24 @@
+@model List<NotificationTemplate>
+@{
+    ViewData["Title"] = "Notification templates";
+}
+<h1>Notification templates</h1>
+<p>Edit the wording of automated notifications. Tokens such as {ClientName} are replaced automatically.</p>
+<table border="1" cellpadding="4">
+    <thead><tr><th>Template</th><th>Title</th><th>Message</th><th>Updated</th><th>Actions</th></tr></thead>
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.Name<br /><code>@t.Key</code></td>
+                <td>@t.TitleTemplate</td>
+                <td>@t.BodyTemplate</td>
+                <td>@DateHelpers.TimeAgo(t.UpdatedAtUtc)</td>
+                <td>
+                    <a asp-action="EditTemplate" asp-route-id="@t.Id">Edit</a>
+                    <form asp-action="ResetTemplate" asp-route-id="@t.Id" method="post" data-confirm="Restore the default text?"><button type="submit">Restore default</button></form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

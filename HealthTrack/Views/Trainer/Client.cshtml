@@ -1,0 +1,198 @@
+@model TrainerClientViewModel
+@{
+    var p = Model.Profile;
+    ViewData["Title"] = p.FullName;
+    var feedbackForm = Model.FeedbackForm;
+}
+<p><a asp-action="Clients">&lt; My clients</a></p>
+@if (!string.IsNullOrEmpty(p.ProfilePicturePath))
+{
+    <img src="@p.ProfilePicturePath" alt="" width="80" height="80" />
+}
+<h1>@p.FullName</h1>
+<p>@p.Age years | @p.Gender | @p.HeightCm.ToString("0") cm | @Model.Email @(Model.Phone != null ? "| " + Model.Phone : "")</p>
+<p>
+    <a asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId">Full report</a> |
+    <a asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId" asp-route-format="pdf">PDF</a> |
+    <a href="#feedback">Give feedback</a>
+</p>
+
+<table border="1" cellpadding="4">
+    <tr><th>Weight</th><td>@Model.Progress.CurrentWeight.ToString("0.0") kg</td><td>30 d: @DisplayHelpers.Signed(Model.Summary.WeightChange30Days, " kg")</td></tr>
+    <tr><th>BMI</th><td>@Model.Progress.CurrentBmi.ToString("0.0")</td><td>@Model.Progress.BmiCategory</td></tr>
+    <tr><th>Workout adherence</th><td>@DisplayHelpers.Percent(Model.Summary.WorkoutAdherence)</td><td>Diet: @DisplayHelpers.Percent(Model.Summary.DietAdherence)</td></tr>
+    <tr><th>Goal progress</th><td>@DisplayHelpers.Percent(Model.Progress.Goal.Percent)</td><td>@Model.Progress.Goal.Description</td></tr>
+</table>
+
+@if (Model.Summary.Alerts.Count > 0)
+{
+    <h3>Alerts</h3>
+    <ul>
+        @foreach (var alert in Model.Summary.Alerts) { <li>@alert</li> }
+    </ul>
+}
+
+<h2>Profile</h2>
+<p><b>Fitness goals:</b> @(p.FitnessGoals ?? "-")</p>
+<p><b>Target weight:</b> @(p.TargetWeightKg?.ToString("0.0") ?? "-") kg</p>
+<p><b>Medical notes:</b></p>
+<pre>@(p.MedicalNotes ?? "None provided")</pre>
+
+<h2>Weight (30 days)</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.WeightChart)" data-type="line" data-y-label="kg"></canvas>
+<h2>Calories burned</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.CaloriesBurnedChart)" data-type="bar"></canvas>
+<h2>Calorie intake vs target</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.NutritionChart)" data-type="bar"></canvas>
+
+<h2 id="workouts">Workouts</h2>
+@if (Model.RecentWorkouts.Count == 0)
+{
+    <p>No workouts logged yet.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Activity</th><th>Minutes</th><th>Intensity</th><th>kcal</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var w in Model.RecentWorkouts)
+            {
+                <tr>
+                    <td>@w.LogDate.ToString("dd MMM")</td><td>@w.ExerciseType</td><td>@w.DurationMinutes</td><td>@w.Intensity</td><td>@w.CaloriesBurned</td><td>@w.Notes</td>
+                    <td><button type="button" data-feedback-target="Workout" data-feedback-id="@w.Id" data-feedback-label="@w.ExerciseType on @w.LogDate.ToString("dd MMM")">Comment</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 id="meals">Meals</h2>
+@if (Model.RecentMeals.Count == 0)
+{
+    <p>No meals logged yet.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Meal</th><th>Food</th><th>kcal</th><th>P / C / F (g)</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var m in Model.RecentMeals)
+            {
+                <tr>
+                    <td>@m.LogDate.ToString("dd MMM")</td><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Calories</td><td>@($"{m.ProteinG:0} / {m.CarbsG:0} / {m.FatG:0}")</td>
+                    <td><button type="button" data-feedback-target="Meal" data-feedback-id="@m.Id" data-feedback-label="@m.MealType on @m.LogDate.ToString("dd MMM")">Comment</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 id="measurements">Measurements</h2>
+@if (Model.RecentMeasurements.Count == 0)
+{
+    <p>No measurements yet.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>BP</th><th>HR</th><th>Body fat</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var m in Model.RecentMeasurements)
+            {
+                <tr>
+                    <td>@m.MeasuredOn.ToString("dd MMM")</td><td>@m.WeightKg.ToString("0.0") kg</td><td>@m.Bmi.ToString("0.0")</td>
+                    <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "-")</td><td>@(m.RestingHeartRate?.ToString() ?? "-")</td><td>@(m.BodyFatPercent?.ToString("0.0") ?? "-")</td>
+                    <td><button type="button" data-feedback-target="Measurement" data-feedback-id="@m.Id" data-feedback-label="Measurement on @m.MeasuredOn.ToString("dd MMM")">Comment</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Give feedback</h2>
+<form asp-action="GiveFeedback" method="post" id="feedback">
+    <input type="hidden" name="ClientId" value="@p.UserId" />
+    <input type="hidden" name="Target" id="feedbackTarget" value="General" />
+    <input type="hidden" name="TargetId" id="feedbackTargetId" value="" />
+    <p>
+        <span id="feedbackLabel">General feedback</span>
+        <button type="button" id="feedbackReset" hidden>clear</button>
+    </p>
+    <p><textarea name="Message" rows="4" cols="60" maxlength="1000" required></textarea></p>
+    <p><small>Tip: click "Comment" next to a log entry to comment on it specifically.</small></p>
+    <button type="submit">Send feedback</button>
+</form>
+
+<h2>Active plans</h2>
+@if (Model.ActiveAssignments.Count == 0)
+{
+    <p>No active plans. <a asp-controller="WorkoutPlans" asp-action="Index">Assign a plan</a></p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Type</th><th>Plan</th><th>Dates</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var a in Model.ActiveAssignments)
+            {
+                <tr>
+                    <td>@(a.DietPlan != null ? "Diet" : "Workout")</td>
+                    <td>@(a.WorkoutPlan?.Title ?? a.DietPlan?.Title)</td>
+                    <td>@a.StartDate.ToString("dd MMM") - @(a.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</td>
+                    <td>
+                        <form asp-action="EndAssignment" asp-route-id="@a.Id" method="post" data-confirm="End this plan assignment?">
+                            <button type="submit">End assignment</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 id="history">Feedback history</h2>
+@if (Model.Feedback.Count == 0)
+{
+    <p>No feedback given yet.</p>
+}
+<ul>
+    @foreach (var f in Model.Feedback)
+    {
+        <li>@f.Message (@f.Target, @DateHelpers.TimeAgo(f.CreatedAtUtc))</li>
+    }
+</ul>
+
+<h2>Appointments</h2>
+@if (Model.Appointments.Count == 0)
+{
+    <p>No appointments.</p>
+}
+<ul>
+    @foreach (var a in Model.Appointments)
+    {
+        <li><a asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">@a.StartTime.ToString("dd MMM yyyy HH:mm")</a> - @a.Purpose - <partial name="_AppointmentStatus" model="a" /></li>
+    }
+</ul>
+@section Scripts {
+    <script>
+        (function () {
+            var target = document.getElementById('feedbackTarget');
+            var targetId = document.getElementById('feedbackTargetId');
+            var label = document.getElementById('feedbackLabel');
+            var reset = document.getElementById('feedbackReset');
+            document.querySelectorAll('[data-feedback-target]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    target.value = btn.getAttribute('data-feedback-target');
+                    targetId.value = btn.getAttribute('data-feedback-id');
+                    label.textContent = 'On: ' + btn.getAttribute('data-feedback-label');
+                    reset.hidden = false;
+                    document.getElementById('feedback').scrollIntoView();
+                    document.querySelector('#feedback textarea').focus();
+                });
+            });
+            reset.addEventListener('click', function () {
+                target.value = 'General'; targetId.value = ''; label.textContent = 'General feedback'; reset.hidden = true;
+            });
+        })();
+    </script>
+}

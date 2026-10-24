@@ -1,0 +1,16 @@
+@{
+    var code = ViewData["Code"] as int? ?? 500;
+    var (title, message) = code switch
+    {
+        404 => ("Page not found", "The page you are looking for does not exist or you do not have access to it."),
+        403 => ("Access denied", "Your account does not have permission to view this page."),
+        429 => ("Too many requests", "Please wait a moment before trying again."),
+        400 => ("Bad request", "The request could not be processed. Please refresh the page and try again."),
+        _ => ("Something went wrong", "An unexpected error occurred. Please try again.")
+    };
+    ViewData["Title"] = title;
+}
+<p>Error @code</p>
+<h1>@title</h1>
+<p>@message</p>
+<p><a asp-controller="Account" asp-action="Dashboard">Back to HealthTrack</a></p>

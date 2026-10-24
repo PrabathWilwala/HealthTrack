@@ -1,0 +1,35 @@
+@model EnableAuthenticatorViewModel
+@{
+    ViewData["Title"] = "Set up authenticator";
+}
+<h1>Set up your authenticator app</h1>
+<ol>
+    <li>Install an authenticator app on your phone (Microsoft Authenticator, Google Authenticator or Authy).</li>
+    <li>
+        Scan this QR code, or enter the key manually:
+        <div id="qrCode" data-uri="@Model.AuthenticatorUri"></div>
+        <p>Manual key: <code>@Model.SharedKey</code></p>
+    </li>
+    <li>
+        Enter the 6-digit code shown in the app:
+        <form asp-action="EnableAuthenticator" method="post">
+            <input asp-for="Code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" />
+            <span asp-validation-for="Code"></span>
+            <button type="submit">Verify and turn on 2FA</button>
+        </form>
+    </li>
+</ol>
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        (function () {
+            var el = document.getElementById('qrCode');
+            if (window.QRCode && el) {
+                new QRCode(el, { text: el.getAttribute('data-uri'), width: 180, height: 180 });
+            } else if (el) {
+                el.innerHTML = '<p>QR code unavailable offline. Use the manual key.</p>';
+            }
+        })();
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+}

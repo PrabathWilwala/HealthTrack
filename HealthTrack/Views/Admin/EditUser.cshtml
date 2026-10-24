@@ -1,0 +1,64 @@
+@model EditUserViewModel
+@{
+    ViewData["Title"] = "Edit user";
+    var isSelf = Model.Id == User.GetUserId();
+}
+<p><a asp-action="Users">&lt; Users</a></p>
+<h1>@Model.FullName</h1>
+<p>@Model.CurrentRole | @(Model.IsDeactivated ? "Deactivated" : "Active") | 2FA @(Model.TwoFactorEnabled ? "on" : "off")</p>
+<p><a asp-action="UserActivity" asp-route-id="@Model.Id">Activity log</a></p>
+
+<h2>Account details</h2>
+<form asp-action="EditUser" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All"></div>
+    <p><label asp-for="FullName"></label><br /><input asp-for="FullName" /></p>
+    <p><label asp-for="UserName"></label><br /><input asp-for="UserName" /><span asp-validation-for="UserName"></span></p>
+    <p><label asp-for="Email"></label><br /><input asp-for="Email" /><span asp-validation-for="Email"></span></p>
+    <p><label asp-for="PhoneNumber"></label><br /><input asp-for="PhoneNumber" /><span asp-validation-for="PhoneNumber"></span></p>
+    <p>
+        <label asp-for="Role"></label><br />
+        @if (isSelf)
+        {
+            <input value="@Model.CurrentRole" disabled />
+            <input type="hidden" name="Role" value="@Model.CurrentRole" />
+            <small>You cannot change your own role.</small>
+        }
+        else
+        {
+            <select asp-for="Role">
+                <option>@RoleNames.Client</option>
+                <option>@RoleNames.Trainer</option>
+                <option>@RoleNames.Administrator</option>
+            </select>
+            <small>Changing a role signs the user out of their current session.</small>
+        }
+    </p>
+    <p><input asp-for="EmailConfirmed" /> <label asp-for="EmailConfirmed"></label></p>
+    <button type="submit">Save changes</button>
+</form>
+
+<h2>Password</h2>
+<form asp-action="SendPasswordReset" asp-route-id="@Model.Id" method="post">
+    <button type="submit">Email a password reset link</button>
+</form>
+<form asp-action="SetPassword" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <p>
+        <label for="NewPassword">Or set a new password</label><br />
+        <input type="password" id="NewPassword" name="NewPassword" minlength="8" required autocomplete="new-password" />
+        <button type="submit">Set password</button>
+    </p>
+</form>
+
+@if (!isSelf)
+{
+    <h2>Account status</h2>
+    <form asp-action="ToggleActive" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" name="returnUrl" value="@Url.Action("EditUser", new { id = Model.Id })" />
+        <button type="submit">@(Model.IsDeactivated ? "Reactivate account" : "Deactivate account")</button>
+    </form>
+    <form asp-action="DeleteUser" asp-route-id="@Model.Id" method="post" data-confirm="Permanently delete this account and ALL associated data?">
+        <button type="submit">Delete account and data</button>
+    </form>
+}

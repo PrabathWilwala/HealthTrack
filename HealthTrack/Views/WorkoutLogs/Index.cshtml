@@ -1,0 +1,58 @@
+@model LogHistoryViewModel<WorkoutLog>
+@{
+    ViewData["Title"] = "Workout log";
+}
+<h1>Workouts</h1>
+<p>Your logged sessions. Entries can be edited or deleted for @ClientLogControllerBase.EditWindowDays days.</p>
+<p><a asp-action="Create">Log workout</a></p>
+
+<p>
+    Period @Model.From.ToString("dd MMM") - @Model.To.ToString("dd MMM"):
+    Sessions: @Model.Items.Count |
+    Active minutes: @Model.Items.Sum(w => w.DurationMinutes) |
+    Calories burned: @Model.Items.Sum(w => w.CaloriesBurned) kcal |
+    Active days: @Model.Items.Select(w => w.LogDate).Distinct().Count()
+</p>
+
+<partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" />
+
+@if (Model.Items.Count == 0)
+{
+    <p>No workouts in this period. <a asp-action="Create">Log your first workout</a></p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Activity</th><th>Duration</th><th>Intensity</th><th>Calories</th><th>Plan</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var w in Model.Items)
+            {
+                var editable = w.CreatedAtUtc >= Model.EditableAfterUtc;
+                <tr>
+                    <td>@w.LogDate.ToString("ddd dd MMM")</td>
+                    <td>@w.ExerciseType
+                        @if (Model.FeedbackCounts.TryGetValue(w.Id, out var fc)) { <a asp-controller="Client" asp-action="Feedback">(@fc feedback)</a> }
+                    </td>
+                    <td>@w.DurationMinutes min</td>
+                    <td>@w.Intensity</td>
+                    <td>@w.CaloriesBurned kcal</td>
+                    <td>@(w.WorkoutPlan?.Title ?? "-")</td>
+                    <td>@w.Notes</td>
+                    <td>
+                        @if (editable)
+                        {
+                            <a asp-action="Edit" asp-route-id="@w.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@w.Id" method="post" data-confirm="Delete this workout?">
+                                <button type="submit">Delete</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>Locked</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

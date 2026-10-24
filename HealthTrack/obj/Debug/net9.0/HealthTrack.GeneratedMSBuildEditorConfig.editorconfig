@@ -1,0 +1,353 @@
+is_global = true
+build_property.TargetFramework = net9.0
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = HealthTrack
+build_property.RootNamespace = HealthTrack
+build_property.ProjectDir = D:\EDU\AD\CW02\001HealthTrack\OldVer\001\HealthTrack\HealthTrack\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = D:\EDU\AD\CW02\001HealthTrack\OldVer\001\HealthTrack\HealthTrack
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/EmailConfirmationFailed.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxFbWFpbENvbmZpcm1hdGlvbkZhaWxlZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/EmailConfirmed.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxFbWFpbENvbmZpcm1lZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/EmailSent.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxFbWFpbFNlbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/LoginWith2fa.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbldpdGgyZmEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/LoginWithRecoveryCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbldpdGhSZWNvdmVyeUNvZGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/RegistrationSubmitted.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3RyYXRpb25TdWJtaXR0ZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/ResendConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNlbmRDb25maXJtYXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Appointments.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXBwb2ludG1lbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/AssignTrainer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXNzaWduVHJhaW5lci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/AuditLog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQXVkaXRMb2cuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Broadcast.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQnJvYWRjYXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/CreateUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlVXNlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/EditTemplate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFRlbXBsYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/EditUser.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdFVzZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Plans.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGxhbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Templates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGVtcGxhdGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/UserActivity.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlckFjdGl2aXR5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Admin/Users.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVXNlcnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Calendar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXENhbGVuZGFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Complete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXENvbXBsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Appointments/Reschedule.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXBwb2ludG1lbnRzXFJlc2NoZWR1bGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Client/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XERhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Client/Feedback.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XEZlZWRiYWNrLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Client/Plans.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xpZW50XFBsYW5zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/DietPlans/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldFBsYW5zXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/DietPlans/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGlldFBsYW5zXEZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Home/HttpStatus.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxIdHRwU3RhdHVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/MealLogs/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVhbExvZ3NcRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/MealLogs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVhbExvZ3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Measurements/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVhc3VyZW1lbnRzXEZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Measurements/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVhc3VyZW1lbnRzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Notifications/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Notifications/Preferences.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xQcmVmZXJlbmNlcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/EnableAuthenticator.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxFbmFibGVBdXRoZW50aWNhdG9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/RecoveryCodes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxSZWNvdmVyeUNvZGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/TwoFactor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxUd29GYWN0b3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Profile/_ProfileTabs.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxfUHJvZmlsZVRhYnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Progress/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZ3Jlc3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Client.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xDbGllbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Comparative.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xDb21wYXJhdGl2ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Custom.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xDdXN0b20uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Engagement.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xFbmdhZ2VtZW50LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/FeedbackEffectiveness.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xGZWVkYmFja0VmZmVjdGl2ZW5lc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Overview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xPdmVydmlldy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Routines.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xSb3V0aW5lcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Reports/Trends.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xUcmVuZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/AssignPlan.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEFzc2lnblBsYW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/Components/NotificationBell/Default.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTm90aWZpY2F0aW9uQmVsbFxEZWZhdWx0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_Alerts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BbGVydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_AppointmentStatus.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BcHBvaW50bWVudFN0YXR1cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_DateRangeFilter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EYXRlUmFuZ2VGaWx0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_ProgressCharts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Qcm9ncmVzc0NoYXJ0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Trainer/Availability.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhaW5lclxBdmFpbGFiaWxpdHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Trainer/Client.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhaW5lclxDbGllbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Trainer/Clients.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhaW5lclxDbGllbnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/Trainer/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVHJhaW5lclxEYXNoYm9hcmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/WorkoutLogs/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya291dExvZ3NcRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/WorkoutLogs/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya291dExvZ3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/WorkoutPlans/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya291dFBsYW5zXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/WorkoutPlans/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya291dFBsYW5zXEZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/WorkoutPlans/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya291dFBsYW5zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/EDU/AD/CW02/001HealthTrack/OldVer/001/HealthTrack/HealthTrack/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

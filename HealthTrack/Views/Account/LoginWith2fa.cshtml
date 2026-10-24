@@ -1,0 +1,23 @@
+@model LoginWith2faViewModel
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+<h1>Two-factor authentication</h1>
+<p>Open your authenticator app (Microsoft Authenticator, Google Authenticator, Authy...) and enter the 6-digit code for HealthTrack.</p>
+<form asp-action="LoginWith2fa" method="post">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+    <input asp-for="RememberMe" type="hidden" />
+    <input asp-for="ReturnUrl" type="hidden" />
+    <p>
+        <label asp-for="TwoFactorCode">Authenticator code</label><br />
+        <input asp-for="TwoFactorCode" autocomplete="one-time-code" inputmode="numeric" maxlength="7" autofocus />
+        <span asp-validation-for="TwoFactorCode"></span>
+    </p>
+    <p>
+        <input asp-for="RememberMachine" />
+        <label asp-for="RememberMachine">Don't ask again on this device</label>
+    </p>
+    <button type="submit">Verify and sign in</button>
+</form>
+<p>Lost your device? <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">Use a recovery code</a></p>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

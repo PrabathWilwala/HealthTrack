@@ -1,0 +1,22 @@
+@model RescheduleViewModel
+@{
+    ViewData["Title"] = "Propose a new time";
+}
+<p><a asp-action="Details" asp-route-id="@Model.Id">&lt; Back to appointment</a></p>
+<h1>Propose a new time</h1>
+<p>Currently @Model.CurrentStart.ToString("dddd dd MMM yyyy, HH:mm") with @Model.OtherPartyName. They will be asked to confirm.</p>
+<form asp-action="Reschedule" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly"></div>
+    <p>
+        <label asp-for="NewStart"></label><br />
+        <input asp-for="NewStart" type="datetime-local" step="900" />
+        <span asp-validation-for="NewStart"></span>
+    </p>
+    <button type="submit">Send proposal</button>
+</form>
+
+<h3>Trainer availability</h3>
+@if (Model.Availability.Count == 0) { <p>No fixed hours published.</p> }
+<ul>@foreach (var s in Model.Availability) { <li>@s</li> }</ul>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

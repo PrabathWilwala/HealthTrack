@@ -1,0 +1,11 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+<h1>Something went wrong</h1>
+<p>An unexpected error occurred while processing your request. The problem has been logged.</p>
+@if (Model.ShowRequestId)
+{
+    <p>Reference: <code>@Model.RequestId</code></p>
+}
+<p><a asp-controller="Home" asp-action="Index">Back to HealthTrack</a></p>

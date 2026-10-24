@@ -1,0 +1,49 @@
+@model DietPlan
+@{
+    ViewData["Title"] = Model.Title;
+    var canEdit = ViewData["CanEdit"] is true;
+    var isTrainer = User.IsInRole(RoleNames.Trainer);
+    var mealTotal = Model.Meals.Sum(m => m.Calories);
+}
+<p><a asp-action="Index">&lt; Diet plans</a></p>
+<h1>@Model.Title</h1>
+<p>@Model.Description</p>
+@if (isTrainer && !Model.IsTemplate && canEdit)
+{
+    <p><a asp-action="Assign" asp-route-id="@Model.Id">Assign to clients</a></p>
+}
+@if (isTrainer && Model.IsTemplate)
+{
+    <form asp-action="UseTemplate" asp-route-id="@Model.Id" method="post"><button type="submit">Use template</button></form>
+}
+@if (canEdit)
+{
+    <p><a asp-action="Edit" asp-route-id="@Model.Id">Edit</a></p>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this plan? Client assignments of this plan will also be removed.">
+        <button type="submit">Delete</button>
+    </form>
+}
+@if (Model.IsFlagged)
+{
+    <p><b>This plan was flagged by an administrator:</b> @Model.FlagReason</p>
+}
+<table border="1" cellpadding="4">
+    <tr><th>Daily target</th><td>@Model.DailyCalorieTarget kcal (meals total @mealTotal kcal)</td></tr>
+    <tr><th>Protein</th><td>@Model.ProteinTargetG g</td></tr>
+    <tr><th>Carbohydrates</th><td>@Model.CarbsTargetG g</td></tr>
+    <tr><th>Fat</th><td>@Model.FatTargetG g</td></tr>
+</table>
+@if (!string.IsNullOrEmpty(Model.Guidelines))
+{
+    <p><b>Guidelines:</b> @Model.Guidelines</p>
+}
+<h2>Meals</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>Meal</th><th>Food items</th><th>Portion</th><th>kcal</th><th>Protein</th><th>Carbs</th><th>Fat</th></tr></thead>
+    <tbody>
+        @foreach (var m in Model.Meals.OrderBy(m => m.SortOrder))
+        {
+            <tr><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Portion</td><td>@m.Calories</td><td>@m.ProteinG g</td><td>@m.CarbsG g</td><td>@m.FatG g</td></tr>
+        }
+    </tbody>
+</table>

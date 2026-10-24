@@ -1,0 +1,12 @@
+@model EmailSentViewModel
+@{
+    ViewData["Title"] = Model.Heading;
+}
+<h1>@Model.Heading</h1>
+<p>@Model.Message</p>
+@if (!string.IsNullOrEmpty(Model.DevelopmentLink))
+{
+    <p><b>Development mode:</b> Real emails are not sent unless SMTP is configured in appsettings.json. Use this link to continue testing:</p>
+    <p><a href="@Model.DevelopmentLink">Open the emailed link</a></p>
+}
+<p><a asp-action="Login">Return to sign in</a></p>

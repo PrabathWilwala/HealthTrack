@@ -1,0 +1,6 @@
+@model List<Notification>
+@{
+    var unread = (int)(ViewData["UnreadCount"] ?? 0);
+}
+<a asp-controller="Notifications" asp-action="Index">Notifications</a>
+(<span data-unread-count>@(unread > 99 ? "99+" : unread.ToString())</span> unread)

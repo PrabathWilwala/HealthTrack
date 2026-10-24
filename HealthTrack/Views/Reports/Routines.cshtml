@@ -1,0 +1,29 @@
+@model List<RoutineStatsRow>
+@{
+    ViewData["Title"] = "Popular routines";
+    var top = Model.Take(10).ToList();
+    var chart = new ChartData { Labels = top.Select(r => r.Title).ToList() };
+    chart.Datasets.Add(new ChartDataset { Label = "Times assigned", Data = top.Select(r => (decimal?)r.TimesAssigned).ToList() });
+    chart.Datasets.Add(new ChartDataset { Label = "Average adherence %", Data = top.Select(r => r.AverageAdherence).ToList() });
+}
+<p><a asp-action="Index">&lt; Reports</a></p>
+<h1>Popular &amp; effective routines</h1>
+<p>How often each plan is assigned, and how well clients follow it and progress on it.</p>
+<p>Export: <a asp-route-format="csv">CSV</a> | <a asp-route-format="pdf">PDF</a></p>
+<canvas width="800" height="350" data-chart="@ChartJson.Serialize(chart)" data-type="bar" data-horizontal></canvas>
+@if (Model.Count == 0)
+{
+    <p>No plans yet.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Assigned</th><th>Active clients</th><th>Avg. adherence</th><th>Avg. weight change</th></tr></thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr><td>@r.Title</td><td>@r.PlanType</td><td>@r.CreatedBy</td><td>@r.TimesAssigned</td><td>@r.ActiveClients</td><td>@DisplayHelpers.Percent(r.AverageAdherence)</td><td>@DisplayHelpers.Signed(r.AverageWeightChange, " kg")</td></tr>
+            }
+        </tbody>
+    </table>
+}

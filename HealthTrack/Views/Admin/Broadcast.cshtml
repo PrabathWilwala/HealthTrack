@@ -1,0 +1,38 @@
+@model BroadcastViewModel
+@{
+    ViewData["Title"] = "Broadcast announcement";
+}
+<h1>Broadcast announcements</h1>
+<p>Send a system-wide message to every user or to one role. It appears in their notification centre.</p>
+<form asp-action="Broadcast" method="post" data-confirm="Send this announcement?">
+    <div asp-validation-summary="All"></div>
+    <p>
+        <label asp-for="Role"></label><br />
+        <select asp-for="Role">
+            <option value="">Everyone</option>
+            <option value="Client">All clients</option>
+            <option value="Trainer">All trainers</option>
+            <option value="Administrator">All administrators</option>
+        </select>
+    </p>
+    <p><label asp-for="Title"></label><br /><input asp-for="Title" size="50" /><span asp-validation-for="Title"></span></p>
+    <p><label asp-for="Message"></label><br /><textarea asp-for="Message" rows="4" cols="60"></textarea><span asp-validation-for="Message"></span></p>
+    <p><label asp-for="LinkUrl"></label><br /><input asp-for="LinkUrl" size="50" /><span asp-validation-for="LinkUrl"></span></p>
+    <button type="submit">Send announcement</button>
+</form>
+
+<h2>Recent broadcasts</h2>
+@if (Model.History.Count == 0) { <p>No announcements sent yet.</p> }
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Sent</th><th>Title</th><th>Message</th><th>Recipients</th></tr></thead>
+        <tbody>
+            @foreach (var h in Model.History)
+            {
+                <tr><td>@h.SentAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td><td>@h.Title</td><td>@h.Message</td><td>@h.Recipients</td></tr>
+            }
+        </tbody>
+    </table>
+}
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

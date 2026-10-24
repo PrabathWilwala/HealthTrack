@@ -1,0 +1,20 @@
+@model HealthTrack.ViewModels.RegistrationSubmittedViewModel
+@{
+    ViewData["Title"] = "Registration submitted";
+}
+<h1>Registration submitted</h1>
+<p>Your @Model.AccountType.ToLowerInvariant() account has been created for <b>@Model.Email</b>.</p>
+<p><b>Email confirmation is required.</b> We sent a confirmation link to your email address. If SMTP is not configured, the email is saved in the App_Data/Emails folder, and in Development the link is also shown below.</p>
+
+@if (!string.IsNullOrWhiteSpace(Model.DevelopmentConfirmationUrl))
+{
+    <p><a href="@Model.DevelopmentConfirmationUrl">Confirm email address</a></p>
+}
+
+@if (Model.RequiresTrainerApproval)
+{
+    <p><b>Trainer approval is also required.</b> After confirming your email, an administrator must approve your trainer account before you can sign in.</p>
+}
+
+<p><a asp-controller="Account" asp-action="Login">Return to sign in</a></p>
+<p>Didn't get it? <a asp-controller="Account" asp-action="ResendConfirmation">Resend the confirmation email</a>.</p>

@@ -1,0 +1,132 @@
+@model HealthTrack.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create your HealthTrack account";
+}
+<h1>Create your account</h1>
+<p>Choose your role and enter the details needed for your profile. Fields marked * are required.</p>
+
+<form asp-controller="Account" asp-action="Register" method="post" novalidate>
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+
+    <h3>Account details</h3>
+    <p>
+        <label asp-for="AccountType">Register as *</label><br />
+        <select asp-for="AccountType" id="accountType">
+            <option value="">Choose your role</option>
+            <option value="Client">Client</option>
+            <option value="Trainer">Trainer</option>
+        </select>
+        <span asp-validation-for="AccountType"></span><br />
+        <small>Administrator accounts are created by an existing administrator.</small>
+    </p>
+    <p>
+        <label asp-for="FullName">Full name *</label><br />
+        <input asp-for="FullName" autocomplete="name" />
+        <span asp-validation-for="FullName"></span>
+    </p>
+    <p>
+        <label asp-for="UserName">Username *</label><br />
+        <input asp-for="UserName" autocomplete="username" />
+        <span asp-validation-for="UserName"></span>
+    </p>
+    <p>
+        <label asp-for="Email">Email address *</label><br />
+        <input asp-for="Email" autocomplete="email" />
+        <span asp-validation-for="Email"></span>
+    </p>
+    <p>
+        <label asp-for="Password">Password *</label><br />
+        <input asp-for="Password" autocomplete="new-password" />
+        <span asp-validation-for="Password"></span>
+    </p>
+    <p>
+        <label asp-for="ConfirmPassword">Confirm password *</label><br />
+        <input asp-for="ConfirmPassword" autocomplete="new-password" />
+        <span asp-validation-for="ConfirmPassword"></span>
+    </p>
+
+    <div id="clientFields" hidden>
+        <h3>Health and fitness profile</h3>
+        <p>
+            <label asp-for="Age">Age *</label><br />
+            <input asp-for="Age" type="number" min="1" max="120" />
+            <span asp-validation-for="Age"></span>
+        </p>
+        <p>
+            <label asp-for="Gender">Gender *</label><br />
+            <select asp-for="Gender">
+                <option value="">Select gender</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Non-binary</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+            </select>
+            <span asp-validation-for="Gender"></span>
+        </p>
+        <p>
+            <label asp-for="HeightCm">Height (cm) *</label><br />
+            <input asp-for="HeightCm" type="number" min="50" max="300" step="0.1" />
+            <span asp-validation-for="HeightCm"></span>
+        </p>
+        <p>
+            <label asp-for="WeightKg">Weight (kg) *</label><br />
+            <input asp-for="WeightKg" type="number" min="10" max="500" step="0.1" />
+            <span asp-validation-for="WeightKg"></span>
+        </p>
+        <p>
+            <label asp-for="FitnessGoals">Fitness goals *</label><br />
+            <textarea asp-for="FitnessGoals" rows="3" cols="50"></textarea>
+            <span asp-validation-for="FitnessGoals"></span>
+        </p>
+    </div>
+
+    <div id="trainerFields" hidden>
+        <h3>Professional profile</h3>
+        <p>Trainer accounts require administrator approval after registration.</p>
+        <p>
+            <label asp-for="Qualifications">Professional qualifications *</label><br />
+            <textarea asp-for="Qualifications" rows="2" cols="50"></textarea>
+            <span asp-validation-for="Qualifications"></span>
+        </p>
+        <p>
+            <label asp-for="Specializations">Specializations *</label><br />
+            <textarea asp-for="Specializations" rows="2" cols="50"></textarea>
+            <span asp-validation-for="Specializations"></span>
+        </p>
+        <p>
+            <label asp-for="Certifications">Certifications (optional)</label><br />
+            <textarea asp-for="Certifications" rows="2" cols="50"></textarea>
+            <span asp-validation-for="Certifications"></span>
+        </p>
+    </div>
+
+    <p>
+        <input asp-for="AcceptPrivacyPolicy" />
+        <label asp-for="AcceptPrivacyPolicy">I have read and agree to the <a asp-controller="Home" asp-action="Privacy" target="_blank">privacy policy</a>. I consent to HealthTrack storing my health and fitness data to provide the service. I can download or delete my data at any time.</label>
+        <span asp-validation-for="AcceptPrivacyPolicy"></span>
+    </p>
+    <p>Passwords are hashed and sensitive health notes are encrypted. Use at least 8 characters with upper- and lower-case letters, a number and a symbol.</p>
+    <button type="submit">Create account</button>
+</form>
+<p>Already have an account? <a asp-controller="Account" asp-action="Login">Sign in</a></p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            var roleSelect = document.getElementById('accountType');
+            var clientFields = document.getElementById('clientFields');
+            var trainerFields = document.getElementById('trainerFields');
+
+            function updateRoleFields() {
+                var role = roleSelect.value;
+                clientFields.hidden = role !== 'Client';
+                trainerFields.hidden = role !== 'Trainer';
+            }
+
+            roleSelect.addEventListener('change', updateRoleFields);
+            updateRoleFields();
+        })();
+    </script>
+}

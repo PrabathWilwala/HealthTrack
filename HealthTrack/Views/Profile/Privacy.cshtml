@@ -1,0 +1,22 @@
+@model DeleteAccountViewModel
+@{
+    ViewData["Title"] = "Privacy & my data";
+}
+<h1>Profile &amp; security</h1>
+<partial name="_ProfileTabs" />
+<h2>Delete my account</h2>
+<form asp-action="DeleteAccount" method="post" data-confirm="This permanently deletes your account and all of your data. Continue?">
+    <div asp-validation-summary="ModelOnly"></div>
+    <p>This permanently removes your account and all associated health records. This cannot be undone.</p>
+    <p>
+        <label asp-for="Password"></label><br />
+        <input asp-for="Password" autocomplete="current-password" />
+        <span asp-validation-for="Password"></span>
+    </p>
+    <p>
+        <input asp-for="ConfirmDeletion" />
+        <label asp-for="ConfirmDeletion">I understand this cannot be undone</label>
+        <span asp-validation-for="ConfirmDeletion"></span>
+    </p>
+    <button type="submit">Delete my account permanently</button>
+</form>

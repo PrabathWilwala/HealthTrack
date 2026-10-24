@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@{
+    var signedIn = SignInManager.IsSignedIn(User);
+    var isAdmin = User.IsInRole(RoleNames.Administrator);
+    var isTrainer = User.IsInRole(RoleNames.Trainer);
+    var isClient = User.IsInRole(RoleNames.Client);
+    var roleName = isAdmin ? "Administrator" : isTrainer ? "Trainer" : isClient ? "Client" : "";
+    var useMenu = signedIn && roleName != "";
+    var idleMinutes = isAdmin ? 10 : 20;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HealthTrack</title>
+</head>
+<body data-idle-minutes="@(useMenu ? idleMinutes : 0)">
+    <header>
+        <h2><a asp-controller="Home" asp-action="Index">HealthTrack</a></h2>
+        @if (useMenu)
+        {
+            <p>
+                Signed in as <b>@User.Identity?.Name</b> (@roleName) |
+                @await Component.InvokeAsync("NotificationBell") |
+                <a asp-controller="Profile" asp-action="Index">My profile</a> |
+                <a asp-controller="Profile" asp-action="TwoFactor">Two-factor authentication</a> |
+                <a asp-controller="Profile" asp-action="ChangePassword">Change password</a> |
+                <a asp-controller="Notifications" asp-action="Preferences">Notification settings</a> |
+                <a asp-controller="Profile" asp-action="Privacy">Privacy &amp; my data</a>
+            </p>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit">Sign out</button>
+            </form>
+
+            <p>Menu:</p>
+            @if (isClient)
+            {
+                <ul>
+                    <li><a asp-controller="Client" asp-action="Dashboard">Dashboard</a></li>
+                    <li><a asp-controller="Progress" asp-action="Index">Progress &amp; analytics</a></li>
+                    <li><a asp-controller="Client" asp-action="Plans">My plans</a></li>
+                    <li><a asp-controller="WorkoutLogs" asp-action="Index">Workouts</a></li>
+                    <li><a asp-controller="MealLogs" asp-action="Index">Meals</a></li>
+                    <li><a asp-controller="Measurements" asp-action="Index">Measurements</a></li>
+                    <li><a asp-controller="Appointments" asp-action="Index">Appointments</a></li>
+                    <li><a asp-controller="Client" asp-action="Feedback">Feedback &amp; notes</a></li>
+                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                </ul>
+            }
+            else if (isTrainer)
+            {
+                <ul>
+                    <li><a asp-controller="Trainer" asp-action="Dashboard">Dashboard</a></li>
+                    <li><a asp-controller="Trainer" asp-action="Clients">My clients</a></li>
+                    <li><a asp-controller="WorkoutPlans" asp-action="Index">Workout plans</a></li>
+                    <li><a asp-controller="DietPlans" asp-action="Index">Diet plans</a></li>
+                    <li><a asp-controller="Appointments" asp-action="Index">Appointments</a></li>
+                    <li><a asp-controller="Appointments" asp-action="Calendar">Calendar</a></li>
+                    <li><a asp-controller="Trainer" asp-action="Availability">Availability</a></li>
+                    <li><a asp-controller="Reports" asp-action="Index">Reports</a></li>
+                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                </ul>
+            }
+            else if (isAdmin)
+            {
+                <ul>
+                    <li><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                    <li><a asp-controller="Admin" asp-action="Users">Users</a></li>
+                    <li><a asp-controller="Admin" asp-action="Plans">All plans</a></li>
+                    <li><a asp-controller="WorkoutPlans" asp-action="Index">Workout templates</a></li>
+                    <li><a asp-controller="DietPlans" asp-action="Index">Diet templates</a></li>
+                    <li><a asp-controller="Admin" asp-action="Appointments">Appointments</a></li>
+                    <li><a asp-controller="Reports" asp-action="Overview">System report</a></li>
+                    <li><a asp-controller="Reports" asp-action="Custom">Report builder</a></li>
+                    <li><a asp-controller="Reports" asp-action="Index">All reports</a></li>
+                    <li><a asp-controller="Admin" asp-action="Broadcast">Broadcasts</a></li>
+                    <li><a asp-controller="Admin" asp-action="Templates">Notification templates</a></li>
+                    <li><a asp-controller="Admin" asp-action="AuditLog">Audit log</a></li>
+                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                </ul>
+            }
+        }
+        else if (signedIn)
+        {
+            <p>
+                <a asp-controller="Account" asp-action="Dashboard">Dashboard</a>
+            </p>
+            <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">Sign out</button></form>
+        }
+        else
+        {
+            <p>
+                <a asp-controller="Account" asp-action="Login">Sign in</a> |
+                <a asp-controller="Account" asp-action="Register">Create account</a>
+            </p>
+        }
+    </header>
+    <hr />
+
+    <main role="main">
+        <partial name="_Alerts" />
+        @RenderBody()
+    </main>
+
+    <hr />
+    <footer>
+        <p>&copy; 2026 HealthTrack - Personal Health &amp; Fitness Management | <a asp-controller="Home" asp-action="Privacy">Privacy policy</a></p>
+    </footer>
+
+    @if (useMenu)
+    {
+        <form id="idleLogoutForm" asp-controller="Account" asp-action="Logout" method="post" hidden>
+            <input type="hidden" name="timedOut" value="true" />
+        </form>
+        <div id="idleWarning" hidden>
+            <p><b>Are you still there?</b> For your security you will be signed out in <span id="idleCountdown">60</span> seconds. Move the mouse or press a key to stay signed in.</p>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

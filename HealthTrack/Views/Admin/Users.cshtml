@@ -1,0 +1,100 @@
+@model UserListViewModel
+@{
+    ViewData["Title"] = "User management";
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+    var myId = User.GetUserId();
+}
+<h1>Users</h1>
+<p>Browse, search and manage every client, trainer and administrator account.</p>
+<p><a asp-action="CreateUser">Create user</a></p>
+<form method="get">
+    <input type="search" name="search" value="@Model.Search" />
+    <select name="role">
+        <option value="">All roles</option>
+        @foreach (var r in RoleNames.All)
+        {
+            if (r == Model.Role) { <option selected>@r</option> } else { <option>@r</option> }
+        }
+    </select>
+    <select name="status">
+        @foreach (var (value, text) in new[] { ("", "Any status"), ("active", "Active"), ("deactivated", "Deactivated"), ("pending", "Awaiting approval"), ("unconfirmed", "Email not confirmed"), ("unassigned", "Clients without trainer") })
+        {
+            if (value == (Model.Status ?? "")) { <option value="@value" selected>@text</option> } else { <option value="@value">@text</option> }
+        }
+    </select>
+    <button type="submit">Filter</button>
+</form>
+<p>@Model.TotalCount user(s)</p>
+@if (Model.Users.Count == 0)
+{
+    <p>No users match these filters.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Trainer</th><th>Last active</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var u in Model.Users)
+            {
+                <tr>
+                    <td>@u.FullName<br /><small>@u.UserName, @u.Email</small></td>
+                    <td>@u.Role</td>
+                    <td>
+                        @if (u.IsDeactivated) { <span>Deactivated</span> }
+                        else if (u.IsLockedOut) { <span>Locked out</span> }
+                        else { <span>Active</span> }
+                        @if (!u.EmailConfirmed) { <br /><span>Email unconfirmed</span> }
+                        @if (u.TrainerApproved == false && !u.TrainerRejected) { <br /><span>Awaiting approval</span> }
+                        @if (u.TrainerRejected) { <br /><span>Rejected</span> }
+                    </td>
+                    <td>
+                        @if (u.Role == RoleNames.Client)
+                        {
+                            <a asp-action="AssignTrainer" asp-route-id="@u.Id">@(u.AssignedTrainer ?? "Assign...")</a>
+                        }
+                        else { <span>-</span> }
+                    </td>
+                    <td>@(u.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(u.LastActiveUtc.Value) : "never")</td>
+                    <td>
+                        @if (u.TrainerApproved == false)
+                        {
+                            <form asp-action="ApproveTrainer" asp-route-id="@u.Id" method="post"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Approve</button></form>
+                            if (!u.TrainerRejected)
+                            {
+                                <form asp-action="RejectTrainer" asp-route-id="@u.Id" method="post" data-confirm="Reject this trainer application?"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Reject</button></form>
+                            }
+                        }
+                        <a asp-action="EditUser" asp-route-id="@u.Id">Edit</a> |
+                        <a asp-action="UserActivity" asp-route-id="@u.Id">Activity</a>
+                        @if (u.Role == RoleNames.Client)
+                        {
+                            <text>|</text> <a asp-action="AssignTrainer" asp-route-id="@u.Id">Assign trainer</a>
+                            <text>|</text> <a asp-controller="Reports" asp-action="Client" asp-route-id="@u.Id">Progress report</a>
+                        }
+                        @if (u.Id != myId)
+                        {
+                            <form asp-action="ToggleActive" asp-route-id="@u.Id" method="post" data-confirm="@(u.IsDeactivated ? "Reactivate this account?" : "Deactivate this account? The user will be signed out.")">
+                                <input type="hidden" name="returnUrl" value="@currentUrl" />
+                                <button type="submit">@(u.IsDeactivated ? "Reactivate" : "Deactivate")</button>
+                            </form>
+                            <form asp-action="DeleteUser" asp-route-id="@u.Id" method="post" data-confirm="Permanently delete @u.UserName and ALL of their data? This cannot be undone.">
+                                <button type="submit">Delete account</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@if (Model.TotalPages > 1)
+{
+    <p>
+        Pages:
+        @for (var p = 1; p <= Model.TotalPages; p++)
+        {
+            if (p == Model.Page) { <b>@p</b> } else { <a asp-route-page="@p" asp-route-search="@Model.Search" asp-route-role="@Model.Role" asp-route-status="@Model.Status">@p</a> }
+            <text> </text>
+        }
+    </p>
+}

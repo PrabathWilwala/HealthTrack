@@ -1,0 +1,57 @@
+@model LogHistoryViewModel<HealthMeasurement>
+@{
+    ViewData["Title"] = "Health measurements";
+    var ordered = Model.Items.OrderBy(m => m.MeasuredOn).ThenBy(m => m.Id).ToList();
+    var latest = Model.Items.FirstOrDefault();
+}
+<h1>Health measurements</h1>
+<p>Weight, BMI, body composition, blood pressure and heart rate.</p>
+<p><a asp-action="Create">New measurement</a></p>
+
+@if (latest != null)
+{
+    <p>
+        Latest weight: @latest.WeightKg.ToString("0.0") kg (@latest.MeasuredOn.ToString("dd MMM yyyy")) |
+        BMI: @latest.Bmi.ToString("0.0") (@BmiCalculator.Category(latest.Bmi)) |
+        Blood pressure: @(latest.SystolicBp.HasValue ? $"{latest.SystolicBp}/{latest.DiastolicBp}" : "-") mmHg |
+        Change in period: @DisplayHelpers.Signed(ordered.Count >= 2 ? ordered[^1].WeightKg - ordered[0].WeightKg : (decimal?)null, " kg")
+    </p>
+}
+
+<partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" />
+
+@if (Model.Items.Count == 0)
+{
+    <p>No measurements in this period. <a asp-action="Create">Record one now</a></p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Body fat</th><th>Waist</th><th>Blood pressure</th><th>Heart rate</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var m in Model.Items)
+            {
+                <tr>
+                    <td>@m.MeasuredOn.ToString("ddd dd MMM yyyy")</td>
+                    <td>@m.WeightKg.ToString("0.0") kg</td>
+                    <td>@m.Bmi.ToString("0.0") (@BmiCalculator.Category(m.Bmi))</td>
+                    <td>@(m.BodyFatPercent.HasValue ? m.BodyFatPercent.Value.ToString("0.0") + " %" : "-")</td>
+                    <td>@(m.WaistCm.HasValue ? m.WaistCm.Value.ToString("0.0") + " cm" : "-")</td>
+                    <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "-")</td>
+                    <td>@(m.RestingHeartRate.HasValue ? m.RestingHeartRate + " bpm" : "-")</td>
+                    <td>@m.Notes</td>
+                    <td>
+                        @if (m.CreatedAtUtc >= Model.EditableAfterUtc)
+                        {
+                            <a asp-action="Edit" asp-route-id="@m.Id">Edit</a>
+                            <form asp-action="Delete" asp-route-id="@m.Id" method="post" data-confirm="Delete this measurement?">
+                                <button type="submit">Delete</button>
+                            </form>
+                        }
+                        else { <span>Locked</span> }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

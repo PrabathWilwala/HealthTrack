@@ -1,0 +1,83 @@
+@model CalendarViewModel
+@{
+    ViewData["Title"] = "Calendar";
+}
+<h1>@Model.Title</h1>
+<p>Your consultations.</p>
+<p>
+    View:
+    <a asp-route-view="day" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Day</a> |
+    <a asp-route-view="week" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Week</a> |
+    <a asp-route-view="month" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Month</a>
+    (current: @Model.View)
+</p>
+<p>
+    <a asp-route-view="@Model.View" asp-route-date="@Model.Previous.ToString("yyyy-MM-dd")">&lt; Previous</a> |
+    <a asp-route-view="@Model.View" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")">Today</a> |
+    <a asp-route-view="@Model.View" asp-route-date="@Model.Next.ToString("yyyy-MM-dd")">Next &gt;</a>
+</p>
+
+@if (Model.View == "month")
+{
+    <table border="1" cellpadding="4">
+        <thead>
+            <tr>
+                @foreach (var name in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+                {
+                    <th>@name</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Model.Days.Count; i += 7)
+            {
+                <tr>
+                    @foreach (var day in Model.Days.Skip(i).Take(7))
+                    {
+                        <td valign="top">
+                            <a asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">@if (day.Date == DateTime.Today) { <b>@day.Date.Day</b> } else if (!day.InCurrentMonth) { <i>@day.Date.Day</i> } else { <text>@day.Date.Day</text> }</a>
+                            @foreach (var item in day.Items.Take(3))
+                            {
+                                <br />
+                                <a asp-action="Details" asp-route-id="@item.Appointment.Id" title="@item.Appointment.Purpose">@item.Appointment.StartTime.ToString("HH:mm") @item.OtherPartyName (@item.Appointment.Status)</a>
+                            }
+                            @if (day.Items.Count > 3)
+                            {
+                                <br />
+                                <a asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">+@(day.Items.Count - 3) more</a>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Day</th><th>Appointments</th></tr></thead>
+        <tbody>
+            @foreach (var day in Model.Days)
+            {
+                <tr>
+                    <td valign="top">@day.Date.ToString("ddd dd MMM")@(day.Date == DateTime.Today ? " (today)" : "")</td>
+                    <td>
+                        @if (day.Items.Count == 0)
+                        {
+                            <span>No appointments</span>
+                        }
+                        @foreach (var item in day.Items)
+                        {
+                            var a = item.Appointment;
+                            <div>
+                                <a asp-action="Details" asp-route-id="@a.Id">@a.StartTime.ToString("HH:mm") - @a.EndTime.ToString("HH:mm") @item.OtherPartyName: @a.Purpose</a>
+                                <partial name="_AppointmentStatus" model="a" />
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

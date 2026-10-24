@@ -1,0 +1,23 @@
+@model ClientProgressReport
+@{
+    ViewData["Title"] = "Client report";
+    var days = (int)(ViewData["Days"] ?? 30);
+    var id = ViewData["ClientId"] as string;
+}
+<p><a asp-action="Index">&lt; Reports</a></p>
+<h1>@Model.ClientName</h1>
+<p>Progress report: @Model.From.ToString("dd MMM yyyy") - @Model.To.ToString("dd MMM yyyy")</p>
+<p>
+    Period:
+    @foreach (var d in new[] { 30, 90, 180, 365 })
+    {
+        if (d == days) { <b>@(d == 365 ? "1 y" : d + " d")</b> } else { <a asp-route-id="@id" asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a> }
+        <text> </text>
+    }
+</p>
+<p>
+    Export:
+    <a asp-route-id="@id" asp-route-days="@days" asp-route-format="csv">CSV</a> |
+    <a asp-route-id="@id" asp-route-days="@days" asp-route-format="pdf">PDF</a>
+</p>
+<partial name="_ProgressCharts" model="Model" />

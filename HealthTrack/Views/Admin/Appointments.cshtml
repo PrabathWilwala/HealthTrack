@@ -1,0 +1,110 @@
+@model AdminAppointmentsViewModel
+@{
+    ViewData["Title"] = "Appointment oversight";
+    var currentUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<h1>Appointments</h1>
+<p>All consultations across the system, scheduling conflicts, analytics and policies.</p>
+
+<p>
+    Appointments in range (@Model.From.ToString("dd MMM") - @Model.To.ToString("dd MMM yyyy")): @Model.Total |
+    Cancellation rate: @DisplayHelpers.Percent(Model.CancellationRate) |
+    Conflicts (overlapping bookings): @Model.Conflicts.Count
+</p>
+
+@if (Model.Conflicts.Count > 0)
+{
+    <h2>Scheduling conflicts</h2>
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Trainer</th><th>Bookings</th><th>Move</th><th>Cancel</th></tr></thead>
+        <tbody>
+            @foreach (var (conflict, trainer) in Model.Conflicts)
+            {
+                <tr>
+                    <td>@trainer has overlapping bookings</td>
+                    <td>#@conflict.First.Id @conflict.First.StartTime.ToString("ddd dd MMM HH:mm") (@conflict.First.Status) and #@conflict.Second.Id @conflict.Second.StartTime.ToString("HH:mm") (@conflict.Second.Status)</td>
+                    <td>
+                        <form asp-action="RescheduleAppointment" method="post">
+                            <input type="hidden" name="id" value="@conflict.Second.Id" />
+                            <input type="datetime-local" name="newStart" value="@conflict.Second.EndTime.AddMinutes(30).ToString("yyyy-MM-ddTHH:mm")" required />
+                            <button type="submit">Move #@conflict.Second.Id</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form asp-controller="Appointments" asp-action="Cancel" asp-route-id="@conflict.Second.Id" method="post" data-confirm="Cancel appointment #@conflict.Second.Id?">
+                            <input type="hidden" name="reason" value="Cancelled by an administrator to resolve a scheduling conflict." />
+                            <input type="hidden" name="returnUrl" value="@currentUrl" />
+                            <button type="submit">Cancel #@conflict.Second.Id</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Volume per week</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.VolumeChart)" data-type="bar"></canvas>
+<h2>By status</h2>
+<canvas width="400" height="300" data-chart="@ChartJson.Serialize(Model.StatusChart)" data-type="doughnut"></canvas>
+<h2>Popular times</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.HoursChart)" data-type="bar"></canvas>
+<h2>Popular days</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.WeekdayChart)" data-type="bar"></canvas>
+
+<h2>All appointments</h2>
+<form method="get">
+    <label for="from">From</label>
+    <input type="date" id="from" name="from" value="@Model.From.ToString("yyyy-MM-dd")" />
+    <label for="to">To</label>
+    <input type="date" id="to" name="to" value="@Model.To.ToString("yyyy-MM-dd")" />
+    <label for="status">Status</label>
+    <select id="status" name="status">
+        <option value="">Any</option>
+        @foreach (var s in Enum.GetValues<AppointmentStatus>())
+        {
+            if (Model.Status == s) { <option value="@s" selected>@s</option> } else { <option value="@s">@s</option> }
+        }
+    </select>
+    <label for="trainerId">Trainer</label>
+    <select id="trainerId" name="trainerId">
+        <option value="">Any</option>
+        @foreach (var t in Model.Trainers)
+        {
+            if (Model.TrainerId == t.UserId) { <option value="@t.UserId" selected>@t.FullName</option> } else { <option value="@t.UserId">@t.FullName</option> }
+        }
+    </select>
+    <button type="submit">Filter</button>
+</form>
+@if (Model.Items.Count == 0)
+{
+    <p>No appointments match.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>#</th><th>When</th><th>Client</th><th>Trainer</th><th>Purpose</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var (a, client, trainer) in Model.Items)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.StartTime.ToString("dd MMM yyyy HH:mm")</td>
+                    <td>@client</td><td>@trainer</td>
+                    <td>@a.Purpose</td>
+                    <td><partial name="_AppointmentStatus" model="a" /></td>
+                    <td><a asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">Open</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Appointment policies</h2>
+<form asp-action="Policies" method="post">
+    <p><label asp-for="Policy.MinBookingNoticeHours"></label><br /><input asp-for="Policy.MinBookingNoticeHours" name="MinBookingNoticeHours" type="number" min="0" max="168" /></p>
+    <p><label asp-for="Policy.MinCancellationNoticeHours"></label><br /><input asp-for="Policy.MinCancellationNoticeHours" name="MinCancellationNoticeHours" type="number" min="0" max="168" /></p>
+    <p><label asp-for="Policy.MaxCancellationsPerMonth"></label><br /><input asp-for="Policy.MaxCancellationsPerMonth" name="MaxCancellationsPerMonth" type="number" min="0" max="50" /></p>
+    <p><label asp-for="Policy.AdherenceAlertThreshold"></label><br /><input asp-for="Policy.AdherenceAlertThreshold" name="AdherenceAlertThreshold" type="number" min="1" max="100" /></p>
+    <button type="submit">Save policies</button>
+</form>

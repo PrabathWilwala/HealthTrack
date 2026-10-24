@@ -1,0 +1,52 @@
+@model List<FeedbackItem>
+@{
+    ViewData["Title"] = "Feedback & notes";
+    var notes = ViewData["Notes"] as List<Appointment> ?? new List<Appointment>();
+}
+<h1>Feedback &amp; consultation notes</h1>
+<p>Comments from your trainer on your logs, and notes written after consultations.</p>
+
+<h2>Trainer feedback (@Model.Count)</h2>
+@if (Model.Count == 0)
+{
+    <p>No feedback yet. Keep logging - your trainer reviews your activity regularly.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Trainer</th><th>Date</th><th>About</th><th>Message</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TrainerName</td>
+                    <td>@item.Feedback.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                    <td>@item.TargetDescription</td>
+                    <td>@item.Feedback.Message</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Consultation notes</h2>
+@if (notes.Count == 0)
+{
+    <p>Notes appear here after a completed consultation.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Consultation</th><th>Notes</th></tr></thead>
+        <tbody>
+            @foreach (var a in notes)
+            {
+                <tr>
+                    <td>@a.StartTime.ToString("dd MMM yyyy")</td>
+                    <td><a asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">@a.Purpose</a></td>
+                    <td><pre>@(a.ConsultationNotes ?? "No notes were added.")</pre></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

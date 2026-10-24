@@ -1,0 +1,37 @@
+@model List<FeedbackEffectivenessRow>
+@{
+    ViewData["Title"] = "Feedback effectiveness";
+    var improved = Model.Count(r => r.Change > 0);
+    var avg = Model.Count == 0 ? 0 : Model.Average(r => r.Change);
+}
+<p><a asp-action="Index">&lt; Reports</a></p>
+<h1>Feedback effectiveness</h1>
+<p>Compares each client's number of log entries in the 7 days before and after feedback (last 90 days).</p>
+<p>
+    Feedback given: @Model.Count |
+    Followed by more activity: @improved (@(Model.Count == 0 ? "-" : (improved * 100 / Model.Count) + "% of feedback")) |
+    Avg. change in weekly logs: @avg.ToString("+0.0;-0.0;0.0")
+</p>
+@if (Model.Count == 0)
+{
+    <p>No feedback in the last 90 days.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Client</th><th>Feedback</th><th>Logs week before</th><th>Logs week after</th><th>Change</th></tr></thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.GivenAtUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td>@r.ClientName</td>
+                    <td>@r.Message</td>
+                    <td>@r.LogsWeekBefore</td>
+                    <td>@r.LogsWeekAfter</td>
+                    <td>@r.Change.ToString("+0;-0;0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

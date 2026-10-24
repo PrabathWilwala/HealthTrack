@@ -1,0 +1,81 @@
+@model AdminPlansViewModel
+@{
+    ViewData["Title"] = "Plan oversight";
+}
+<h1>All workout &amp; diet plans</h1>
+<p>Review plans for quality and compliance, flag or remove inappropriate content, and see what's popular.</p>
+<p>
+    <a asp-controller="WorkoutPlans" asp-action="Index">Workout templates</a> |
+    <a asp-controller="DietPlans" asp-action="Index">Diet templates</a>
+</p>
+
+@if (Model.Popular.Count > 0)
+{
+    <h2>Most popular</h2>
+    <ul>
+        @foreach (var p in Model.Popular)
+        {
+            <li>@p.PlanType: <b>@p.Title</b> - assigned @p.TimesAssigned times, adherence @DisplayHelpers.Percent(p.AverageAdherence)</li>
+        }
+    </ul>
+}
+
+<p>
+    Show:
+    @foreach (var (value, text) in new[] { ("", "All"), ("workout", "Workout"), ("diet", "Diet"), ("templates", "Templates"), ("flagged", "Flagged") })
+    {
+        if ((Model.Filter ?? "") == value) { <b>@text</b> } else { <a asp-route-filter="@value">@text</a> }
+        <text> </text>
+    }
+</p>
+<p>Filter: <input type="search" data-table-filter="#planTable" /></p>
+@if (Model.Plans.Count == 0)
+{
+    <p>No plans found.</p>
+}
+else
+{
+    <table border="1" cellpadding="4" id="planTable">
+        <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Items</th><th>Assigned</th><th>Updated</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var p in Model.Plans)
+            {
+                var controller = p.Type == "Workout" ? "WorkoutPlans" : "DietPlans";
+                <tr>
+                    <td>
+                        <a asp-controller="@controller" asp-action="Details" asp-route-id="@p.Id">@p.Title</a>
+                        @if (p.IsSystemTemplate) { <span>(System)</span> }
+                        else if (p.IsTemplate) { <span>(Template)</span> }
+                        @if (p.IsFlagged) { <br /><span><b>Flagged:</b> @p.FlagReason</span> }
+                    </td>
+                    <td>@p.Type</td>
+                    <td>@p.CreatedBy</td>
+                    <td>@p.Items</td>
+                    <td>@p.TimesAssigned</td>
+                    <td>@DateHelpers.TimeAgo(p.UpdatedAtUtc)</td>
+                    <td>
+                        @if (p.IsFlagged)
+                        {
+                            <form asp-action="FlagPlan" method="post">
+                                <input type="hidden" name="type" value="@p.Type" /><input type="hidden" name="id" value="@p.Id" /><input type="hidden" name="flag" value="false" />
+                                <button type="submit">Clear flag</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="FlagPlan" method="post">
+                                <input type="hidden" name="type" value="@p.Type" /><input type="hidden" name="id" value="@p.Id" /><input type="hidden" name="flag" value="true" />
+                                <input name="reason" maxlength="500" placeholder="Reason" required />
+                                <button type="submit">Flag plan</button>
+                            </form>
+                        }
+                        <form asp-action="DeletePlan" method="post" data-confirm="Remove this plan? Assignments to clients will also be removed.">
+                            <input type="hidden" name="type" value="@p.Type" /><input type="hidden" name="id" value="@p.Id" />
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

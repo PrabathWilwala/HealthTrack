@@ -1,0 +1,116 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Administrator dashboard";
+    var currentUrl = Context.Request.Path.ToString();
+}
+<h1>System overview</h1>
+<p>User activity, system usage, trainer assignments and alerts.</p>
+<p>
+    <a asp-action="CreateUser">Create user</a> |
+    <a asp-action="Users" asp-route-status="unassigned">Assign trainers</a> |
+    <a asp-action="Broadcast">Broadcast</a> |
+    <a asp-controller="Reports" asp-action="Overview">Generate report</a>
+</p>
+
+@if (!Model.CurrentAdminHasTwoFactor)
+{
+    <p><b>Warning:</b> Your administrator account does not use multi-factor authentication yet. <a asp-controller="Profile" asp-action="EnableAuthenticator">Enable 2FA</a></p>
+}
+
+<h2>Summary</h2>
+<table border="1" cellpadding="4">
+    <tr><th>Total users</th><td>@Model.TotalUsers</td><td>@Model.Clients clients, @Model.Trainers trainers, @Model.Administrators admins</td></tr>
+    <tr><th>Active (7 days)</th><td>@Model.ActiveUsers7Days</td><td>@Model.LoginsToday sign-ins today</td></tr>
+    <tr><th>New registrations</th><td>@Model.NewRegistrations30Days</td><td>Last 30 days</td></tr>
+    <tr><th>Failed sign-ins (24 h)</th><td>@Model.FailedLogins24Hours</td><td><a asp-action="AuditLog" asp-route-securityOnly="true">Security log</a></td></tr>
+    <tr><th>Pending approvals</th><td>@Model.PendingTrainers.Count</td><td>@Model.UnassignedClients unassigned client(s)</td></tr>
+</table>
+
+<h2>Pending trainer approvals</h2>
+@if (Model.PendingTrainers.Count == 0)
+{
+    <p>No pending approvals.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Name</th><th>Qualifications</th><th>Specialisations</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var t in Model.PendingTrainers)
+            {
+                <tr>
+                    <td>@t.FullName</td>
+                    <td>@t.Qualifications</td>
+                    <td>@t.Specializations</td>
+                    <td>
+                        <form asp-action="ApproveTrainer" asp-route-id="@t.UserId" method="post"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Approve</button></form>
+                        <form asp-action="RejectTrainer" asp-route-id="@t.UserId" method="post" data-confirm="Reject this trainer application?"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Reject</button></form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>System health</h2>
+<table border="1" cellpadding="4">
+    <tr><th>Database</th><td>@(Model.DatabaseHealthy ? $"Connected, {Model.DatabaseLatencyMs} ms" : "Unavailable")</td><td></td></tr>
+    <tr><th>Uptime</th><td>@((int)Model.Uptime.TotalHours) h @Model.Uptime.Minutes min</td><td></td></tr>
+    <tr><th>Notifications (24 h)</th><td>@Model.NotificationsSent24Hours sent</td>
+        <td><form asp-action="RunReminders" method="post"><button type="submit">Run reminder job now</button></form></td></tr>
+    <tr><th>Appointment conflicts</th><td>@Model.AppointmentConflicts to resolve</td><td><a asp-action="Appointments">View</a></td></tr>
+    <tr><th>Flagged plans</th><td>@Model.FlaggedPlans under review</td><td><a asp-action="Plans" asp-route-filter="flagged">View</a></td></tr>
+</table>
+
+<h2>Sign-in activity (14 days)</h2>
+<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.LoginChart)" data-type="line"></canvas>
+<h2>Feature usage (30 d)</h2>
+<canvas width="600" height="300" data-chart="@ChartJson.Serialize(Model.FeatureUsageChart)" data-type="bar" data-horizontal></canvas>
+<h2>Peak usage times</h2>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.PeakHoursChart)" data-type="bar"></canvas>
+
+<h2>Trainer assignments &amp; workload</h2>
+<p><a asp-action="Users" asp-route-role="Trainer">Manage trainers</a></p>
+@if (Model.TrainerWorkload.Count == 0)
+{
+    <p>No approved trainers yet.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Trainer</th><th>Specialisations</th><th>Clients</th><th>Upcoming appts.</th><th>Avg. adherence</th></tr></thead>
+        <tbody>
+            @foreach (var t in Model.TrainerWorkload)
+            {
+                <tr>
+                    <td>@t.Name</td>
+                    <td>@t.Specializations</td>
+                    <td>@t.Clients</td>
+                    <td>@t.UpcomingAppointments</td>
+                    <td>@DisplayHelpers.Percent(t.AverageAdherence)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Security alerts (7 days)</h2>
+@if (Model.SecurityAlerts.Count == 0)
+{
+    <p>No security events.</p>
+}
+<ul>
+    @foreach (var a in Model.SecurityAlerts)
+    {
+        <li>@a.Action - @(a.UserName ?? "unknown") - @a.IpAddress - @DateHelpers.TimeAgo(a.CreatedAtUtc)</li>
+    }
+</ul>
+
+<h2>Recent activity</h2>
+<p><a asp-action="AuditLog">Audit log</a></p>
+<ul>
+    @foreach (var a in Model.RecentActivity)
+    {
+        <li>@(a.UserName ?? "System"): @a.Action - @a.Details (@DateHelpers.TimeAgo(a.CreatedAtUtc))</li>
+    }
+</ul>

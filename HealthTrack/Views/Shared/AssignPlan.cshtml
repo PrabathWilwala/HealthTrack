@@ -1,0 +1,50 @@
+@model PlanAssignViewModel
+@{
+    ViewData["Title"] = "Assign plan";
+    var controller = Model.PlanType == "Workout" ? "WorkoutPlans" : "DietPlans";
+}
+<p><a asp-controller="@controller" asp-action="Details" asp-route-id="@Model.PlanId">&lt; Back to @Model.PlanTitle</a></p>
+<h1>Assign "@Model.PlanTitle"</h1>
+<p>Choose clients and a schedule. A client's current @Model.PlanType.ToLower() plan will be replaced, and they will be notified.</p>
+
+<form asp-controller="@controller" asp-action="Assign" method="post">
+    <input type="hidden" asp-for="PlanId" />
+    <div asp-validation-summary="All"></div>
+
+    <h3>Clients</h3>
+    @if (Model.Clients.Count == 0)
+    {
+        <p>You don't have any clients yet. An administrator assigns clients to trainers.</p>
+    }
+    else
+    {
+        <p>Filter: <input type="search" data-table-filter="#clientTable" /></p>
+        <table border="1" cellpadding="4" id="clientTable">
+            <thead><tr><th>Select</th><th>Client</th><th>Current @Model.PlanType.ToLower() plan</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.Clients)
+                {
+                    var isChecked = Model.ClientIds.Contains(c.ClientId);
+                    <tr>
+                        <td><input type="checkbox" name="ClientIds" value="@c.ClientId" id="@("c_" + c.ClientId)" checked="@isChecked" /></td>
+                        <td><label for="@("c_" + c.ClientId)">@c.Name</label></td>
+                        <td>@(c.CurrentPlan ?? "None")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h3>Schedule</h3>
+    <p>
+        <label asp-for="StartDate"></label><br />
+        <input asp-for="StartDate" />
+        <span asp-validation-for="StartDate"></span>
+    </p>
+    <p>
+        <label asp-for="EndDate"></label><br />
+        <input asp-for="EndDate" />
+        <span asp-validation-for="EndDate"></span>
+    </p>
+    <button type="submit">Assign plan</button>
+</form>

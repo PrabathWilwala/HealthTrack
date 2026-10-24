@@ -1,0 +1,142 @@
+@model ClientDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var firstName = Model.FullName.Split(' ')[0];
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+}
+<h1>@greeting, @firstName</h1>
+<p>@DateTime.Today.ToString("dddd, dd MMMM yyyy") - @(Model.TrainerName != null ? $"Coached by {Model.TrainerName}" : "No trainer assigned yet")</p>
+<p>
+    <a asp-controller="WorkoutLogs" asp-action="Create">Log workout</a> |
+    <a asp-controller="MealLogs" asp-action="Create">Log meal</a> |
+    <a asp-controller="Measurements" asp-action="Create">Log weight</a> |
+    <a asp-controller="Appointments" asp-action="Create">Book consultation</a>
+</p>
+
+<h2>Summary</h2>
+<table border="1" cellpadding="4">
+    <tr><th>Current weight</th><td>@Model.CurrentWeight.ToString("0.0") kg</td><td>@(Model.Goal.TargetWeight.HasValue ? $"Target {Model.Goal.TargetWeight:0.0} kg" : "No target set")</td></tr>
+    <tr><th>BMI</th><td>@Model.Bmi.ToString("0.0")</td><td>@Model.BmiCategory</td></tr>
+    <tr><th>Calories burned</th><td>@Model.CaloriesBurnedToday kcal today</td><td>@Model.CaloriesBurnedWeek kcal this week</td></tr>
+    <tr><th>Plan adherence (30 d)</th><td>@DisplayHelpers.Percent(Model.Adherence.OverallPercent)</td><td>@(Model.WorkoutsThisWeek + (Model.SessionsPerWeekTarget > 0 ? $" of {Model.SessionsPerWeekTarget}" : "")) workouts this week</td></tr>
+</table>
+
+<h2>Weight trend</h2>
+<p>Last 7 days:</p>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.WeightChart7)" data-type="line" data-y-label="kg"></canvas>
+<p>Last 30 days:</p>
+<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.WeightChart30)" data-type="line" data-y-label="kg"></canvas>
+<p>@Model.Goal.Description - <a asp-controller="Progress" asp-action="Index">Full analytics</a></p>
+
+<h2>Today's workout</h2>
+@if (Model.WorkoutPlan == null)
+{
+    <p>No workout plan assigned yet. <a asp-controller="WorkoutLogs" asp-action="Create">Log a free workout</a></p>
+}
+else
+{
+    <p>@Model.WorkoutPlan.Title - @Model.WorkoutPlan.SessionsPerWeek sessions/week - Status: @(Model.WorkoutDoneToday ? "Completed" : "To do")</p>
+    @if (Model.TodaysExercises.Count == 0)
+    {
+        <p>Rest day - no exercises scheduled for @DateTime.Today.DayOfWeek.</p>
+    }
+    else
+    {
+        <table border="1" cellpadding="4">
+            <thead><tr><th>Exercise</th><th>Details</th><th>Done</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.TodaysExercises)
+                {
+                    var done = Model.TodaysWorkouts.Any(w => string.Equals(w.ExerciseType, e.Name, StringComparison.OrdinalIgnoreCase));
+                    <tr>
+                        <td>@e.Name</td>
+                        <td>@(e.Sets > 0 ? $"{e.Sets} x {e.Reps}" : "")@(e.Sets > 0 && e.DurationMinutes > 0 ? ", " : "")@(e.DurationMinutes > 0 ? $"{e.DurationMinutes} min" : "")</td>
+                        <td>@(done ? "Yes" : "No")</td>
+                        <td>
+                            @if (!done)
+                            {
+                                <a asp-controller="WorkoutLogs" asp-action="Create" asp-route-exercise="@e.Name" asp-route-duration="@(e.DurationMinutes > 0 ? e.DurationMinutes : 30)">Log</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+<h2>Today's nutrition</h2>
+<p>Calories: @Model.CaloriesConsumedToday / @Model.CalorieTarget kcal</p>
+@if (Model.ProteinTarget + Model.CarbsTarget + Model.FatTarget > 0)
+{
+    <ul>
+        <li>Protein: @Model.ProteinToday.ToString("0") / @Model.ProteinTarget g</li>
+        <li>Carbs: @Model.CarbsToday.ToString("0") / @Model.CarbsTarget g</li>
+        <li>Fat: @Model.FatToday.ToString("0") / @Model.FatTarget g</li>
+    </ul>
+}
+@if (Model.DietPlan != null)
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Meal</th><th>Food</th><th>Calories</th><th>Portion</th><th>Logged</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var meal in Model.DietPlan.Meals.OrderBy(m => m.SortOrder))
+            {
+                var logged = Model.TodaysMeals.Any(m => m.MealType == meal.MealType);
+                <tr>
+                    <td>@meal.MealType</td>
+                    <td>@meal.FoodItems</td>
+                    <td>@meal.Calories kcal</td>
+                    <td>@meal.Portion</td>
+                    <td>@(logged ? "Yes" : "No")</td>
+                    <td>
+                        @if (!logged)
+                        {
+                            <a asp-controller="MealLogs" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Log</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No diet plan assigned. Meals you log still count towards your personal target.</p>
+}
+
+<h2>Upcoming appointments</h2>
+<p><a asp-controller="Appointments" asp-action="Index">All appointments</a></p>
+@if (Model.UpcomingAppointments.Count == 0)
+{
+    <p>No upcoming consultations. <a asp-controller="Appointments" asp-action="Create">Book a consultation</a></p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Date</th><th>Purpose</th><th>With</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.UpcomingAppointments)
+            {
+                <tr>
+                    <td>@item.Appointment.StartTime.ToString("ddd dd MMM HH:mm")</td>
+                    <td><a asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Appointment.Id">@item.Appointment.Purpose</a></td>
+                    <td>@item.OtherPartyName</td>
+                    <td><partial name="_AppointmentStatus" model="item.Appointment" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Model.RecentFeedback.Count > 0)
+{
+    <h2>Latest from your trainer</h2>
+    <ul>
+        @foreach (var f in Model.RecentFeedback)
+        {
+            <li>"@f.Feedback.Message" - @f.TrainerName, @DateHelpers.TimeAgo(f.Feedback.CreatedAtUtc)</li>
+        }
+    </ul>
+}

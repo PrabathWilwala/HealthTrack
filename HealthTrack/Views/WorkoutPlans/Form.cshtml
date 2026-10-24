@@ -1,0 +1,103 @@
+@model WorkoutPlanFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    var isAdmin = User.IsInRole(RoleNames.Administrator);
+    ViewData["Title"] = isEdit ? "Edit workout plan" : (isAdmin ? "New system template" : "New workout plan");
+    var dayOptions = new List<(string Value, string Text)> { ("", "Any day") };
+    foreach (var d in new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday })
+    {
+        dayOptions.Add((((int)d).ToString(), d.ToString()));
+    }
+}
+<p><a asp-action="Index">&lt; Workout plans</a></p>
+<h1>@ViewData["Title"]</h1>
+<p>Exercises, sets, reps, duration and intensity. @(isEdit ? "Clients following this plan will be notified of changes." : "")</p>
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
+    <div asp-validation-summary="All"></div>
+
+    <h2>Plan details</h2>
+    <p>
+        <label asp-for="Title"></label><br />
+        <input asp-for="Title" size="40" />
+        <span asp-validation-for="Title"></span>
+    </p>
+    <p>
+        <label asp-for="Description"></label><br />
+        <textarea asp-for="Description" rows="3" cols="60"></textarea>
+    </p>
+    <p>
+        <label asp-for="Goal"></label><br />
+        <input asp-for="Goal" size="40" />
+    </p>
+    <p>
+        <label asp-for="Intensity"></label><br />
+        <select asp-for="Intensity" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
+    </p>
+    <p>
+        <label asp-for="SessionsPerWeek"></label><br />
+        <input asp-for="SessionsPerWeek" type="number" min="1" max="14" />
+        <span asp-validation-for="SessionsPerWeek"></span>
+    </p>
+    <p>
+        <label asp-for="DurationWeeks"></label><br />
+        <input asp-for="DurationWeeks" type="number" min="1" max="104" />
+        <span asp-validation-for="DurationWeeks"></span>
+    </p>
+    @if (!isAdmin)
+    {
+        <p>
+            <input asp-for="IsTemplate" />
+            <label asp-for="IsTemplate"></label>
+        </p>
+    }
+
+    <h2>Exercises</h2>
+    <p><button type="button" data-add-row="exerciseRows">Add exercise</button></p>
+    <div id="exerciseRows" data-rows="Exercises">
+        @for (var i = 0; i < Model.Exercises.Count; i++)
+        {
+            var e = Model.Exercises[i];
+            <fieldset data-row>
+                <legend>Exercise <span data-row-number>@(i + 1)</span></legend>
+                Name: <input name="Exercises[@i].Name" value="@e.Name" maxlength="120" required />@Html.ValidationMessage($"Exercises[{i}].Name")
+                Day:
+                <select name="Exercises[@i].DayOfWeek">
+                    @foreach (var opt in dayOptions)
+                    {
+                        var selected = (e.DayOfWeek.HasValue ? ((int)e.DayOfWeek.Value).ToString() : "") == opt.Value;
+                        if (selected) { <option value="@opt.Value" selected>@opt.Text</option> }
+                        else { <option value="@opt.Value">@opt.Text</option> }
+                    }
+                </select>
+                <br />
+                Sets: <input type="number" min="0" max="50" name="Exercises[@i].Sets" value="@e.Sets" />
+                Reps: <input type="number" min="0" max="500" name="Exercises[@i].Reps" value="@e.Reps" />
+                Minutes: <input type="number" min="0" max="600" name="Exercises[@i].DurationMinutes" value="@e.DurationMinutes" />
+                <br />
+                Notes: <input name="Exercises[@i].Notes" value="@e.Notes" maxlength="300" size="50" />@Html.ValidationMessage($"Exercises[{i}].Sets")
+                <button type="button" data-remove-row>Remove</button>
+            </fieldset>
+        }
+        <template data-row-template>
+            <fieldset data-row>
+                <legend>Exercise <span data-row-number></span></legend>
+                Name: <input name="Exercises[__i__].Name" maxlength="120" required />
+                Day:
+                <select name="Exercises[__i__].DayOfWeek">
+                    @foreach (var opt in dayOptions) { <option value="@opt.Value">@opt.Text</option> }
+                </select>
+                <br />
+                Sets: <input type="number" min="0" max="50" name="Exercises[__i__].Sets" value="3" />
+                Reps: <input type="number" min="0" max="500" name="Exercises[__i__].Reps" value="10" />
+                Minutes: <input type="number" min="0" max="600" name="Exercises[__i__].DurationMinutes" value="0" />
+                <br />
+                Notes: <input name="Exercises[__i__].Notes" maxlength="300" size="50" />
+                <button type="button" data-remove-row>Remove</button>
+            </fieldset>
+        </template>
+    </div>
+    <p>
+        <button type="submit">@(isEdit ? "Save changes" : "Create plan")</button>
+        <a asp-action="Index">Cancel</a>
+    </p>
+</form>

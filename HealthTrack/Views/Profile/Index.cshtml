@@ -1,0 +1,139 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My profile";
+    var isClient = Model.Role == RoleNames.Client;
+    var isTrainer = Model.Role == RoleNames.Trainer;
+}
+<h1>Profile &amp; security</h1>
+<partial name="_ProfileTabs" />
+
+<h2>Account</h2>
+<table border="1" cellpadding="4">
+    <tr><th>Username</th><td>@Model.UserName</td></tr>
+    <tr><th>Role</th><td>@Model.Role</td></tr>
+    <tr><th>Email</th><td>@Model.Email</td></tr>
+    <tr><th>2FA</th><td>@(Model.TwoFactorEnabled ? "Enabled" : "Not enabled")</td></tr>
+</table>
+
+<h2>Personal information</h2>
+<form asp-action="Index" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    @if (isClient || isTrainer)
+    {
+        <p>
+            @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+            {
+                <img src="@Model.ProfilePicturePath" alt="Profile picture" width="100" height="100" /><br />
+            }
+            <label asp-for="ProfilePicture">Profile picture</label><br />
+            <input asp-for="ProfilePicture" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+            <small>JPG or PNG, up to 2 MB.</small>
+            <span asp-validation-for="ProfilePicture"></span>
+            @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+            {
+                <br />
+                <input asp-for="RemovePicture" />
+                <label asp-for="RemovePicture">Remove current picture</label>
+            }
+        </p>
+        <p>
+            <label asp-for="FullName"></label><br />
+            <input asp-for="FullName" />
+            <span asp-validation-for="FullName"></span>
+        </p>
+    }
+    <p>
+        <label asp-for="PhoneNumber"></label><br />
+        <input asp-for="PhoneNumber" />
+        <span asp-validation-for="PhoneNumber"></span>
+    </p>
+
+    @if (isClient)
+    {
+        <h3>Health profile</h3>
+        <p>
+            <label asp-for="Age"></label><br />
+            <input asp-for="Age" type="number" min="1" max="120" />
+            <span asp-validation-for="Age"></span>
+        </p>
+        <p>
+            <label asp-for="Gender"></label><br />
+            <select asp-for="Gender">
+                <option>Female</option>
+                <option>Male</option>
+                <option>Non-binary</option>
+                <option>Other</option>
+                <option>Prefer not to say</option>
+            </select>
+        </p>
+        <p>
+            <label asp-for="HeightCm"></label><br />
+            <input asp-for="HeightCm" type="number" step="0.1" min="50" max="300" />
+            <span asp-validation-for="HeightCm"></span>
+        </p>
+        <p>
+            Current weight: @Model.CurrentWeightKg.ToString("0.0") kg
+            (<a asp-controller="Measurements" asp-action="Create">Log a measurement</a> to update)
+        </p>
+        <p>
+            <label asp-for="TargetWeightKg"></label><br />
+            <input asp-for="TargetWeightKg" type="number" step="0.1" min="10" max="500" />
+            <span asp-validation-for="TargetWeightKg"></span>
+        </p>
+        <p>
+            <label asp-for="DailyCalorieTarget"></label><br />
+            <input asp-for="DailyCalorieTarget" type="number" min="800" max="6000" />
+            <small>Used when no diet plan is assigned.</small>
+            <span asp-validation-for="DailyCalorieTarget"></span>
+        </p>
+        <p>Assigned trainer: @(Model.TrainerName ?? "Not assigned yet")</p>
+        <p>
+            <label asp-for="FitnessGoals"></label><br />
+            <textarea asp-for="FitnessGoals" rows="2" cols="60"></textarea>
+            <span asp-validation-for="FitnessGoals"></span>
+        </p>
+        <p>
+            <label asp-for="MedicalNotes">Medical notes (private, encrypted)</label><br />
+            <textarea asp-for="MedicalNotes" rows="3" cols="60"></textarea><br />
+            <small>Stored encrypted. Visible only to you and your assigned trainer.</small>
+            <span asp-validation-for="MedicalNotes"></span>
+        </p>
+    }
+
+    @if (isTrainer)
+    {
+        <h3>Professional profile</h3>
+        <p>
+            <label asp-for="Qualifications"></label><br />
+            <textarea asp-for="Qualifications" rows="2" cols="60"></textarea>
+            <span asp-validation-for="Qualifications"></span>
+        </p>
+        <p>
+            <label asp-for="Specializations"></label><br />
+            <textarea asp-for="Specializations" rows="2" cols="60"></textarea>
+            <span asp-validation-for="Specializations"></span>
+        </p>
+        <p>
+            <label asp-for="Certifications"></label><br />
+            <textarea asp-for="Certifications" rows="2" cols="60"></textarea>
+        </p>
+        <p>
+            <label asp-for="Bio"></label><br />
+            <textarea asp-for="Bio" rows="2" cols="60"></textarea>
+        </p>
+        <p><a asp-controller="Trainer" asp-action="Availability">Manage your consultation availability</a></p>
+    }
+    <button type="submit">Save changes</button>
+</form>
+
+<h2>Change email</h2>
+<form asp-action="ChangeEmail" method="post">
+    <p>
+        <label for="NewEmail">New email address</label><br />
+        <input id="NewEmail" name="NewEmail" type="email" required maxlength="256" /><br />
+        <small>We'll send a confirmation link to the new address. Your email changes once you open it.</small>
+    </p>
+    <button type="submit">Send confirmation link</button>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

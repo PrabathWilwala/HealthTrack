@@ -1,0 +1,17 @@
+@model CompleteAppointmentViewModel
+@{
+    ViewData["Title"] = "Consultation notes";
+}
+<p><a asp-action="Details" asp-route-id="@Model.Id">&lt; Back to appointment</a></p>
+<h1>Complete consultation</h1>
+<p>@Model.ClientName - @Model.StartTime.ToString("ddd dd MMM yyyy, HH:mm") - @Model.Purpose</p>
+<form asp-action="Complete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <p>
+        <label asp-for="Notes"></label><br />
+        <textarea asp-for="Notes" rows="9" cols="70"></textarea><br />
+        <small>Notes are encrypted in the database. The client is notified when notes are added.</small>
+        <span asp-validation-for="Notes"></span>
+    </p>
+    <button type="submit">Save &amp; mark completed</button>
+</form>

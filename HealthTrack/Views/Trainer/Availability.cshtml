@@ -1,0 +1,53 @@
+@model TrainerAvailabilityViewModel
+@{
+    ViewData["Title"] = "Availability";
+    var days = new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday };
+}
+<h1>Consultation availability</h1>
+<p>Clients can only request appointments inside these weekly hours. With no hours set, any time can be requested.</p>
+
+<h2>Add hours</h2>
+<form asp-action="Availability" method="post">
+    <div asp-validation-summary="All"></div>
+    <p>
+        <label for="DayOfWeek">Day</label><br />
+        <select id="DayOfWeek" name="DayOfWeek">
+            @foreach (var d in days)
+            {
+                if (d == Model.DayOfWeek) { <option value="@((int)d)" selected>@d</option> }
+                else { <option value="@((int)d)">@d</option> }
+            }
+        </select>
+    </p>
+    <p>
+        <label for="StartTime">From</label>
+        <input type="time" id="StartTime" name="StartTime" value="@(Model.StartTime?.ToString("hh\\:mm"))" required />
+        <label for="EndTime">To</label>
+        <input type="time" id="EndTime" name="EndTime" value="@(Model.EndTime?.ToString("hh\\:mm"))" required />
+    </p>
+    <button type="submit">Add slot</button>
+</form>
+
+<h2>Weekly schedule</h2>
+<table border="1" cellpadding="4">
+    <thead><tr><th>Day</th><th>Hours</th></tr></thead>
+    <tbody>
+        @foreach (var d in days)
+        {
+            var slots = Model.Slots.Where(s => s.DayOfWeek == d).OrderBy(s => s.StartTime).ToList();
+            <tr>
+                <td>@d</td>
+                <td>
+                    @if (slots.Count == 0) { <span>Not available</span> }
+                    @foreach (var s in slots)
+                    {
+                        <form asp-action="RemoveSlot" asp-route-id="@s.Id" method="post">
+                            @s.StartTime.ToString("hh\\:mm") - @s.EndTime.ToString("hh\\:mm")
+                            <button type="submit">Remove</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

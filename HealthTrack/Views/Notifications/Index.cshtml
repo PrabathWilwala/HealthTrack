@@ -1,0 +1,71 @@
+@model NotificationCenterViewModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+<h1>Notification centre</h1>
+<p>@Model.UnreadCount unread - reminders, plan updates, feedback, appointments and announcements.</p>
+<p><a asp-action="Preferences">Preferences</a></p>
+@if (Model.UnreadCount > 0)
+{
+    <form asp-action="MarkAllRead" method="post"><button type="submit">Mark all as read</button></form>
+}
+
+<p>
+    Show:
+    <a asp-route-filter="all" asp-route-type="@Model.Type">All</a> |
+    <a asp-route-filter="unread" asp-route-type="@Model.Type">Unread (@Model.UnreadCount)</a>
+    (current: @Model.Filter)
+</p>
+<form method="get">
+    <input type="hidden" name="filter" value="@Model.Filter" />
+    <label for="type">Type:</label>
+    <select id="type" name="type" onchange="this.form.submit()">
+        <option value="">All types</option>
+        @foreach (var t in Enum.GetValues<NotificationType>())
+        {
+            if (Model.Type == t) { <option value="@t" selected>@t</option> } else { <option value="@t">@t</option> }
+        }
+    </select>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p>No notifications here.</p>
+}
+else
+{
+    <table border="1" cellpadding="4">
+        <thead><tr><th>Status</th><th>Title</th><th>Message</th><th>Type</th><th>When</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var n in Model.Items)
+            {
+                <tr>
+                    <td>@(n.IsRead ? "Read" : "Unread")</td>
+                    <td>@n.Title</td>
+                    <td>@n.Message</td>
+                    <td>@n.Type</td>
+                    <td>@DateHelpers.TimeAgo(n.CreatedAtUtc)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(n.LinkUrl))
+                        {
+                            <form asp-action="Open" asp-route-id="@n.Id" method="post"><button type="submit">Open</button></form>
+                        }
+                        <form asp-action="MarkRead" asp-route-id="@n.Id" method="post">
+                            <input type="hidden" name="read" value="@(n.IsRead ? "false" : "true")" />
+                            <button type="submit">@(n.IsRead ? "Mark as unread" : "Mark as read")</button>
+                        </form>
+                        <form asp-action="Delete" asp-route-id="@n.Id" method="post"><button type="submit">Delete</button></form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@if (Model.TotalPages > 1)
+{
+    <p>
+        Page @Model.Page of @Model.TotalPages
+        @if (Model.Page > 1) { <a asp-route-page="@(Model.Page - 1)" asp-route-filter="@Model.Filter" asp-route-type="@Model.Type">Previous</a> }
+        @if (Model.Page < Model.TotalPages) { <a asp-route-page="@(Model.Page + 1)" asp-route-filter="@Model.Filter" asp-route-type="@Model.Type">Next</a> }
+    </p>
+}

@@ -1,0 +1,17 @@
+@model ResendConfirmationViewModel
+@{
+    ViewData["Title"] = "Resend confirmation";
+}
+<h1>Resend confirmation email</h1>
+<p>Enter the email address you registered with and we will send a new confirmation link.</p>
+<form asp-action="ResendConfirmation" method="post">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+    <p>
+        <label asp-for="Email">Email address</label><br />
+        <input asp-for="Email" autocomplete="email" autofocus />
+        <span asp-validation-for="Email"></span>
+    </p>
+    <button type="submit">Resend link</button>
+</form>
+<p><a asp-action="Login">Back to sign in</a></p>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

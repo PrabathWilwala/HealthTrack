@@ -1,0 +1,56 @@
+@model WorkoutLogFormViewModel
+@inject HealthTrack.Data.ApplicationDbContext Db
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Edit workout" : "Log a workout";
+    var userId = User.GetUserId();
+    var weight = Db.ClientProfiles.Where(c => c.UserId == userId).Select(c => c.WeightKg).FirstOrDefault();
+}
+<h1>@ViewData["Title"]</h1>
+<p>Record the type, length and intensity of your session.</p>
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
+    <div asp-validation-summary="ModelOnly"></div>
+    <p>
+        <label asp-for="ExerciseType"></label><br />
+        <input asp-for="ExerciseType" list="exerciseSuggestions" autofocus />
+        <datalist id="exerciseSuggestions">
+            @foreach (var s in Model.SuggestedExercises) { <option value="@s"></option> }
+        </datalist>
+        <span asp-validation-for="ExerciseType"></span>
+    </p>
+    <p>
+        <label asp-for="LogDate"></label><br />
+        <input asp-for="LogDate" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="LogDate"></span>
+    </p>
+    <p>
+        <label asp-for="DurationMinutes"></label><br />
+        <input asp-for="DurationMinutes" type="number" min="1" max="600" />
+        <span asp-validation-for="DurationMinutes"></span>
+    </p>
+    <p>
+        <label asp-for="Intensity"></label><br />
+        <select asp-for="Intensity" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
+    </p>
+    <p>
+        <label asp-for="CaloriesBurned"></label><br />
+        <input asp-for="CaloriesBurned" type="number" min="0" max="5000" />
+        <small>Leave empty to use the estimate: <b id="calorieEstimate" data-weight="@weight">0</b> kcal</small>
+        <span asp-validation-for="CaloriesBurned"></span>
+    </p>
+    <p>
+        <label asp-for="Notes"></label><br />
+        <textarea asp-for="Notes" rows="2" cols="60"></textarea>
+        <span asp-validation-for="Notes"></span>
+    </p>
+    @if (Model.ActivePlanTitle != null)
+    {
+        <p>
+            <input asp-for="LinkToPlan" />
+            <label asp-for="LinkToPlan">Part of my plan "@Model.ActivePlanTitle" (counts towards adherence)</label>
+        </p>
+    }
+    <button type="submit">@(isEdit ? "Save changes" : "Log workout")</button>
+    <a asp-action="Index">Cancel</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
