@@ -2,21 +2,34 @@
 @{
     ViewData["Title"] = "Propose a new time";
 }
-<p><a asp-action="Details" asp-route-id="@Model.Id">&lt; Back to appointment</a></p>
-<h1>Propose a new time</h1>
-<p>Currently @Model.CurrentStart.ToString("dddd dd MMM yyyy, HH:mm") with @Model.OtherPartyName. They will be asked to confirm.</p>
-<form asp-action="Reschedule" method="post">
-    <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>
-        <label asp-for="NewStart"></label><br />
-        <input asp-for="NewStart" type="datetime-local" step="900" />
-        <span asp-validation-for="NewStart"></span>
-    </p>
-    <button type="submit">Send proposal</button>
-</form>
-
-<h3>Trainer availability</h3>
-@if (Model.Availability.Count == 0) { <p>No fixed hours published.</p> }
-<ul>@foreach (var s in Model.Availability) { <li>@s</li> }</ul>
+<div class="page-header">
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="small fw-bold"><i class="bi bi-arrow-left"></i> Back to appointment</a>
+        <h1 class="page-title mt-1">Propose a new time</h1>
+        <p class="page-subtitle">Currently @Model.CurrentStart.ToString("dddd dd MMM yyyy, HH:mm") with @Model.OtherPartyName. They will be asked to confirm.</p>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-6">
+        <form asp-action="Reschedule" method="post" class="card-ht">
+            <input type="hidden" asp-for="Id" />
+            <div class="card-ht-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                <label asp-for="NewStart" class="form-label"></label>
+                <input asp-for="NewStart" class="form-control" type="datetime-local" step="900" />
+                <span asp-validation-for="NewStart" class="text-danger"></span>
+            </div>
+            <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary">Send proposal</button></div>
+        </form>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock"></i>Trainer availability</h2></div>
+            <div class="card-ht-body">
+                @if (Model.Availability.Count == 0) { <p class="text-muted mb-0">No fixed hours published.</p> }
+                <ul class="mb-0">@foreach (var s in Model.Availability) { <li>@s</li> }</ul>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

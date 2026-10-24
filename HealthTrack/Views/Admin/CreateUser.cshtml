@@ -2,39 +2,68 @@
 @{
     ViewData["Title"] = "Create user";
 }
-<p><a asp-action="Users">&lt; Users</a></p>
-<h1>Create a user account</h1>
-<p>Administrator-created accounts are confirmed immediately. Trainers created here are pre-approved.</p>
-<form asp-action="CreateUser" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>
-        <label asp-for="Role"></label><br />
-        <select asp-for="Role" data-toggle-sections>
-            <option>@RoleNames.Client</option>
-            <option>@RoleNames.Trainer</option>
-            <option>@RoleNames.Administrator</option>
-        </select>
-    </p>
-    <p><label asp-for="FullName"></label><br /><input asp-for="FullName" /><span asp-validation-for="FullName"></span></p>
-    <p><label asp-for="UserName"></label><br /><input asp-for="UserName" autocomplete="off" /><span asp-validation-for="UserName"></span></p>
-    <p><label asp-for="Email"></label><br /><input asp-for="Email" autocomplete="off" /><span asp-validation-for="Email"></span></p>
-    <p><label asp-for="Password"></label><br /><input asp-for="Password" autocomplete="new-password" /><span asp-validation-for="Password"></span></p>
-
-    <div data-section="Client">
-        <h3>Client profile</h3>
-        <p><label asp-for="Age"></label><br /><input asp-for="Age" type="number" /><span asp-validation-for="Age"></span></p>
-        <p><label asp-for="Gender"></label><br />
-            <select asp-for="Gender"><option value="">Select...</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Other</option><option>Prefer not to say</option></select>
-            <span asp-validation-for="Gender"></span></p>
-        <p><label asp-for="HeightCm"></label><br /><input asp-for="HeightCm" type="number" step="0.1" /><span asp-validation-for="HeightCm"></span></p>
-        <p><label asp-for="WeightKg"></label><br /><input asp-for="WeightKg" type="number" step="0.1" /><span asp-validation-for="WeightKg"></span></p>
-        <p><label asp-for="FitnessGoals"></label><br /><textarea asp-for="FitnessGoals" rows="2" cols="60"></textarea></p>
+<div class="page-header">
+    <div>
+        <a asp-action="Users" class="small fw-bold"><i class="bi bi-arrow-left"></i> Users</a>
+        <h1 class="page-title mt-1">Create a user account</h1>
+        <p class="page-subtitle">Administrator-created accounts are confirmed immediately. Trainers created here are pre-approved.</p>
     </div>
-    <div data-section="Trainer">
-        <h3>Trainer profile</h3>
-        <p><label asp-for="Qualifications"></label><br /><textarea asp-for="Qualifications" rows="2" cols="60"></textarea><span asp-validation-for="Qualifications"></span></p>
-        <p><label asp-for="Specializations"></label><br /><textarea asp-for="Specializations" rows="2" cols="60"></textarea><span asp-validation-for="Specializations"></span></p>
+</div>
+<div class="row"><div class="col-xl-8">
+<form asp-action="CreateUser" method="post" class="card-ht">
+    <div class="card-ht-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="Role" class="form-label"></label>
+                <select asp-for="Role" class="form-select" data-toggle-sections>
+                    <option>@RoleNames.Client</option>
+                    <option>@RoleNames.Trainer</option>
+                    <option>@RoleNames.Administrator</option>
+                </select>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="UserName" class="form-label"></label>
+                <input asp-for="UserName" class="form-control" autocomplete="off" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="off" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div data-section="Client" class="mt-4">
+            <h3 class="h6">Client profile</h3>
+            <div class="row g-3">
+                <div class="col-md-3"><label asp-for="Age" class="form-label"></label><input asp-for="Age" class="form-control" type="number" /><span asp-validation-for="Age" class="text-danger"></span></div>
+                <div class="col-md-3"><label asp-for="Gender" class="form-label"></label>
+                    <select asp-for="Gender" class="form-select"><option value="">Select…</option><option>Female</option><option>Male</option><option>Non-binary</option><option>Other</option><option>Prefer not to say</option></select>
+                    <span asp-validation-for="Gender" class="text-danger"></span></div>
+                <div class="col-md-3"><label asp-for="HeightCm" class="form-label"></label><input asp-for="HeightCm" class="form-control" type="number" step="0.1" /><span asp-validation-for="HeightCm" class="text-danger"></span></div>
+                <div class="col-md-3"><label asp-for="WeightKg" class="form-label"></label><input asp-for="WeightKg" class="form-control" type="number" step="0.1" /><span asp-validation-for="WeightKg" class="text-danger"></span></div>
+                <div class="col-12"><label asp-for="FitnessGoals" class="form-label"></label><textarea asp-for="FitnessGoals" class="form-control" rows="2"></textarea></div>
+            </div>
+        </div>
+        <div data-section="Trainer" class="mt-4">
+            <h3 class="h6">Trainer profile</h3>
+            <div class="row g-3">
+                <div class="col-md-6"><label asp-for="Qualifications" class="form-label"></label><textarea asp-for="Qualifications" class="form-control" rows="2"></textarea><span asp-validation-for="Qualifications" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="Specializations" class="form-label"></label><textarea asp-for="Specializations" class="form-control" rows="2"></textarea><span asp-validation-for="Specializations" class="text-danger"></span></div>
+            </div>
+        </div>
     </div>
-    <button type="submit">Create account</button>
+    <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-person-plus"></i> Create account</button></div>
 </form>
+</div></div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

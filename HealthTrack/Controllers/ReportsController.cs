@@ -8,8 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Reports for trainers (scoped to their own clients) and administrators (system-wide),
-// each viewable on screen and exportable as PDF or CSV.
+/// <summary>
+/// Reports for trainers (scoped to their own clients) and administrators (system-wide),
+/// each viewable on screen and exportable as PDF or CSV.
+/// </summary>
 [Authorize(Roles = RoleNames.TrainerOrAdmin)]
 public class ReportsController : Controller
 {
@@ -28,13 +30,13 @@ public class ReportsController : Controller
 
     private bool IsAdmin => User.IsInRole(RoleNames.Administrator);
 
-    // Client ids the current user may report on.
+    /// <summary>Client ids the current user may report on.</summary>
     private async Task<List<string>> ScopeClientIdsAsync() =>
         IsAdmin
             ? await _db.ClientProfiles.Select(c => c.UserId).ToListAsync()
             : await _directory.GetClientIdsForTrainerAsync(User.GetUserId());
 
-    // Reports hub.
+    /// <summary>Reports hub.</summary>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -46,7 +48,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ individual client report
 
-    // Individual client progress report (HTML, PDF or CSV).
+    /// <summary>Individual client progress report (HTML, PDF or CSV).</summary>
     [HttpGet]
     public async Task<IActionResult> Client(string id, int days = 30, string? format = null)
     {
@@ -73,7 +75,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ comparative analysis
 
-    // Comparative analysis of selected clients (HTML, PDF or CSV).
+    /// <summary>Comparative analysis of selected clients (HTML, PDF or CSV).</summary>
     [HttpGet]
     public async Task<IActionResult> Comparative(List<string>? clientIds, string? format = null)
     {
@@ -96,7 +98,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ engagement
 
-    // Engagement statistics (HTML, PDF or CSV).
+    /// <summary>Engagement statistics (HTML, PDF or CSV).</summary>
     [HttpGet]
     public async Task<IActionResult> Engagement(int days = 30, string? format = null)
     {
@@ -118,7 +120,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ popular routines
 
-    // Popular and effective routines (HTML, PDF or CSV).
+    /// <summary>Popular and effective routines (HTML, PDF or CSV).</summary>
     [HttpGet]
     public async Task<IActionResult> Routines(string? format = null)
     {
@@ -136,7 +138,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ trends & feedback effectiveness
 
-    // Trend alerts needing intervention.
+    /// <summary>Trend alerts needing intervention.</summary>
     [HttpGet]
     public async Task<IActionResult> Trends()
     {
@@ -144,7 +146,7 @@ public class ReportsController : Controller
         return View(alerts);
     }
 
-    // Client activity before and after feedback.
+    /// <summary>Client activity before and after feedback.</summary>
     [HttpGet]
     public async Task<IActionResult> FeedbackEffectiveness()
     {
@@ -154,7 +156,7 @@ public class ReportsController : Controller
 
     // ------------------------------------------------------------------ administrator-only reports
 
-    // Administrator system performance report (HTML, PDF or CSV).
+    /// <summary>Administrator system performance report (HTML, PDF or CSV).</summary>
     [Authorize(Roles = RoleNames.Administrator)]
     [HttpGet]
     public async Task<IActionResult> Overview(int days = 30, string? format = null)
@@ -174,7 +176,7 @@ public class ReportsController : Controller
         return View(report);
     }
 
-    // Administrator custom report builder (HTML, PDF or CSV).
+    /// <summary>Administrator custom report builder (HTML, PDF or CSV).</summary>
     [Authorize(Roles = RoleNames.Administrator)]
     [HttpGet]
     public async Task<IActionResult> Custom(CustomReportRequest? request, bool run = false, string? format = null)

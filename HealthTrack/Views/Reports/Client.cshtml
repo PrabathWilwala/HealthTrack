@@ -4,20 +4,21 @@
     var days = (int)(ViewData["Days"] ?? 30);
     var id = ViewData["ClientId"] as string;
 }
-<p><a asp-action="Index">&lt; Reports</a></p>
-<h1>@Model.ClientName</h1>
-<p>Progress report: @Model.From.ToString("dd MMM yyyy") - @Model.To.ToString("dd MMM yyyy")</p>
-<p>
-    Period:
-    @foreach (var d in new[] { 30, 90, 180, 365 })
-    {
-        if (d == days) { <b>@(d == 365 ? "1 y" : d + " d")</b> } else { <a asp-route-id="@id" asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a> }
-        <text> </text>
-    }
-</p>
-<p>
-    Export:
-    <a asp-route-id="@id" asp-route-days="@days" asp-route-format="csv">CSV</a> |
-    <a asp-route-id="@id" asp-route-days="@days" asp-route-format="pdf">PDF</a>
-</p>
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Reports</a>
+        <h1 class="page-title mt-1">@Model.ClientName</h1>
+        <p class="page-subtitle">Progress report · @Model.From.ToString("dd MMM yyyy") – @Model.To.ToString("dd MMM yyyy")</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            @foreach (var d in new[] { 30, 90, 180, 365 })
+            {
+                <a class="btn btn-light @(d == days ? "active" : "")" asp-route-id="@id" asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a>
+            }
+        </div>
+        <a class="btn btn-light" asp-route-id="@id" asp-route-days="@days" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="btn btn-primary" asp-route-id="@id" asp-route-days="@days" asp-route-format="pdf"><i class="bi bi-filetype-pdf"></i> PDF</a>
+    </div>
+</div>
 <partial name="_ProgressCharts" model="Model" />

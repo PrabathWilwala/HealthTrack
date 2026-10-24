@@ -20,9 +20,10 @@ var connectionString = builder.Configuration
         "Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString)
-           // The hand-maintained model snapshot can differ cosmetically from the runtime model;
-           // that must not block Database.Migrate() at start-up.
+    options.UseSqlServer(connectionString,
+               // SQL Server 2012 = compatibility level 110. Stops EF Core generating
+               sql => sql.UseCompatibilityLevel(110))
+           
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // ---------------------------------------------------------------------------

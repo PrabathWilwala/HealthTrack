@@ -4,18 +4,22 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HealthTrack.Infrastructure;
 
-// Marks a string property as sensitive health data. The DbContext encrypts such columns
-// at rest using ASP.NET Core Data Protection (AES-256-CBC + HMACSHA256 by default).
+/// <summary>
+/// Marks a string property as sensitive health data. The DbContext encrypts such columns
+/// at rest using ASP.NET Core Data Protection (AES-256-CBC + HMACSHA256 by default).
+/// </summary>
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class EncryptedAttribute : Attribute
 {
 }
 
-// EF Core value converter that encrypts a string before it is written to the database
-// and decrypts it when it is read back.
+/// <summary>
+/// EF Core value converter that encrypts a string before it is written to the database
+/// and decrypts it when it is read back.
+/// </summary>
 public sealed class EncryptedStringConverter : ValueConverter<string, string>
 {
-    // Prefix that identifies encrypted values (lets us tolerate legacy plain text).
+    /// <summary>Prefix that identifies encrypted values (lets us tolerate legacy plain text).</summary>
     private const string Prefix = "enc:";
 
     public EncryptedStringConverter(IDataProtector protector)

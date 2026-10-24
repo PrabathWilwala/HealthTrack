@@ -6,24 +6,31 @@
     chart.Datasets.Add(new ChartDataset { Label = "Times assigned", Data = top.Select(r => (decimal?)r.TimesAssigned).ToList() });
     chart.Datasets.Add(new ChartDataset { Label = "Average adherence %", Data = top.Select(r => r.AverageAdherence).ToList() });
 }
-<p><a asp-action="Index">&lt; Reports</a></p>
-<h1>Popular &amp; effective routines</h1>
-<p>How often each plan is assigned, and how well clients follow it and progress on it.</p>
-<p>Export: <a asp-route-format="csv">CSV</a> | <a asp-route-format="pdf">PDF</a></p>
-<canvas width="800" height="350" data-chart="@ChartJson.Serialize(chart)" data-type="bar" data-horizontal></canvas>
-@if (Model.Count == 0)
-{
-    <p>No plans yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Assigned</th><th>Active clients</th><th>Avg. adherence</th><th>Avg. weight change</th></tr></thead>
-        <tbody>
-            @foreach (var r in Model)
-            {
-                <tr><td>@r.Title</td><td>@r.PlanType</td><td>@r.CreatedBy</td><td>@r.TimesAssigned</td><td>@r.ActiveClients</td><td>@DisplayHelpers.Percent(r.AverageAdherence)</td><td>@DisplayHelpers.Signed(r.AverageWeightChange, " kg")</td></tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Reports</a>
+        <h1 class="page-title mt-1">Popular &amp; effective routines</h1>
+        <p class="page-subtitle">How often each plan is assigned, and how well clients follow it and progress on it.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-light" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="btn btn-primary" asp-route-format="pdf"><i class="bi bi-filetype-pdf"></i> PDF</a>
+    </div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-body"><div class="chart-box lg"><canvas data-chart="@ChartJson.Serialize(chart)" data-type="bar" data-horizontal></canvas></div></div>
+</div>
+<div class="card-ht">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Assigned</th><th>Active clients</th><th>Avg. adherence</th><th>Avg. weight change</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr><td class="fw-semibold">@r.Title</td><td><span class="badge-soft @(r.PlanType == "Diet" ? "teal" : "primary")">@r.PlanType</span></td><td>@r.CreatedBy</td><td>@r.TimesAssigned</td><td>@r.ActiveClients</td><td>@DisplayHelpers.Percent(r.AverageAdherence)</td><td>@DisplayHelpers.Signed(r.AverageWeightChange, " kg")</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Count == 0) { <div class="empty-state"><p>No plans yet.</p></div> }
+</div>

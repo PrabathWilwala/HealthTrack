@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Data;
 
-// Runs at start-up: applies migrations, creates roles, the initial administrator,
-// notification templates, default policies and (optionally) demonstration data.
+/// <summary>
+/// Runs at start-up: applies migrations, creates roles, the initial administrator,
+/// notification templates, default policies and (optionally) demonstration data.
+/// </summary>
 public static class DbSeeder
 {
-    // Applies migrations, then seeds roles, the first administrator, notification templates, default policies and optional demo data.
+    /// <summary>Applies migrations, then seeds roles, the first administrator, notification templates, default policies and optional demo data.</summary>
     public static async Task SeedAsync(IServiceProvider services, IConfiguration configuration, ILogger logger)
     {
         var db = services.GetRequiredService<ApplicationDbContext>();
@@ -39,7 +41,7 @@ public static class DbSeeder
             await SeedDemoDataAsync(db, userManager, logger);
     }
 
-    // Administrators cannot self-register, so the first one is created from configuration.
+    /// <summary>Administrators cannot self-register, so the first one is created from configuration.</summary>
     private static async Task SeedAdministratorAsync(UserManager<IdentityUser> userManager, IConfiguration configuration, ILogger logger)
     {
         if ((await userManager.GetUsersInRoleAsync(RoleNames.Administrator)).Count > 0)

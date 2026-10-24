@@ -3,7 +3,7 @@ using HealthTrack.Infrastructure;
 
 namespace HealthTrack.Models;
 
-// A workout session recorded by a client.
+/// <summary>A workout session recorded by a client.</summary>
 public class WorkoutLog
 {
     public int Id { get; set; }
@@ -11,7 +11,7 @@ public class WorkoutLog
     [Required, StringLength(450)]
     public string ClientId { get; set; } = string.Empty;
 
-    // The assigned plan this session was part of, if any.
+    /// <summary>The assigned plan this session was part of, if any.</summary>
     public int? WorkoutPlanId { get; set; }
 
     public WorkoutPlan? WorkoutPlan { get; set; }
@@ -35,7 +35,7 @@ public class WorkoutLog
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// A meal recorded by a client.
+/// <summary>A meal recorded by a client.</summary>
 public class MealLog
 {
     public int Id { get; set; }
@@ -75,7 +75,7 @@ public class MealLog
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// A body/health measurement recorded by a client. BMI is computed on save.
+/// <summary>A body/health measurement recorded by a client. BMI is computed on save.</summary>
 public class HealthMeasurement
 {
     public int Id { get; set; }
@@ -105,14 +105,14 @@ public class HealthMeasurement
     [Range(25, 250)]
     public int? RestingHeartRate { get; set; }
 
-    // Private notes about this measurement. Encrypted at rest.
+    /// <summary>Private notes about this measurement. Encrypted at rest.</summary>
     [Encrypted]
     public string? Notes { get; set; }
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// A comment from a trainer on a client's log entry (or general coaching feedback).
+/// <summary>A comment from a trainer on a client's log entry (or general coaching feedback).</summary>
 public class TrainerFeedback
 {
     public int Id { get; set; }
@@ -125,7 +125,7 @@ public class TrainerFeedback
 
     public FeedbackTarget Target { get; set; } = FeedbackTarget.General;
 
-    // Id of the workout/meal/measurement the feedback refers to (null for general feedback).
+    /// <summary>Id of the workout/meal/measurement the feedback refers to (null for general feedback).</summary>
     public int? TargetId { get; set; }
 
     [Required, StringLength(1000)]

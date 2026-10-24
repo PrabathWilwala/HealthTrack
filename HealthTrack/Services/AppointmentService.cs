@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Services;
 
-// Two appointments of the same trainer that overlap in time.
+/// <summary>Two appointments of the same trainer that overlap in time.</summary>
 public sealed record AppointmentConflict(Appointment First, Appointment Second);
 
 public interface IAppointmentService
@@ -21,8 +21,10 @@ public interface IAppointmentService
     Task<List<AppointmentConflict>> FindConflictsAsync();
 }
 
-// All appointment business rules live here: booking validation, trainer availability,
-// conflict detection, the cancellation policy and status transitions (with notifications).
+/// <summary>
+/// All appointment business rules live here: booking validation, trainer availability,
+/// conflict detection, the cancellation policy and status transitions (with notifications).
+/// </summary>
 public sealed class AppointmentService : IAppointmentService
 {
     private readonly ApplicationDbContext _db;
@@ -41,7 +43,7 @@ public sealed class AppointmentService : IAppointmentService
         _audit = audit;
     }
 
-    // Client books a consultation: validates the trainer, the slot (notice, availability, conflicts), saves it as Pending and notifies the trainer.
+    /// <summary>Client books a consultation: validates the trainer, the slot (notice, availability, conflicts), saves it as Pending and notifies the trainer.</summary>
     public async Task<ServiceResult> RequestAsync(string clientId, string trainerId, DateTime start, int durationMinutes, string purpose)
     {
         var trainer = await _db.TrainerProfiles.AsNoTracking().FirstOrDefaultAsync(t => t.UserId == trainerId);
@@ -79,7 +81,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Trainer approves a pending request after re-checking for clashes with already approved appointments.
+    /// <summary>Trainer approves a pending request after re-checking for clashes with already approved appointments.</summary>
     public async Task<ServiceResult> ApproveAsync(int appointmentId, string trainerId)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId && a.TrainerId == trainerId);
@@ -102,7 +104,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Trainer declines a pending request with a reason and optional alternative times; the client is notified.
+    /// <summary>Trainer declines a pending request with a reason and optional alternative times; the client is notified.</summary>
     public async Task<ServiceResult> DeclineAsync(int appointmentId, string trainerId, string reason, string? suggestedAlternative)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId && a.TrainerId == trainerId);
@@ -128,7 +130,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Cancels a pending/approved appointment (client cancellations must satisfy the cancellation policy) and notifies the other party.
+    /// <summary>Cancels a pending/approved appointment (client cancellations must satisfy the cancellation policy) and notifies the other party.</summary>
     public async Task<ServiceResult> CancelAsync(int appointmentId, string actorId, string actorRole, string reason)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId);
@@ -173,7 +175,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Either party proposes a new start time; the slot is validated and the other party is asked to confirm.
+    /// <summary>Either party proposes a new start time; the slot is validated and the other party is asked to confirm.</summary>
     public async Task<ServiceResult> ProposeRescheduleAsync(int appointmentId, string actorId, string actorRole, DateTime newStart)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId);
@@ -206,7 +208,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // The other party accepts (time is moved and appointment approved) or rejects a proposed new time.
+    /// <summary>The other party accepts (time is moved and appointment approved) or rejects a proposed new time.</summary>
     public async Task<ServiceResult> RespondToRescheduleAsync(int appointmentId, string actorId, string actorRole, bool accept)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId);
@@ -252,7 +254,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Trainer marks a consultation as completed and saves encrypted consultation notes for the client.
+    /// <summary>Trainer marks a consultation as completed and saves encrypted consultation notes for the client.</summary>
     public async Task<ServiceResult> CompleteAsync(int appointmentId, string trainerId, string? notes)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId && a.TrainerId == trainerId);
@@ -277,7 +279,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Conflict resolution by an administrator: moves the appointment directly.
+    /// <summary>Conflict resolution by an administrator: moves the appointment directly.</summary>
     public async Task<ServiceResult> AdminRescheduleAsync(int appointmentId, DateTime newStart)
     {
         var appointment = await _db.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId);
@@ -302,7 +304,7 @@ public sealed class AppointmentService : IAppointmentService
         return ServiceResult.Ok();
     }
 
-    // Finds pairs of active appointments for the same trainer that overlap.
+    /// <summary>Finds pairs of active appointments for the same trainer that overlap.</summary>
     public async Task<List<AppointmentConflict>> FindConflictsAsync()
     {
         var now = DateTime.Now;
@@ -324,9 +326,11 @@ public sealed class AppointmentService : IAppointmentService
 
     // ------------------------------------------------------------------ helpers
 
-    // Validates a requested time: in the future (with minimum notice), inside the trainer's
-    // published availability (if any) and not overlapping another active appointment.
-    // Returns an error message, or null when the slot is acceptable.
+    /// <summary>
+    /// Validates a requested time: in the future (with minimum notice), inside the trainer's
+    /// published availability (if any) and not overlapping another active appointment.
+    /// Returns an error message, or null when the slot is acceptable.
+    /// </summary>
     private async Task<string?> ValidateSlotAsync(string trainerId, DateTime start, int durationMinutes, int? ignoreAppointmentId)
     {
         if (durationMinutes < 15 || durationMinutes > 180)
@@ -382,7 +386,7 @@ public sealed class AppointmentService : IAppointmentService
         return sameDay.FirstOrDefault(a => a.Id != ignoreId && a.Overlaps(start, end));
     }
 
-    // Applies the administrator's cancellation policy to a client cancellation.
+    /// <summary>Applies the administrator's cancellation policy to a client cancellation.</summary>
     private async Task<string?> CheckClientCancellationPolicyAsync(Appointment appointment)
     {
         if (appointment.Status == AppointmentStatus.Approved)

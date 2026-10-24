@@ -2,17 +2,33 @@
 @{
     ViewData["Title"] = "Edit template";
 }
-<p><a asp-action="Templates">&lt; Templates</a></p>
-<h1>@Model.Name</h1>
-<p><code>@Model.Key</code></p>
-<form asp-action="EditTemplate" method="post">
-    <input type="hidden" asp-for="Id" />
-    <p><label asp-for="Name"></label><br /><input asp-for="Name" size="50" /><span asp-validation-for="Name"></span></p>
-    <p><label asp-for="TitleTemplate"></label><br /><input asp-for="TitleTemplate" size="60" /><span asp-validation-for="TitleTemplate"></span></p>
-    <p><label asp-for="BodyTemplate"></label><br /><textarea asp-for="BodyTemplate" rows="4" cols="60"></textarea><span asp-validation-for="BodyTemplate"></span></p>
-    <button type="submit">Save template</button>
-</form>
-<h3>Available tokens</h3>
-@if (Model.AvailableTokens.Count == 0) { <p>This template has no tokens.</p> }
-<ul>@foreach (var token in Model.AvailableTokens) { <li><code>@token</code></li> }</ul>
+<div class="page-header">
+    <div>
+        <a asp-action="Templates" class="small fw-bold"><i class="bi bi-arrow-left"></i> Templates</a>
+        <h1 class="page-title mt-1">@Model.Name</h1>
+        <p class="page-subtitle"><code>@Model.Key</code></p>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <form asp-action="EditTemplate" method="post" class="card-ht">
+            <input type="hidden" asp-for="Id" />
+            <div class="card-ht-body">
+                <div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
+                <div class="mb-3"><label asp-for="TitleTemplate" class="form-label"></label><input asp-for="TitleTemplate" class="form-control" /><span asp-validation-for="TitleTemplate" class="text-danger"></span></div>
+                <div class="mb-1"><label asp-for="BodyTemplate" class="form-label"></label><textarea asp-for="BodyTemplate" class="form-control" rows="4"></textarea><span asp-validation-for="BodyTemplate" class="text-danger"></span></div>
+            </div>
+            <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary">Save template</button></div>
+        </form>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-braces"></i>Available tokens</h2></div>
+            <div class="card-ht-body">
+                @if (Model.AvailableTokens.Count == 0) { <p class="text-muted mb-0">This template has no tokens.</p> }
+                <div class="d-flex flex-wrap gap-2">@foreach (var token in Model.AvailableTokens) { <code class="badge-soft">@token</code> }</div>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

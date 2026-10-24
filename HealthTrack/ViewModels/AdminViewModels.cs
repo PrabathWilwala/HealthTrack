@@ -66,7 +66,7 @@ public class UserListViewModel
 {
     public string? Search { get; set; }
     public string? Role { get; set; }
-    // active, deactivated, pending (trainer approval) or unconfirmed (email).
+    /// <summary>active, deactivated, pending (trainer approval) or unconfirmed (email).</summary>
     public string? Status { get; set; }
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 15;
@@ -178,7 +178,7 @@ public class AssignTrainerViewModel
     public string? TrainerId { get; set; }
 
     public List<TrainerOption> Trainers { get; set; } = new();
-    // Trainer ids whose specialisations share words with the client's goals.
+    /// <summary>Trainer ids whose specialisations share words with the client's goals.</summary>
     public List<string> SuggestedTrainerIds { get; set; } = new();
 }
 

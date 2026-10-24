@@ -3,114 +3,144 @@
     ViewData["Title"] = "Administrator dashboard";
     var currentUrl = Context.Request.Path.ToString();
 }
-<h1>System overview</h1>
-<p>User activity, system usage, trainer assignments and alerts.</p>
-<p>
-    <a asp-action="CreateUser">Create user</a> |
-    <a asp-action="Users" asp-route-status="unassigned">Assign trainers</a> |
-    <a asp-action="Broadcast">Broadcast</a> |
-    <a asp-controller="Reports" asp-action="Overview">Generate report</a>
-</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">System overview</h1>
+        <p class="page-subtitle">User activity, system usage, trainer assignments and alerts.</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-light" asp-action="CreateUser"><i class="bi bi-person-plus"></i> Create user</a>
+        <a class="btn btn-light" asp-action="Users" asp-route-status="unassigned"><i class="bi bi-diagram-3"></i> Assign trainers</a>
+        <a class="btn btn-light" asp-action="Broadcast"><i class="bi bi-megaphone"></i> Broadcast</a>
+        <a class="btn btn-primary" asp-controller="Reports" asp-action="Overview"><i class="bi bi-file-earmark-bar-graph"></i> Generate report</a>
+    </div>
+</div>
 
 @if (!Model.CurrentAdminHasTwoFactor)
 {
-    <p><b>Warning:</b> Your administrator account does not use multi-factor authentication yet. <a asp-controller="Profile" asp-action="EnableAuthenticator">Enable 2FA</a></p>
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <i class="bi bi-shield-exclamation"></i>
+        <div class="flex-grow-1">Your administrator account does not use multi-factor authentication yet.</div>
+        <a class="btn btn-sm btn-warning" asp-controller="Profile" asp-action="EnableAuthenticator">Enable 2FA</a>
+    </div>
 }
 
-<h2>Summary</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Total users</th><td>@Model.TotalUsers</td><td>@Model.Clients clients, @Model.Trainers trainers, @Model.Administrators admins</td></tr>
-    <tr><th>Active (7 days)</th><td>@Model.ActiveUsers7Days</td><td>@Model.LoginsToday sign-ins today</td></tr>
-    <tr><th>New registrations</th><td>@Model.NewRegistrations30Days</td><td>Last 30 days</td></tr>
-    <tr><th>Failed sign-ins (24 h)</th><td>@Model.FailedLogins24Hours</td><td><a asp-action="AuditLog" asp-route-securityOnly="true">Security log</a></td></tr>
-    <tr><th>Pending approvals</th><td>@Model.PendingTrainers.Count</td><td>@Model.UnassignedClients unassigned client(s)</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-icon"><i class="bi bi-people"></i></div><div class="stat-label">Total users</div><div class="stat-value">@Model.TotalUsers</div><div class="stat-meta">@Model.Clients clients · @Model.Trainers trainers · @Model.Administrators admins</div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-person-check"></i></div><div class="stat-label">Active (7 days)</div><div class="stat-value">@Model.ActiveUsers7Days</div><div class="stat-meta">@Model.LoginsToday sign-ins today</div></div>
+    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-person-plus"></i></div><div class="stat-label">New registrations</div><div class="stat-value">@Model.NewRegistrations30Days</div><div class="stat-meta">Last 30 days</div></div>
+    <div class="stat-card"><div class="stat-icon rose"><i class="bi bi-shield-x"></i></div><div class="stat-label">Failed sign-ins (24 h)</div><div class="stat-value">@Model.FailedLogins24Hours</div><div class="stat-meta"><a asp-action="AuditLog" asp-route-securityOnly="true">Security log</a></div></div>
+    <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div><div class="stat-label">Pending approvals</div><div class="stat-value">@Model.PendingTrainers.Count</div><div class="stat-meta">@Model.UnassignedClients unassigned client(s)</div></div>
+</div>
 
-<h2>Pending trainer approvals</h2>
-@if (Model.PendingTrainers.Count == 0)
-{
-    <p>No pending approvals.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Name</th><th>Qualifications</th><th>Specialisations</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var t in Model.PendingTrainers)
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-box-arrow-in-right"></i>Sign-in activity (14 days)</h2></div>
+            <div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.LoginChart)" data-type="line"></canvas></div></div>
+        </div>
+        <div class="row g-4 section-gap">
+            <div class="col-md-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-grid"></i>Feature usage (30 d)</h2></div><div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.FeatureUsageChart)" data-type="bar" data-horizontal></canvas></div></div></div></div>
+            <div class="col-md-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock"></i>Peak usage times</h2></div><div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.PeakHoursChart)" data-type="bar"></canvas></div></div></div></div>
+        </div>
+
+        <div class="card-ht section-gap">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-diagram-3"></i>Trainer assignments &amp; workload</h2><a class="small fw-bold" asp-action="Users" asp-route-role="Trainer">Manage trainers</a></div>
+            @if (Model.TrainerWorkload.Count == 0)
             {
-                <tr>
-                    <td>@t.FullName</td>
-                    <td>@t.Qualifications</td>
-                    <td>@t.Specializations</td>
-                    <td>
-                        <form asp-action="ApproveTrainer" asp-route-id="@t.UserId" method="post"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Approve</button></form>
-                        <form asp-action="RejectTrainer" asp-route-id="@t.UserId" method="post" data-confirm="Reject this trainer application?"><input type="hidden" name="returnUrl" value="@currentUrl" /><button type="submit">Reject</button></form>
-                    </td>
-                </tr>
+                <div class="empty-state"><p>No approved trainers yet.</p></div>
             }
-        </tbody>
-    </table>
-}
-
-<h2>System health</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Database</th><td>@(Model.DatabaseHealthy ? $"Connected, {Model.DatabaseLatencyMs} ms" : "Unavailable")</td><td></td></tr>
-    <tr><th>Uptime</th><td>@((int)Model.Uptime.TotalHours) h @Model.Uptime.Minutes min</td><td></td></tr>
-    <tr><th>Notifications (24 h)</th><td>@Model.NotificationsSent24Hours sent</td>
-        <td><form asp-action="RunReminders" method="post"><button type="submit">Run reminder job now</button></form></td></tr>
-    <tr><th>Appointment conflicts</th><td>@Model.AppointmentConflicts to resolve</td><td><a asp-action="Appointments">View</a></td></tr>
-    <tr><th>Flagged plans</th><td>@Model.FlaggedPlans under review</td><td><a asp-action="Plans" asp-route-filter="flagged">View</a></td></tr>
-</table>
-
-<h2>Sign-in activity (14 days)</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.LoginChart)" data-type="line"></canvas>
-<h2>Feature usage (30 d)</h2>
-<canvas width="600" height="300" data-chart="@ChartJson.Serialize(Model.FeatureUsageChart)" data-type="bar" data-horizontal></canvas>
-<h2>Peak usage times</h2>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.PeakHoursChart)" data-type="bar"></canvas>
-
-<h2>Trainer assignments &amp; workload</h2>
-<p><a asp-action="Users" asp-route-role="Trainer">Manage trainers</a></p>
-@if (Model.TrainerWorkload.Count == 0)
-{
-    <p>No approved trainers yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Trainer</th><th>Specialisations</th><th>Clients</th><th>Upcoming appts.</th><th>Avg. adherence</th></tr></thead>
-        <tbody>
-            @foreach (var t in Model.TrainerWorkload)
+            else
             {
-                <tr>
-                    <td>@t.Name</td>
-                    <td>@t.Specializations</td>
-                    <td>@t.Clients</td>
-                    <td>@t.UpcomingAppointments</td>
-                    <td>@DisplayHelpers.Percent(t.AverageAdherence)</td>
-                </tr>
+                var max = Math.Max(1, Model.TrainerWorkload.Max(t => t.Clients));
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead><tr><th>Trainer</th><th>Specialisations</th><th>Clients</th><th>Upcoming appts.</th><th>Avg. adherence</th></tr></thead>
+                        <tbody>
+                            @foreach (var t in Model.TrainerWorkload)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@t.Name</td>
+                                    <td class="small text-muted">@t.Specializations</td>
+                                    <td style="min-width:140px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1"><div class="progress-bar" style="width:@(t.Clients * 100 / max)%"></div></div><span>@t.Clients</span></div></td>
+                                    <td>@t.UpcomingAppointments</td>
+                                    <td>@DisplayHelpers.Percent(t.AverageAdherence)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
 
-<h2>Security alerts (7 days)</h2>
-@if (Model.SecurityAlerts.Count == 0)
-{
-    <p>No security events.</p>
-}
-<ul>
-    @foreach (var a in Model.SecurityAlerts)
-    {
-        <li>@a.Action - @(a.UserName ?? "unknown") - @a.IpAddress - @DateHelpers.TimeAgo(a.CreatedAtUtc)</li>
-    }
-</ul>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-journal-text"></i>Recent activity</h2><a class="small fw-bold" asp-action="AuditLog">Audit log</a></div>
+            <ul class="list-clean">
+                @foreach (var a in Model.RecentActivity)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble @(a.IsSecurityEvent ? "rose" : "")"><i class="bi @(a.IsSecurityEvent ? "bi-shield" : "bi-dot")"></i></span>
+                        <div class="grow"><div class="title">@(a.UserName ?? "System") · <span class="fw-normal">@a.Action</span></div><div class="meta">@a.Details</div></div>
+                        <span class="small text-muted text-nowrap">@DateHelpers.TimeAgo(a.CreatedAtUtc)</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
 
-<h2>Recent activity</h2>
-<p><a asp-action="AuditLog">Audit log</a></p>
-<ul>
-    @foreach (var a in Model.RecentActivity)
-    {
-        <li>@(a.UserName ?? "System"): @a.Action - @a.Details (@DateHelpers.TimeAgo(a.CreatedAtUtc))</li>
-    }
-</ul>
+    <div class="col-xl-4">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-heart-pulse"></i>System health</h2></div>
+            <ul class="list-clean">
+                <li class="list-row"><span class="icon-bubble @(Model.DatabaseHealthy ? "teal" : "rose")"><i class="bi bi-database"></i></span><div class="grow"><div class="title">Database</div><div class="meta">@(Model.DatabaseHealthy ? $"Connected · {Model.DatabaseLatencyMs} ms" : "Unavailable")</div></div></li>
+                <li class="list-row"><span class="icon-bubble teal"><i class="bi bi-hdd-network"></i></span><div class="grow"><div class="title">Uptime</div><div class="meta">@((int)Model.Uptime.TotalHours) h @Model.Uptime.Minutes min</div></div></li>
+                <li class="list-row"><span class="icon-bubble"><i class="bi bi-bell"></i></span><div class="grow"><div class="title">Notifications (24 h)</div><div class="meta">@Model.NotificationsSent24Hours sent</div></div>
+                    <form asp-action="RunReminders" method="post"><button class="btn btn-light btn-sm" type="submit" title="Run reminder job now"><i class="bi bi-play"></i></button></form></li>
+                <li class="list-row"><span class="icon-bubble @(Model.AppointmentConflicts > 0 ? "amber" : "teal")"><i class="bi bi-calendar-x"></i></span><div class="grow"><div class="title">Appointment conflicts</div><div class="meta">@Model.AppointmentConflicts to resolve</div></div><a class="btn btn-light btn-sm" asp-action="Appointments">View</a></li>
+                <li class="list-row"><span class="icon-bubble @(Model.FlaggedPlans > 0 ? "amber" : "teal")"><i class="bi bi-flag"></i></span><div class="grow"><div class="title">Flagged plans</div><div class="meta">@Model.FlaggedPlans under review</div></div><a class="btn btn-light btn-sm" asp-action="Plans" asp-route-filter="flagged">View</a></li>
+            </ul>
+        </div>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-hourglass-split"></i>Pending trainer approvals</h2></div>
+            @if (Model.PendingTrainers.Count == 0)
+            {
+                <div class="empty-state"><i class="bi bi-check2-all"></i><p>No pending approvals.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var t in Model.PendingTrainers)
+                {
+                    <li class="list-row align-items-start">
+                        <span class="avatar">@DisplayHelpers.Initials(t.FullName)</span>
+                        <div class="grow">
+                            <div class="title">@t.FullName</div>
+                            <div class="meta">@t.Qualifications</div>
+                            <div class="meta">@t.Specializations</div>
+                            <div class="d-flex gap-2 mt-2">
+                                <form asp-action="ApproveTrainer" asp-route-id="@t.UserId" method="post"><input type="hidden" name="returnUrl" value="@currentUrl" /><button class="btn btn-teal btn-sm" type="submit">Approve</button></form>
+                                <form asp-action="RejectTrainer" asp-route-id="@t.UserId" method="post" data-confirm="Reject this trainer application?"><input type="hidden" name="returnUrl" value="@currentUrl" /><button class="btn btn-light btn-sm" type="submit">Reject</button></form>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-shield-exclamation"></i>Security alerts (7 days)</h2></div>
+            @if (Model.SecurityAlerts.Count == 0)
+            {
+                <div class="empty-state"><i class="bi bi-shield-check"></i><p>No security events.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var a in Model.SecurityAlerts)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble rose"><i class="bi bi-exclamation-octagon"></i></span>
+                        <div class="grow"><div class="title">@a.Action</div><div class="meta">@(a.UserName ?? "unknown") · @a.IpAddress · @DateHelpers.TimeAgo(a.CreatedAtUtc)</div></div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HealthTrack.Models
 {
-    // Professional profile for a user in the Trainer role. The primary key is the Identity user id.
+    /// <summary>
+    /// Professional profile for a user in the Trainer role. The primary key is the Identity user id.
+    /// </summary>
     public class TrainerProfile
     {
         [Required]
@@ -43,7 +45,7 @@ namespace HealthTrack.Models
         public ICollection<TrainerAvailability> Availability { get; set; } = new List<TrainerAvailability>();
     }
 
-    // A weekly time window in which a trainer accepts consultations.
+    /// <summary>A weekly time window in which a trainer accepts consultations.</summary>
     public class TrainerAvailability
     {
         public int Id { get; set; }

@@ -2,23 +2,36 @@
 @{
     ViewData["Title"] = "Set up authenticator";
 }
-<h1>Set up your authenticator app</h1>
-<ol>
-    <li>Install an authenticator app on your phone (Microsoft Authenticator, Google Authenticator or Authy).</li>
-    <li>
-        Scan this QR code, or enter the key manually:
-        <div id="qrCode" data-uri="@Model.AuthenticatorUri"></div>
-        <p>Manual key: <code>@Model.SharedKey</code></p>
-    </li>
-    <li>
-        Enter the 6-digit code shown in the app:
-        <form asp-action="EnableAuthenticator" method="post">
-            <input asp-for="Code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" />
-            <span asp-validation-for="Code"></span>
-            <button type="submit">Verify and turn on 2FA</button>
-        </form>
-    </li>
-</ol>
+<div class="page-header"><div><h1 class="page-title">Set up your authenticator app</h1><p class="page-subtitle">Three quick steps to turn on two-factor authentication.</p></div></div>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card-ht">
+            <div class="card-ht-body">
+                <ol class="mb-0">
+                    <li class="mb-3">Install an authenticator app on your phone (Microsoft Authenticator, Google Authenticator or Authy).</li>
+                    <li class="mb-3">
+                        Scan this QR code, or enter the key manually:
+                        <div class="d-flex flex-wrap align-items-center gap-4 mt-3">
+                            <div id="qrCode" class="p-2 bg-white border rounded-3" data-uri="@Model.AuthenticatorUri" style="min-width:196px;min-height:196px"></div>
+                            <div>
+                                <div class="small-caps">Manual key</div>
+                                <code class="fs-6">@Model.SharedKey</code>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        Enter the 6-digit code shown in the app:
+                        <form asp-action="EnableAuthenticator" method="post" class="mt-2" style="max-width:320px">
+                            <input asp-for="Code" class="form-control form-control-lg" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="123456" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                            <button type="submit" class="btn btn-primary mt-3 w-100">Verify and turn on 2FA</button>
+                        </form>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
@@ -27,7 +40,7 @@
             if (window.QRCode && el) {
                 new QRCode(el, { text: el.getAttribute('data-uri'), width: 180, height: 180 });
             } else if (el) {
-                el.innerHTML = '<p>QR code unavailable offline. Use the manual key.</p>';
+                el.innerHTML = '<p class="small text-muted p-3">QR code unavailable offline. Use the manual key.</p>';
             }
         })();
     </script>

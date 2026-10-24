@@ -3,64 +3,71 @@
     ViewData["Title"] = "Meal log";
     var days = Model.Items.GroupBy(m => m.LogDate.Date).OrderByDescending(g => g.Key).ToList();
 }
-<h1>Meals</h1>
-<p>Your food diary. Entries can be edited or deleted for @ClientLogControllerBase.EditWindowDays days.</p>
-<p><a asp-action="Create">Log meal</a></p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Meals</h1>
+        <p class="page-subtitle">Your food diary. Entries can be edited or deleted for @ClientLogControllerBase.EditWindowDays days.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> Log meal</a></div>
+</div>
 
-<p>
-    Meals logged: @Model.Items.Count |
-    Avg. daily calories: @(days.Count == 0 ? 0 : (int)days.Average(d => d.Sum(m => m.Calories))) kcal |
-    Avg. daily protein: @(days.Count == 0 ? "0" : days.Average(d => d.Sum(m => m.ProteinG)).ToString("0")) g |
-    Days logged: @days.Count
-</p>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Meals logged</div><div class="stat-value">@Model.Items.Count</div></div>
+    <div class="stat-card"><div class="stat-label">Avg. daily calories</div><div class="stat-value">@(days.Count == 0 ? 0 : (int)days.Average(d => d.Sum(m => m.Calories)))<small> kcal</small></div></div>
+    <div class="stat-card"><div class="stat-label">Avg. daily protein</div><div class="stat-value">@(days.Count == 0 ? "0" : days.Average(d => d.Sum(m => m.ProteinG)).ToString("0"))<small> g</small></div></div>
+    <div class="stat-card"><div class="stat-label">Days logged</div><div class="stat-value">@days.Count</div></div>
+</div>
 
-<partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" />
-
-@if (Model.Items.Count == 0)
-{
-    <p>No meals in this period. <a asp-action="Create">Log a meal</a></p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Meal</th><th>Food</th><th>Portion</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var day in days)
-            {
-                <tr>
-                    <th colspan="3">@day.Key.ToString("dddd, dd MMM yyyy")</th>
-                    <th>@day.Sum(m => m.Calories) kcal</th>
-                    <th>@day.Sum(m => m.ProteinG).ToString("0") g</th>
-                    <th>@day.Sum(m => m.CarbsG).ToString("0") g</th>
-                    <th>@day.Sum(m => m.FatG).ToString("0") g</th>
-                    <th></th>
-                </tr>
-                foreach (var m in day.OrderBy(x => x.MealType))
-                {
-                    var editable = m.CreatedAtUtc >= Model.EditableAfterUtc;
-                    <tr>
-                        <td>@m.MealType</td>
-                        <td>@m.FoodItems
-                            @if (Model.FeedbackCounts.TryGetValue(m.Id, out var fc)) { <a asp-controller="Client" asp-action="Feedback">(@fc feedback)</a> }
-                        </td>
-                        <td>@m.Portion</td>
-                        <td>@m.Calories</td>
-                        <td>@m.ProteinG.ToString("0.#")</td>
-                        <td>@m.CarbsG.ToString("0.#")</td>
-                        <td>@m.FatG.ToString("0.#")</td>
-                        <td>
-                            @if (editable)
-                            {
-                                <a asp-action="Edit" asp-route-id="@m.Id">Edit</a>
-                                <form asp-action="Delete" asp-route-id="@m.Id" method="post" data-confirm="Delete this meal?">
-                                    <button type="submit">Delete</button>
-                                </form>
-                            }
-                            else { <span>Locked</span> }
-                        </td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-}
+<div class="card-ht">
+    <div class="card-ht-header"><partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" /></div>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-egg-fried"></i><p>No meals in this period.</p><a class="btn btn-primary btn-sm" asp-action="Create">Log a meal</a></div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Meal</th><th>Food</th><th>Portion</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var day in days)
+                    {
+                        <tr class="table-light">
+                            <td colspan="3" class="fw-bold">@day.Key.ToString("dddd, dd MMM yyyy")</td>
+                            <td class="fw-bold">@day.Sum(m => m.Calories) kcal</td>
+                            <td class="fw-bold">@day.Sum(m => m.ProteinG).ToString("0") g</td>
+                            <td class="fw-bold">@day.Sum(m => m.CarbsG).ToString("0") g</td>
+                            <td class="fw-bold">@day.Sum(m => m.FatG).ToString("0") g</td>
+                            <td></td>
+                        </tr>
+                        foreach (var m in day.OrderBy(x => x.MealType))
+                        {
+                            var editable = m.CreatedAtUtc >= Model.EditableAfterUtc;
+                            <tr>
+                                <td><span class="badge-soft primary">@m.MealType</span></td>
+                                <td>@m.FoodItems
+                                    @if (Model.FeedbackCounts.TryGetValue(m.Id, out var fc)) { <a asp-controller="Client" asp-action="Feedback" class="badge-soft primary ms-1 text-decoration-none"><i class="bi bi-chat-heart"></i>@fc</a> }
+                                </td>
+                                <td class="text-muted">@m.Portion</td>
+                                <td>@m.Calories</td>
+                                <td>@m.ProteinG.ToString("0.#")</td>
+                                <td>@m.CarbsG.ToString("0.#")</td>
+                                <td>@m.FatG.ToString("0.#")</td>
+                                <td class="text-end text-nowrap">
+                                    @if (editable)
+                                    {
+                                        <a class="btn btn-light btn-sm" asp-action="Edit" asp-route-id="@m.Id"><i class="bi bi-pencil"></i></a>
+                                        <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="d-inline" data-confirm="Delete this meal?">
+                                            <button type="submit" class="btn btn-light btn-sm text-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    }
+                                    else { <i class="bi bi-lock text-muted"></i> }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

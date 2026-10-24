@@ -2,19 +2,33 @@
 @{
     ViewData["Title"] = "Registration submitted";
 }
-<h1>Registration submitted</h1>
-<p>Your @Model.AccountType.ToLowerInvariant() account has been created for <b>@Model.Email</b>.</p>
-<p><b>Email confirmation is required.</b> We sent a confirmation link to your email address. If SMTP is not configured, the email is saved in the App_Data/Emails folder, and in Development the link is also shown below.</p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 
-@if (!string.IsNullOrWhiteSpace(Model.DevelopmentConfirmationUrl))
-{
-    <p><a href="@Model.DevelopmentConfirmationUrl">Confirm email address</a></p>
-}
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-result-card">
+        <div class="ht-result-icon">&#10003;</div>
+        <p class="ht-eyebrow">REGISTRATION SUBMITTED</p>
+        <h1>One more step</h1>
+        <p class="ht-result-lead">Your @Model.AccountType.ToLowerInvariant() account has been created for <strong>@Model.Email</strong>.</p>
+        <div class="ht-info-panel">
+            <strong>Email confirmation is required.</strong>
+            <p>We sent a confirmation link to your email address. If SMTP is not configured, the email is saved in the App_Data/Emails folder, and in Development the link is also shown below.</p>
+        </div>
 
-@if (Model.RequiresTrainerApproval)
-{
-    <p><b>Trainer approval is also required.</b> After confirming your email, an administrator must approve your trainer account before you can sign in.</p>
-}
+        @if (!string.IsNullOrWhiteSpace(Model.DevelopmentConfirmationUrl))
+        {
+            <a class="ht-primary-button ht-button-link" href="@Model.DevelopmentConfirmationUrl">Confirm email address <span aria-hidden="true">&#8594;</span></a>
+        }
 
-<p><a asp-controller="Account" asp-action="Login">Return to sign in</a></p>
-<p>Didn't get it? <a asp-controller="Account" asp-action="ResendConfirmation">Resend the confirmation email</a>.</p>
+        @if (Model.RequiresTrainerApproval)
+        {
+            <div class="ht-info-panel ht-info-panel-warm">
+                <strong>Trainer approval is also required.</strong>
+                <p>After confirming your email, an administrator must approve your trainer account before you can sign in.</p>
+            </div>
+        }
+
+        <p class="ht-auth-switch"><a asp-controller="Account" asp-action="Login">Return to sign in</a></p>
+        <p class="ht-security-footnote">Didn't get it? <a asp-controller="Account" asp-action="ResendConfirmation">Resend the confirmation email</a>.</p>
+    </section>
+</div>

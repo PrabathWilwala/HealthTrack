@@ -3,57 +3,69 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit measurement" : "New measurement";
 }
-<h1>@ViewData["Title"]</h1>
-<p>BMI is calculated automatically from your height (@Model.HeightCm.ToString("0") cm).</p>
-<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>
-        <label asp-for="MeasuredOn"></label><br />
-        <input asp-for="MeasuredOn" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="MeasuredOn"></span>
-    </p>
-    <p>
-        <label asp-for="WeightKg"></label><br />
-        <input asp-for="WeightKg" type="number" step="0.1" min="10" max="500" id="weightInput" />
-        <span asp-validation-for="WeightKg"></span>
-    </p>
-    <p>
-        <label for="bmiPreview">BMI (calculated)</label><br />
-        <input id="bmiPreview" disabled />
-    </p>
-    <p>
-        <label asp-for="BodyFatPercent"></label><br />
-        <input asp-for="BodyFatPercent" type="number" step="0.1" />
-        <span asp-validation-for="BodyFatPercent"></span>
-    </p>
-    <p>
-        <label asp-for="WaistCm"></label><br />
-        <input asp-for="WaistCm" type="number" step="0.1" />
-        <span asp-validation-for="WaistCm"></span>
-    </p>
-    <p>
-        <label asp-for="RestingHeartRate"></label><br />
-        <input asp-for="RestingHeartRate" type="number" />
-        <span asp-validation-for="RestingHeartRate"></span>
-    </p>
-    <p>
-        <label asp-for="SystolicBp"></label><br />
-        <input asp-for="SystolicBp" type="number" />
-        <span asp-validation-for="SystolicBp"></span>
-    </p>
-    <p>
-        <label asp-for="DiastolicBp"></label><br />
-        <input asp-for="DiastolicBp" type="number" />
-        <span asp-validation-for="DiastolicBp"></span>
-    </p>
-    <p>
-        <label asp-for="Notes">Private notes</label><br />
-        <textarea asp-for="Notes" rows="2" cols="60"></textarea>
-        <span asp-validation-for="Notes"></span>
-    </p>
-    <button type="submit">Save measurement</button>
-    <a asp-action="Index">Cancel</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <p class="page-subtitle">BMI is calculated automatically from your height (@Model.HeightCm.ToString("0") cm).</p>
+    </div>
+</div>
+<div class="row"><div class="col-xl-8">
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="card-ht">
+    <div class="card-ht-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="MeasuredOn" class="form-label"></label>
+                <input asp-for="MeasuredOn" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="MeasuredOn" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="WeightKg" class="form-label"></label>
+                <input asp-for="WeightKg" class="form-control" type="number" step="0.1" min="10" max="500" id="weightInput" />
+                <span asp-validation-for="WeightKg" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">BMI (calculated)</label>
+                <input class="form-control" id="bmiPreview" disabled />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="BodyFatPercent" class="form-label"></label>
+                <input asp-for="BodyFatPercent" class="form-control" type="number" step="0.1" />
+                <span asp-validation-for="BodyFatPercent" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="WaistCm" class="form-label"></label>
+                <input asp-for="WaistCm" class="form-control" type="number" step="0.1" />
+                <span asp-validation-for="WaistCm" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="RestingHeartRate" class="form-label"></label>
+                <input asp-for="RestingHeartRate" class="form-control" type="number" />
+                <span asp-validation-for="RestingHeartRate" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SystolicBp" class="form-label"></label>
+                <input asp-for="SystolicBp" class="form-control" type="number" placeholder="e.g. 120" />
+                <span asp-validation-for="SystolicBp" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="DiastolicBp" class="form-label"></label>
+                <input asp-for="DiastolicBp" class="form-control" type="number" placeholder="e.g. 80" />
+                <span asp-validation-for="DiastolicBp" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label"><i class="bi bi-lock-fill text-success"></i> Private notes</label>
+                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="card-ht-footer d-flex justify-content-between">
+        <a class="btn btn-light" asp-action="Index">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save measurement</button>
+    </div>
 </form>
+</div></div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>

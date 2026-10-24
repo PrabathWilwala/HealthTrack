@@ -13,8 +13,10 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace HealthTrack.Controllers;
 
-// Profile management for every role: personal details, picture, email, password,
-// two-factor authentication and GDPR tools (download my data, delete my account).
+/// <summary>
+/// Profile management for every role: personal details, picture, email, password,
+/// two-factor authentication and GDPR tools (download my data, delete my account).
+/// </summary>
 [Authorize]
 public class ProfileController : Controller
 {
@@ -49,7 +51,7 @@ public class ProfileController : Controller
     // Profile details
     // =====================================================================
 
-    // Shows / saves the profile for the current role, including the profile picture.
+    /// <summary>Shows / saves the profile for the current role, including the profile picture.</summary>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -58,7 +60,7 @@ public class ProfileController : Controller
         return View(await BuildProfileAsync(user));
     }
 
-    // Shows / saves the profile for the current role, including the profile picture.
+    /// <summary>Shows / saves the profile for the current role, including the profile picture.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(ProfileViewModel model)
@@ -124,7 +126,7 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Sends a confirmation link to a new email address.
+    /// <summary>Sends a confirmation link to a new email address.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangeEmail(ChangeEmailViewModel model)
@@ -163,7 +165,7 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Completes the email change after the new address is confirmed.
+    /// <summary>Completes the email change after the new address is confirmed.</summary>
     [HttpGet]
     public async Task<IActionResult> ConfirmEmailChange(string? email, string? code)
     {
@@ -197,11 +199,11 @@ public class ProfileController : Controller
     // Password
     // =====================================================================
 
-    // Shows the form / changes the password after verifying the current one.
+    /// <summary>Shows the form / changes the password after verifying the current one.</summary>
     [HttpGet]
     public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
 
-    // Shows the form / changes the password after verifying the current one.
+    /// <summary>Shows the form / changes the password after verifying the current one.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -230,7 +232,7 @@ public class ProfileController : Controller
     // Two-factor authentication (authenticator app)
     // =====================================================================
 
-    // Shows two-factor authentication status and recovery codes left.
+    /// <summary>Shows two-factor authentication status and recovery codes left.</summary>
     [HttpGet]
     public async Task<IActionResult> TwoFactor()
     {
@@ -245,7 +247,7 @@ public class ProfileController : Controller
         });
     }
 
-    // Shows the QR code / verifies a code and turns on two-factor authentication.
+    /// <summary>Shows the QR code / verifies a code and turns on two-factor authentication.</summary>
     [HttpGet]
     public async Task<IActionResult> EnableAuthenticator()
     {
@@ -254,7 +256,7 @@ public class ProfileController : Controller
         return View(await BuildAuthenticatorModelAsync(user));
     }
 
-    // Shows the QR code / verifies a code and turns on two-factor authentication.
+    /// <summary>Shows the QR code / verifies a code and turns on two-factor authentication.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EnableAuthenticator(EnableAuthenticatorViewModel model)
@@ -281,7 +283,7 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(RecoveryCodes));
     }
 
-    // Displays newly generated recovery codes once.
+    /// <summary>Displays newly generated recovery codes once.</summary>
     [HttpGet]
     public IActionResult RecoveryCodes()
     {
@@ -291,7 +293,7 @@ public class ProfileController : Controller
         return View(codes.Split(','));
     }
 
-    // Replaces the recovery codes with a new set.
+    /// <summary>Replaces the recovery codes with a new set.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateRecoveryCodes()
@@ -307,7 +309,7 @@ public class ProfileController : Controller
         return RedirectToAction(nameof(RecoveryCodes));
     }
 
-    // Turns off two-factor authentication and resets the authenticator key.
+    /// <summary>Turns off two-factor authentication and resets the authenticator key.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DisableTwoFactor()
@@ -327,11 +329,11 @@ public class ProfileController : Controller
     // Privacy (GDPR): data export and account deletion
     // =====================================================================
 
-    // GDPR page: data download and account deletion.
+    /// <summary>GDPR page: data download and account deletion.</summary>
     [HttpGet]
     public IActionResult Privacy() => View(new DeleteAccountViewModel());
 
-    // Downloads all of the user's data as a JSON file.
+    /// <summary>Downloads all of the user's data as a JSON file.</summary>
     [HttpGet]
     public async Task<IActionResult> DownloadData()
     {
@@ -342,7 +344,7 @@ public class ProfileController : Controller
         return File(json, "application/json", $"healthtrack-my-data-{DateTime.Today:yyyyMMdd}.json");
     }
 
-    // Permanently deletes the account and all data after password confirmation.
+    /// <summary>Permanently deletes the account and all data after password confirmation.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteAccount(DeleteAccountViewModel model)

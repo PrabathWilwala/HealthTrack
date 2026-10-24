@@ -4,175 +4,189 @@
     ViewData["Title"] = p.FullName;
     var feedbackForm = Model.FeedbackForm;
 }
-<p><a asp-action="Clients">&lt; My clients</a></p>
-@if (!string.IsNullOrEmpty(p.ProfilePicturePath))
-{
-    <img src="@p.ProfilePicturePath" alt="" width="80" height="80" />
-}
-<h1>@p.FullName</h1>
-<p>@p.Age years | @p.Gender | @p.HeightCm.ToString("0") cm | @Model.Email @(Model.Phone != null ? "| " + Model.Phone : "")</p>
-<p>
-    <a asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId">Full report</a> |
-    <a asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId" asp-route-format="pdf">PDF</a> |
-    <a href="#feedback">Give feedback</a>
-</p>
+<div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+        @if (!string.IsNullOrEmpty(p.ProfilePicturePath))
+        {
+            <img src="@p.ProfilePicturePath" class="avatar avatar-lg" alt="" />
+        }
+        else
+        {
+            <span class="avatar avatar-lg">@DisplayHelpers.Initials(p.FullName)</span>
+        }
+        <div>
+            <a asp-action="Clients" class="small fw-bold"><i class="bi bi-arrow-left"></i> My clients</a>
+            <h1 class="page-title">@p.FullName</h1>
+            <p class="page-subtitle">@p.Age years · @p.Gender · @p.HeightCm.ToString("0") cm · @Model.Email @(Model.Phone != null ? "· " + Model.Phone : "")</p>
+        </div>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-light" asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId"><i class="bi bi-file-earmark-bar-graph"></i> Full report</a>
+        <a class="btn btn-light" asp-controller="Reports" asp-action="Client" asp-route-id="@p.UserId" asp-route-format="pdf"><i class="bi bi-filetype-pdf"></i> PDF</a>
+        <a class="btn btn-primary" href="#feedback"><i class="bi bi-chat-heart"></i> Give feedback</a>
+    </div>
+</div>
 
-<table border="1" cellpadding="4">
-    <tr><th>Weight</th><td>@Model.Progress.CurrentWeight.ToString("0.0") kg</td><td>30 d: @DisplayHelpers.Signed(Model.Summary.WeightChange30Days, " kg")</td></tr>
-    <tr><th>BMI</th><td>@Model.Progress.CurrentBmi.ToString("0.0")</td><td>@Model.Progress.BmiCategory</td></tr>
-    <tr><th>Workout adherence</th><td>@DisplayHelpers.Percent(Model.Summary.WorkoutAdherence)</td><td>Diet: @DisplayHelpers.Percent(Model.Summary.DietAdherence)</td></tr>
-    <tr><th>Goal progress</th><td>@DisplayHelpers.Percent(Model.Progress.Goal.Percent)</td><td>@Model.Progress.Goal.Description</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Weight</div><div class="stat-value">@Model.Progress.CurrentWeight.ToString("0.0")<small> kg</small></div><div class="stat-meta">30 d: @DisplayHelpers.Signed(Model.Summary.WeightChange30Days, " kg")</div></div>
+    <div class="stat-card"><div class="stat-label">BMI</div><div class="stat-value">@Model.Progress.CurrentBmi.ToString("0.0")</div><div class="stat-meta">@Model.Progress.BmiCategory</div></div>
+    <div class="stat-card"><div class="stat-label">Workout adherence</div><div class="stat-value">@DisplayHelpers.Percent(Model.Summary.WorkoutAdherence)</div><div class="stat-meta">Diet: @DisplayHelpers.Percent(Model.Summary.DietAdherence)</div></div>
+    <div class="stat-card"><div class="stat-label">Goal progress</div><div class="stat-value">@DisplayHelpers.Percent(Model.Progress.Goal.Percent)</div><div class="stat-meta">@Model.Progress.Goal.Description</div></div>
+</div>
 
 @if (Model.Summary.Alerts.Count > 0)
 {
-    <h3>Alerts</h3>
-    <ul>
-        @foreach (var alert in Model.Summary.Alerts) { <li>@alert</li> }
-    </ul>
+    <div class="alert alert-warning">
+        @foreach (var alert in Model.Summary.Alerts) { <div><i class="bi bi-exclamation-triangle"></i> @alert</div> }
+    </div>
 }
 
-<h2>Profile</h2>
-<p><b>Fitness goals:</b> @(p.FitnessGoals ?? "-")</p>
-<p><b>Target weight:</b> @(p.TargetWeightKg?.ToString("0.0") ?? "-") kg</p>
-<p><b>Medical notes:</b></p>
-<pre>@(p.MedicalNotes ?? "None provided")</pre>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-graph-down"></i>Weight (30 days)</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.Progress.WeightChart)" data-type="line" data-y-label="kg"></canvas></div></div>
+        </div>
+        <div class="row g-4 section-gap">
+            <div class="col-md-6">
+                <div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-fire"></i>Calories burned</h2></div>
+                    <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.Progress.CaloriesBurnedChart)" data-type="bar"></canvas></div></div></div>
+            </div>
+            <div class="col-md-6">
+                <div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-egg-fried"></i>Calorie intake vs target</h2></div>
+                    <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.Progress.NutritionChart)" data-type="bar"></canvas></div></div></div>
+            </div>
+        </div>
 
-<h2>Weight (30 days)</h2>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.WeightChart)" data-type="line" data-y-label="kg"></canvas>
-<h2>Calories burned</h2>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.CaloriesBurnedChart)" data-type="bar"></canvas>
-<h2>Calorie intake vs target</h2>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.Progress.NutritionChart)" data-type="bar"></canvas>
+        <div class="card-ht section-gap">
+            <div class="card-ht-header">
+                <ul class="nav nav-tabs border-0" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#workouts" type="button">Workouts</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#meals" type="button">Meals</button></li>
+                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#measurements" type="button">Measurements</button></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="workouts">
+                    <div class="table-responsive"><table class="table table-hover">
+                        <thead><tr><th>Date</th><th>Activity</th><th>Minutes</th><th>Intensity</th><th>kcal</th><th>Notes</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var w in Model.RecentWorkouts)
+                            {
+                                <tr>
+                                    <td>@w.LogDate.ToString("dd MMM")</td><td class="fw-semibold">@w.ExerciseType</td><td>@w.DurationMinutes</td><td>@w.Intensity</td><td>@w.CaloriesBurned</td><td class="small text-muted">@w.Notes</td>
+                                    <td><button class="btn btn-light btn-sm" type="button" data-feedback-target="Workout" data-feedback-id="@w.Id" data-feedback-label="@w.ExerciseType on @w.LogDate.ToString("dd MMM")"><i class="bi bi-chat"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table></div>
+                    @if (Model.RecentWorkouts.Count == 0) { <div class="empty-state"><p>No workouts logged yet.</p></div> }
+                </div>
+                <div class="tab-pane fade" id="meals">
+                    <div class="table-responsive"><table class="table table-hover">
+                        <thead><tr><th>Date</th><th>Meal</th><th>Food</th><th>kcal</th><th>P / C / F (g)</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var m in Model.RecentMeals)
+                            {
+                                <tr>
+                                    <td>@m.LogDate.ToString("dd MMM")</td><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Calories</td><td>@($"{m.ProteinG:0} / {m.CarbsG:0} / {m.FatG:0}")</td>
+                                    <td><button class="btn btn-light btn-sm" type="button" data-feedback-target="Meal" data-feedback-id="@m.Id" data-feedback-label="@m.MealType on @m.LogDate.ToString("dd MMM")"><i class="bi bi-chat"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table></div>
+                    @if (Model.RecentMeals.Count == 0) { <div class="empty-state"><p>No meals logged yet.</p></div> }
+                </div>
+                <div class="tab-pane fade" id="measurements">
+                    <div class="table-responsive"><table class="table table-hover">
+                        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>BP</th><th>HR</th><th>Body fat</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var m in Model.RecentMeasurements)
+                            {
+                                <tr>
+                                    <td>@m.MeasuredOn.ToString("dd MMM")</td><td class="fw-semibold">@m.WeightKg.ToString("0.0") kg</td><td>@m.Bmi.ToString("0.0")</td>
+                                    <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "–")</td><td>@(m.RestingHeartRate?.ToString() ?? "–")</td><td>@(m.BodyFatPercent?.ToString("0.0") ?? "–")</td>
+                                    <td><button class="btn btn-light btn-sm" type="button" data-feedback-target="Measurement" data-feedback-id="@m.Id" data-feedback-label="Measurement on @m.MeasuredOn.ToString("dd MMM")"><i class="bi bi-chat"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table></div>
+                    @if (Model.RecentMeasurements.Count == 0) { <div class="empty-state"><p>No measurements yet.</p></div> }
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2 id="workouts">Workouts</h2>
-@if (Model.RecentWorkouts.Count == 0)
-{
-    <p>No workouts logged yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Activity</th><th>Minutes</th><th>Intensity</th><th>kcal</th><th>Notes</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var w in Model.RecentWorkouts)
+    <div class="col-xl-4">
+        <form asp-action="GiveFeedback" method="post" class="card-ht" id="feedback">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-chat-heart"></i>Give feedback</h2></div>
+            <div class="card-ht-body">
+                <input type="hidden" name="ClientId" value="@p.UserId" />
+                <input type="hidden" name="Target" id="feedbackTarget" value="General" />
+                <input type="hidden" name="TargetId" id="feedbackTargetId" value="" />
+                <div class="mb-2"><span class="badge-soft primary" id="feedbackLabel">General feedback</span>
+                    <button type="button" class="btn btn-link btn-sm" id="feedbackReset" hidden>clear</button></div>
+                <textarea name="Message" class="form-control" rows="4" maxlength="1000" required placeholder="Encouragement, corrections or advice…"></textarea>
+                <div class="form-text">Tip: click <i class="bi bi-chat"></i> next to a log entry to comment on it specifically.</div>
+                <button type="submit" class="btn btn-primary w-100 mt-3"><i class="bi bi-send"></i> Send feedback</button>
+            </div>
+        </form>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clipboard2-pulse"></i>Active plans</h2></div>
+            @if (Model.ActiveAssignments.Count == 0)
             {
-                <tr>
-                    <td>@w.LogDate.ToString("dd MMM")</td><td>@w.ExerciseType</td><td>@w.DurationMinutes</td><td>@w.Intensity</td><td>@w.CaloriesBurned</td><td>@w.Notes</td>
-                    <td><button type="button" data-feedback-target="Workout" data-feedback-id="@w.Id" data-feedback-label="@w.ExerciseType on @w.LogDate.ToString("dd MMM")">Comment</button></td>
-                </tr>
+                <div class="empty-state"><p>No active plans.</p><a class="btn btn-light btn-sm" asp-controller="WorkoutPlans" asp-action="Index">Assign a plan</a></div>
             }
-        </tbody>
-    </table>
-}
-
-<h2 id="meals">Meals</h2>
-@if (Model.RecentMeals.Count == 0)
-{
-    <p>No meals logged yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Meal</th><th>Food</th><th>kcal</th><th>P / C / F (g)</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var m in Model.RecentMeals)
-            {
-                <tr>
-                    <td>@m.LogDate.ToString("dd MMM")</td><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Calories</td><td>@($"{m.ProteinG:0} / {m.CarbsG:0} / {m.FatG:0}")</td>
-                    <td><button type="button" data-feedback-target="Meal" data-feedback-id="@m.Id" data-feedback-label="@m.MealType on @m.LogDate.ToString("dd MMM")">Comment</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<h2 id="measurements">Measurements</h2>
-@if (Model.RecentMeasurements.Count == 0)
-{
-    <p>No measurements yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>BP</th><th>HR</th><th>Body fat</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var m in Model.RecentMeasurements)
-            {
-                <tr>
-                    <td>@m.MeasuredOn.ToString("dd MMM")</td><td>@m.WeightKg.ToString("0.0") kg</td><td>@m.Bmi.ToString("0.0")</td>
-                    <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "-")</td><td>@(m.RestingHeartRate?.ToString() ?? "-")</td><td>@(m.BodyFatPercent?.ToString("0.0") ?? "-")</td>
-                    <td><button type="button" data-feedback-target="Measurement" data-feedback-id="@m.Id" data-feedback-label="Measurement on @m.MeasuredOn.ToString("dd MMM")">Comment</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<h2>Give feedback</h2>
-<form asp-action="GiveFeedback" method="post" id="feedback">
-    <input type="hidden" name="ClientId" value="@p.UserId" />
-    <input type="hidden" name="Target" id="feedbackTarget" value="General" />
-    <input type="hidden" name="TargetId" id="feedbackTargetId" value="" />
-    <p>
-        <span id="feedbackLabel">General feedback</span>
-        <button type="button" id="feedbackReset" hidden>clear</button>
-    </p>
-    <p><textarea name="Message" rows="4" cols="60" maxlength="1000" required></textarea></p>
-    <p><small>Tip: click "Comment" next to a log entry to comment on it specifically.</small></p>
-    <button type="submit">Send feedback</button>
-</form>
-
-<h2>Active plans</h2>
-@if (Model.ActiveAssignments.Count == 0)
-{
-    <p>No active plans. <a asp-controller="WorkoutPlans" asp-action="Index">Assign a plan</a></p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Type</th><th>Plan</th><th>Dates</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var a in Model.ActiveAssignments)
-            {
-                <tr>
-                    <td>@(a.DietPlan != null ? "Diet" : "Workout")</td>
-                    <td>@(a.WorkoutPlan?.Title ?? a.DietPlan?.Title)</td>
-                    <td>@a.StartDate.ToString("dd MMM") - @(a.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</td>
-                    <td>
+            <ul class="list-clean">
+                @foreach (var a in Model.ActiveAssignments)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble @(a.DietPlan != null ? "teal" : "")"><i class="bi @(a.DietPlan != null ? "bi-basket" : "bi-activity")"></i></span>
+                        <div class="grow"><div class="title">@(a.WorkoutPlan?.Title ?? a.DietPlan?.Title)</div><div class="meta">@a.StartDate.ToString("dd MMM") – @(a.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</div></div>
                         <form asp-action="EndAssignment" asp-route-id="@a.Id" method="post" data-confirm="End this plan assignment?">
-                            <button type="submit">End assignment</button>
+                            <button class="btn btn-light btn-sm" type="submit" title="End assignment"><i class="bi bi-stop-circle"></i></button>
                         </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                    </li>
+                }
+            </ul>
+        </div>
 
-<h2 id="history">Feedback history</h2>
-@if (Model.Feedback.Count == 0)
-{
-    <p>No feedback given yet.</p>
-}
-<ul>
-    @foreach (var f in Model.Feedback)
-    {
-        <li>@f.Message (@f.Target, @DateHelpers.TimeAgo(f.CreatedAtUtc))</li>
-    }
-</ul>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-person-lines-fill"></i>Profile</h2></div>
+            <div class="card-ht-body small">
+                <div class="small-caps">Fitness goals</div>
+                <p>@(p.FitnessGoals ?? "–")</p>
+                <div class="small-caps">Target weight</div>
+                <p>@(p.TargetWeightKg?.ToString("0.0") ?? "–") kg</p>
+                <div class="small-caps"><i class="bi bi-lock-fill text-success"></i> Medical notes</div>
+                <p class="mb-0" style="white-space:pre-line">@(p.MedicalNotes ?? "None provided")</p>
+            </div>
+        </div>
 
-<h2>Appointments</h2>
-@if (Model.Appointments.Count == 0)
-{
-    <p>No appointments.</p>
-}
-<ul>
-    @foreach (var a in Model.Appointments)
-    {
-        <li><a asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">@a.StartTime.ToString("dd MMM yyyy HH:mm")</a> - @a.Purpose - <partial name="_AppointmentStatus" model="a" /></li>
-    }
-</ul>
+        <div class="card-ht" id="history">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-chat-square-text"></i>Feedback history</h2></div>
+            <ul class="list-clean">
+                @foreach (var f in Model.Feedback)
+                {
+                    <li class="list-row"><div class="grow"><div class="small">@f.Message</div><div class="meta">@f.Target · @DateHelpers.TimeAgo(f.CreatedAtUtc)</div></div></li>
+                }
+            </ul>
+            @if (Model.Feedback.Count == 0) { <div class="empty-state"><p>No feedback given yet.</p></div> }
+        </div>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calendar-event"></i>Appointments</h2></div>
+            <ul class="list-clean">
+                @foreach (var a in Model.Appointments)
+                {
+                    <li class="list-row"><div class="grow"><a class="title text-reset" asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">@a.StartTime.ToString("dd MMM yyyy HH:mm")</a><div class="meta">@a.Purpose</div></div><partial name="_AppointmentStatus" model="a" /></li>
+                }
+            </ul>
+            @if (Model.Appointments.Count == 0) { <div class="empty-state"><p>No appointments.</p></div> }
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         (function () {
@@ -186,13 +200,18 @@ else
                     targetId.value = btn.getAttribute('data-feedback-id');
                     label.textContent = 'On: ' + btn.getAttribute('data-feedback-label');
                     reset.hidden = false;
-                    document.getElementById('feedback').scrollIntoView();
+                    document.getElementById('feedback').scrollIntoView({ behavior: 'smooth' });
                     document.querySelector('#feedback textarea').focus();
                 });
             });
             reset.addEventListener('click', function () {
                 target.value = 'General'; targetId.value = ''; label.textContent = 'General feedback'; reset.hidden = true;
             });
+            // Deep links such as #meals open the right tab.
+            var hash = window.location.hash;
+            if (hash && document.querySelector('[data-bs-target="' + hash + '"]')) {
+                new bootstrap.Tab(document.querySelector('[data-bs-target="' + hash + '"]')).show();
+            }
         })();
     </script>
 }

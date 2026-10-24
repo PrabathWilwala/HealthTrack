@@ -13,7 +13,7 @@ namespace HealthTrack.Controllers
             _logger = logger;
         }
 
-        // Public landing page. Signed-in users go straight to their dashboard.
+        /// <summary>Public landing page. Signed-in users go straight to their dashboard.</summary>
         public IActionResult Index()
         {
             if (User.Identity?.IsAuthenticated == true)
@@ -21,13 +21,13 @@ namespace HealthTrack.Controllers
             return View();
         }
 
-        // Privacy policy (GDPR principles: consent, minimisation, access and erasure).
+        /// <summary>Privacy policy (GDPR principles: consent, minimisation, access and erasure).</summary>
         public IActionResult Privacy()
         {
             return View();
         }
 
-        // Generic error page.
+        /// <summary>Generic error page.</summary>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -36,7 +36,7 @@ namespace HealthTrack.Controllers
             return View(new ErrorViewModel { RequestId = requestId });
         }
 
-        // Friendly pages for 404, 403, 429 and other status codes.
+        /// <summary>Friendly pages for 404, 403, 429 and other status codes.</summary>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult HttpStatus(int code)
         {

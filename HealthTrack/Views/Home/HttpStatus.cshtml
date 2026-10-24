@@ -1,16 +1,23 @@
 @{
     var code = ViewData["Code"] as int? ?? 500;
-    var (title, message) = code switch
+    var (title, message, icon) = code switch
     {
-        404 => ("Page not found", "The page you are looking for does not exist or you do not have access to it."),
-        403 => ("Access denied", "Your account does not have permission to view this page."),
-        429 => ("Too many requests", "Please wait a moment before trying again."),
-        400 => ("Bad request", "The request could not be processed. Please refresh the page and try again."),
-        _ => ("Something went wrong", "An unexpected error occurred. Please try again.")
+        404 => ("Page not found", "The page you are looking for does not exist or you do not have access to it.", "bi-signpost-split"),
+        403 => ("Access denied", "Your account does not have permission to view this page.", "bi-shield-lock"),
+        429 => ("Too many requests", "Please wait a moment before trying again.", "bi-hourglass-split"),
+        400 => ("Bad request", "The request could not be processed. Please refresh the page and try again.", "bi-exclamation-diamond"),
+        _ => ("Something went wrong", "An unexpected error occurred. Please try again.", "bi-exclamation-octagon")
     };
     ViewData["Title"] = title;
 }
-<p>Error @code</p>
-<h1>@title</h1>
-<p>@message</p>
-<p><a asp-controller="Account" asp-action="Dashboard">Back to HealthTrack</a></p>
+<div class="container py-5" style="max-width:640px">
+    <div class="card-ht text-center">
+        <div class="card-ht-body p-5">
+            <div class="icon-bubble rose mx-auto mb-3" style="width:56px;height:56px;font-size:1.5rem"><i class="bi @icon"></i></div>
+            <p class="small-caps mb-1">Error @code</p>
+            <h1 class="h3">@title</h1>
+            <p class="text-muted">@message</p>
+            <a class="btn btn-primary mt-2" asp-controller="Account" asp-action="Dashboard">Back to HealthTrack</a>
+        </div>
+    </div>
+</div>

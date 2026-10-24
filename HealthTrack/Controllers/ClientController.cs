@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Client dashboard, assigned plans and trainer feedback.
+/// <summary>Client dashboard, assigned plans and trainer feedback.</summary>
 [Authorize(Roles = RoleNames.Client)]
 public class ClientController : Controller
 {
@@ -24,7 +24,7 @@ public class ClientController : Controller
         _directory = directory;
     }
 
-    // Client dashboard: health stats, today's workout and meals, weight trend, appointments, notifications and feedback.
+    /// <summary>Client dashboard: health stats, today's workout and meals, weight trend, appointments, notifications and feedback.</summary>
     [HttpGet]
     public async Task<IActionResult> Dashboard()
     {
@@ -113,7 +113,7 @@ public class ClientController : Controller
         return View(model);
     }
 
-    // Assigned workout and diet plans with adherence and plan history.
+    /// <summary>Assigned workout and diet plans with adherence and plan history.</summary>
     [HttpGet]
     public async Task<IActionResult> Plans()
     {
@@ -153,7 +153,7 @@ public class ClientController : Controller
         return View(model);
     }
 
-    // All feedback from trainers plus post-consultation notes.
+    /// <summary>All feedback from trainers plus post-consultation notes.</summary>
     [HttpGet]
     public async Task<IActionResult> Feedback()
     {

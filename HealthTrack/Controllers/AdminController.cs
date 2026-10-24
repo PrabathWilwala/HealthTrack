@@ -12,9 +12,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Administrator area: system dashboard, user management (create, edit, activate/deactivate,
-// delete, trainer approval and assignment), plan and appointment oversight, policies,
-// broadcasts, notification templates and the audit log. Every change is audited.
+/// <summary>
+/// Administrator area: system dashboard, user management (create, edit, activate/deactivate,
+/// delete, trainer approval and assignment), plan and appointment oversight, policies,
+/// broadcasts, notification templates and the audit log. Every change is audited.
+/// </summary>
 [Authorize(Roles = RoleNames.Administrator)]
 public class AdminController : Controller
 {
@@ -54,7 +56,7 @@ public class AdminController : Controller
     // Dashboard
     // =====================================================================
 
-    // Administrator dashboard: user activity, usage, health, workload, approvals, alerts and activity feed.
+    /// <summary>Administrator dashboard: user activity, usage, health, workload, approvals, alerts and activity feed.</summary>
     [HttpGet]
     public async Task<IActionResult> Dashboard()
     {
@@ -162,7 +164,7 @@ public class AdminController : Controller
     // User management
     // =====================================================================
 
-    // Searchable, filterable, paged list of all users.
+    /// <summary>Searchable, filterable, paged list of all users.</summary>
     [HttpGet]
     public async Task<IActionResult> Users(string? search, string? role, string? status, int page = 1)
     {
@@ -195,11 +197,11 @@ public class AdminController : Controller
         return View(model);
     }
 
-    // Shows the form / creates a client, trainer or administrator account.
+    /// <summary>Shows the form / creates a client, trainer or administrator account.</summary>
     [HttpGet]
     public IActionResult CreateUser() => View(new CreateUserViewModel());
 
-    // Shows the form / creates a client, trainer or administrator account.
+    /// <summary>Shows the form / creates a client, trainer or administrator account.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateUser(CreateUserViewModel model)
@@ -243,7 +245,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Users));
     }
 
-    // Shows / saves account details and role.
+    /// <summary>Shows / saves account details and role.</summary>
     [HttpGet]
     public async Task<IActionResult> EditUser(string id)
     {
@@ -266,7 +268,7 @@ public class AdminController : Controller
         });
     }
 
-    // Shows / saves account details and role.
+    /// <summary>Shows / saves account details and role.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditUser(EditUserViewModel model)
@@ -317,7 +319,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(EditUser), new { id = user.Id });
     }
 
-    // Sets a new password for a user.
+    /// <summary>Sets a new password for a user.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SetPassword(AdminSetPasswordViewModel model)
@@ -343,7 +345,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(EditUser), new { id = model.Id });
     }
 
-    // Emails a password reset link to a user.
+    /// <summary>Emails a password reset link to a user.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SendPasswordReset(string id)
@@ -362,7 +364,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(EditUser), new { id });
     }
 
-    // Deactivates (and signs out) or reactivates an account.
+    /// <summary>Deactivates (and signs out) or reactivates an account.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleActive(string id, string? returnUrl)
@@ -394,7 +396,7 @@ public class AdminController : Controller
         return RedirectBack(returnUrl);
     }
 
-    // Deletes an account and all associated data.
+    /// <summary>Deletes an account and all associated data.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteUser(string id)
@@ -421,7 +423,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Users));
     }
 
-    // Approves a trainer registration and notifies the trainer.
+    /// <summary>Approves a trainer registration and notifies the trainer.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ApproveTrainer(string id, string? returnUrl)
@@ -447,7 +449,7 @@ public class AdminController : Controller
         return RedirectBack(returnUrl);
     }
 
-    // Rejects a trainer registration with an optional reason.
+    /// <summary>Rejects a trainer registration with an optional reason.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RejectTrainer(string id, string? reason, string? returnUrl)
@@ -471,7 +473,7 @@ public class AdminController : Controller
         return RedirectBack(returnUrl);
     }
 
-    // Shows trainer suggestions / assigns a trainer to a client and notifies both.
+    /// <summary>Shows trainer suggestions / assigns a trainer to a client and notifies both.</summary>
     [HttpGet]
     public async Task<IActionResult> AssignTrainer(string id)
     {
@@ -491,7 +493,7 @@ public class AdminController : Controller
         });
     }
 
-    // Shows trainer suggestions / assigns a trainer to a client and notifies both.
+    /// <summary>Shows trainer suggestions / assigns a trainer to a client and notifies both.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AssignTrainer(AssignTrainerViewModel model)
@@ -528,7 +530,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Users), new { role = RoleNames.Client });
     }
 
-    // Audit trail and activity counts for one user.
+    /// <summary>Audit trail and activity counts for one user.</summary>
     [HttpGet]
     public async Task<IActionResult> UserActivity(string id)
     {
@@ -552,7 +554,7 @@ public class AdminController : Controller
     // Plan oversight
     // =====================================================================
 
-    // Oversight of every workout and diet plan, with popularity.
+    /// <summary>Oversight of every workout and diet plan, with popularity.</summary>
     [HttpGet]
     public async Task<IActionResult> Plans(string? filter)
     {
@@ -595,7 +597,7 @@ public class AdminController : Controller
         });
     }
 
-    // Flags a plan for review (notifying its author) or clears the flag.
+    /// <summary>Flags a plan for review (notifying its author) or clears the flag.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> FlagPlan(string type, int id, bool flag, string? reason)
@@ -631,7 +633,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Plans));
     }
 
-    // Removes a plan that violates policy.
+    /// <summary>Removes a plan that violates policy.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeletePlan(string type, int id)
@@ -661,7 +663,7 @@ public class AdminController : Controller
     // Appointment oversight and policies
     // =====================================================================
 
-    // All appointments with filters, conflict detection, analytics and policy settings.
+    /// <summary>All appointments with filters, conflict detection, analytics and policy settings.</summary>
     [HttpGet]
     public async Task<IActionResult> Appointments(AppointmentStatus? status, string? trainerId, DateTime? from, DateTime? to)
     {
@@ -713,7 +715,7 @@ public class AdminController : Controller
         return View(model);
     }
 
-    // Moves an appointment to resolve a conflict.
+    /// <summary>Moves an appointment to resolve a conflict.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RescheduleAppointment(int id, DateTime? newStart)
@@ -729,7 +731,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Appointments));
     }
 
-    // Saves the appointment and alert policies.
+    /// <summary>Saves the appointment and alert policies.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Policies(PolicyViewModel model)
@@ -754,14 +756,14 @@ public class AdminController : Controller
     // Notifications: broadcasts and templates
     // =====================================================================
 
-    // Shows history / sends an announcement to all users or one role.
+    /// <summary>Shows history / sends an announcement to all users or one role.</summary>
     [HttpGet]
     public async Task<IActionResult> Broadcast()
     {
         return View(new BroadcastViewModel { History = await LoadBroadcastHistoryAsync() });
     }
 
-    // Shows history / sends an announcement to all users or one role.
+    /// <summary>Shows history / sends an announcement to all users or one role.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Broadcast(BroadcastViewModel model)
@@ -781,14 +783,14 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Broadcast));
     }
 
-    // Lists notification templates.
+    /// <summary>Lists notification templates.</summary>
     [HttpGet]
     public async Task<IActionResult> Templates()
     {
         return View(await _db.NotificationTemplates.AsNoTracking().OrderBy(t => t.Name).ToListAsync());
     }
 
-    // Shows / saves a notification template.
+    /// <summary>Shows / saves a notification template.</summary>
     [HttpGet]
     public async Task<IActionResult> EditTemplate(int id)
     {
@@ -805,7 +807,7 @@ public class AdminController : Controller
         });
     }
 
-    // Shows / saves a notification template.
+    /// <summary>Shows / saves a notification template.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditTemplate(TemplateEditViewModel model)
@@ -829,7 +831,7 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Templates));
     }
 
-    // Restores a template's default wording.
+    /// <summary>Restores a template's default wording.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ResetTemplate(int id)
@@ -854,7 +856,7 @@ public class AdminController : Controller
     // Audit log
     // =====================================================================
 
-    // Searchable audit log.
+    /// <summary>Searchable audit log.</summary>
     [HttpGet]
     public async Task<IActionResult> AuditLog(string? search, string? category, bool securityOnly = false, int page = 1)
     {
@@ -886,7 +888,7 @@ public class AdminController : Controller
     private IActionResult RedirectBack(string? returnUrl) =>
         !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl) : RedirectToAction(nameof(Users));
 
-    // Maps user id → role name.
+    /// <summary>Maps user id → role name.</summary>
     private async Task<Dictionary<string, string>> LoadUserRolesAsync()
     {
         var pairs = await _db.UserRoles.Join(_db.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
@@ -928,7 +930,7 @@ public class AdminController : Controller
         }).ToList();
     }
 
-    // Moves a user to a different role, creating a minimal profile when needed.
+    /// <summary>Moves a user to a different role, creating a minimal profile when needed.</summary>
     private async Task ChangeRoleAsync(IdentityUser user, string currentRole, string newRole, string? fullName)
     {
         if (!string.IsNullOrEmpty(currentRole))
@@ -981,7 +983,7 @@ public class AdminController : Controller
             .OrderByDescending(x => x.Item3).Take(10).ToList();
     }
 
-    // Suggests trainers whose specialisations share keywords with the client's goals.
+    /// <summary>Suggests trainers whose specialisations share keywords with the client's goals.</summary>
     private static List<string> SuggestTrainers(string? goals, List<TrainerOption> trainers)
     {
         if (string.IsNullOrWhiteSpace(goals)) return new List<string>();

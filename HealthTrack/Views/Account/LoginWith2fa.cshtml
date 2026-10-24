@@ -2,22 +2,31 @@
 @{
     ViewData["Title"] = "Two-factor authentication";
 }
-<h1>Two-factor authentication</h1>
-<p>Open your authenticator app (Microsoft Authenticator, Google Authenticator, Authy...) and enter the 6-digit code for HealthTrack.</p>
-<form asp-action="LoginWith2fa" method="post">
-    <div asp-validation-summary="ModelOnly" role="alert"></div>
-    <input asp-for="RememberMe" type="hidden" />
-    <input asp-for="ReturnUrl" type="hidden" />
-    <p>
-        <label asp-for="TwoFactorCode">Authenticator code</label><br />
-        <input asp-for="TwoFactorCode" autocomplete="one-time-code" inputmode="numeric" maxlength="7" autofocus />
-        <span asp-validation-for="TwoFactorCode"></span>
-    </p>
-    <p>
-        <input asp-for="RememberMachine" />
-        <label asp-for="RememberMachine">Don't ask again on this device</label>
-    </p>
-    <button type="submit">Verify and sign in</button>
-</form>
-<p>Lost your device? <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">Use a recovery code</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card">
+        <partial name="_AuthBrand" />
+        <header class="ht-auth-heading">
+            <p class="ht-eyebrow">TWO-FACTOR AUTHENTICATION</p>
+            <h1>Enter your security code</h1>
+            <p>Open your authenticator app (Microsoft Authenticator, Google Authenticator, Authy…) and enter the 6-digit code for HealthTrack.</p>
+        </header>
+        <form asp-action="LoginWith2fa" method="post">
+            <div asp-validation-summary="ModelOnly" class="ht-validation-summary" role="alert"></div>
+            <input asp-for="RememberMe" type="hidden" />
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="ht-field">
+                <label asp-for="TwoFactorCode">Authenticator code</label>
+                <input asp-for="TwoFactorCode" class="ht-control" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="123456" autofocus />
+                <span asp-validation-for="TwoFactorCode" class="ht-field-error"></span>
+            </div>
+            <label class="ht-checkbox-line">
+                <input asp-for="RememberMachine" />
+                <span>Don't ask again on this device</span>
+            </label>
+            <button type="submit" class="ht-primary-button">Verify and sign in</button>
+            <p class="ht-auth-switch">Lost your device? <a asp-action="LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl">Use a recovery code</a></p>
+        </form>
+    </section>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

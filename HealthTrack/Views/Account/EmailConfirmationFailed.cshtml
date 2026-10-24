@@ -1,6 +1,13 @@
 @{
     ViewData["Title"] = "Email confirmation failed";
 }
-<h1>We could not confirm your email</h1>
-<p>The link may be invalid, expired or already used. Please register again only if you have not already created an account.</p>
-<p><a asp-controller="Account" asp-action="Login">Return to sign in</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-result-card">
+        <div class="ht-result-icon ht-result-icon-error">!</div>
+        <p class="ht-eyebrow">CONFIRMATION LINK INVALID</p>
+        <h1>We could not confirm your email</h1>
+        <p class="ht-result-lead">The link may be invalid, expired or already used. Please register again only if you have not already created an account.</p>
+        <a class="ht-primary-button ht-button-link" asp-controller="Account" asp-action="Login">Return to sign in</a>
+    </section>
+</div>

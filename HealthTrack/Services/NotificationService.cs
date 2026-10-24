@@ -7,8 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Services;
 
-// Default text for every automated notification. Administrators can edit these
-// in Admin → Notification templates; the defaults are seeded on first run.
+/// <summary>
+/// Default text for every automated notification. Administrators can edit these
+/// in Admin → Notification templates; the defaults are seeded on first run.
+/// </summary>
 public static class NotificationTemplateKeys
 {
     public const string PlanAssigned = "PlanAssigned";
@@ -33,7 +35,7 @@ public static class NotificationTemplateKeys
     public const string TrainerApproved = "TrainerApproved";
     public const string SecurityAlert = "SecurityAlert";
 
-    // (Key, Name, Title, Body) for every template.
+    /// <summary>(Key, Name, Title, Body) for every template.</summary>
     public static readonly IReadOnlyList<(string Key, string Name, string Title, string Body)> Defaults = new[]
     {
         (PlanAssigned, "Plan assigned (client)", "New {PlanType} plan: {PlanTitle}", "{TrainerName} assigned you the {PlanType} plan \"{PlanTitle}\" starting {StartDate}."),
@@ -80,7 +82,9 @@ public interface INotificationService
     Task<int> GetUnreadCountAsync(string userId);
 }
 
-// Creates in-app notifications (and optional emails) while honouring each user's preferences.
+/// <summary>
+/// Creates in-app notifications (and optional emails) while honouring each user's preferences.
+/// </summary>
 public sealed class NotificationService : INotificationService
 {
     private readonly ApplicationDbContext _db;
@@ -97,7 +101,7 @@ public sealed class NotificationService : INotificationService
         _logger = logger;
     }
 
-    // Creates an in-app notification if the user's preferences allow it (and emails it when enabled). Dedup keys prevent duplicate reminders.
+    /// <summary>Creates an in-app notification if the user's preferences allow it (and emails it when enabled). Dedup keys prevent duplicate reminders.</summary>
     public async Task NotifyAsync(string userId, NotificationType type, string title, string message,
         string? linkUrl = null, string? dedupKey = null)
     {
@@ -141,7 +145,7 @@ public sealed class NotificationService : INotificationService
         }
     }
 
-    // Renders an administrator-editable template with tokens and sends it as a notification.
+    /// <summary>Renders an administrator-editable template with tokens and sends it as a notification.</summary>
     public async Task NotifyFromTemplateAsync(string userId, NotificationType type, string templateKey,
         IDictionary<string, string> tokens, string? linkUrl = null, string? dedupKey = null)
     {
@@ -149,7 +153,7 @@ public sealed class NotificationService : INotificationService
         await NotifyAsync(userId, type, title, body, linkUrl, dedupKey);
     }
 
-    // Sends a templated notification to every user in a role (e.g. all administrators).
+    /// <summary>Sends a templated notification to every user in a role (e.g. all administrators).</summary>
     public async Task NotifyRoleAsync(string role, NotificationType type, string templateKey,
         IDictionary<string, string> tokens, string? linkUrl = null, string? dedupKey = null)
     {
@@ -158,7 +162,7 @@ public sealed class NotificationService : INotificationService
             await NotifyFromTemplateAsync(user.Id, type, templateKey, tokens, linkUrl, dedupKey);
     }
 
-    // Sends an announcement to every user, or every user in one role.
+    /// <summary>Sends an announcement to every user, or every user in one role.</summary>
     public async Task<int> BroadcastAsync(string? role, string title, string message, string? linkUrl)
     {
         List<string> userIds;
@@ -183,14 +187,14 @@ public sealed class NotificationService : INotificationService
         return userIds.Count;
     }
 
-    // Returns the user's notification preferences, or the defaults if none were saved.
+    /// <summary>Returns the user's notification preferences, or the defaults if none were saved.</summary>
     public async Task<NotificationPreference> GetPreferencesAsync(string userId)
     {
         return await _db.NotificationPreferences.AsNoTracking().FirstOrDefaultAsync(p => p.UserId == userId)
                ?? new NotificationPreference { UserId = userId };
     }
 
-    // Immediate alert to the client's trainer, only if they chose "every new log".
+    /// <summary>Immediate alert to the client's trainer, only if they chose "every new log".</summary>
     public async Task NotifyTrainerOfClientLogAsync(string clientId, string logType, string summary)
     {
         var client = await _db.ClientProfiles.AsNoTracking()
@@ -209,11 +213,11 @@ public sealed class NotificationService : INotificationService
             "/Trainer/Client/" + clientId);
     }
 
-    // Counts the user's unread notifications (navigation bell badge).
+    /// <summary>Counts the user's unread notifications (navigation bell badge).</summary>
     public Task<int> GetUnreadCountAsync(string userId) =>
         _db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
 
-    // Loads the editable template (or the built-in default) and replaces {Tokens}.
+    /// <summary>Loads the editable template (or the built-in default) and replaces {Tokens}.</summary>
     private async Task<(string Title, string Body)> RenderTemplateAsync(string key, IDictionary<string, string> tokens)
     {
         var template = await _db.NotificationTemplates.AsNoTracking().FirstOrDefaultAsync(t => t.Key == key);
@@ -241,9 +245,9 @@ public sealed class NotificationService : INotificationService
     private static string Limit(string value, int max) => value.Length <= max ? value : value.Substring(0, max - 1) + "…";
 }
 
-// Formatting helpers used when building notification tokens.
+/// <summary>Formatting helpers used when building notification tokens.</summary>
 public static class NotificationFormat
 {
-    // Formats a local date/time for notification text.
+    /// <summary>Formats a local date/time for notification text.</summary>
     public static string When(DateTime local) => local.ToString("ddd dd MMM yyyy, HH:mm");
 }

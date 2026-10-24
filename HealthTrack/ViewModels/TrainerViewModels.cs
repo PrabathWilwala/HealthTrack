@@ -4,7 +4,7 @@ using HealthTrack.Services;
 
 namespace HealthTrack.ViewModels;
 
-// One entry in an activity feed (client logs, system events).
+/// <summary>One entry in an activity feed (client logs, system events).</summary>
 public sealed record ActivityItem(string Who, string Icon, string Description, DateTime WhenUtc, string? Link);
 
 public class TrainerDashboardViewModel

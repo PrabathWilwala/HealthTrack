@@ -2,11 +2,21 @@
 @{
     ViewData["Title"] = Model.Heading;
 }
-<h1>@Model.Heading</h1>
-<p>@Model.Message</p>
-@if (!string.IsNullOrEmpty(Model.DevelopmentLink))
-{
-    <p><b>Development mode:</b> Real emails are not sent unless SMTP is configured in appsettings.json. Use this link to continue testing:</p>
-    <p><a href="@Model.DevelopmentLink">Open the emailed link</a></p>
-}
-<p><a asp-action="Login">Return to sign in</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-result-card">
+        <div class="ht-result-icon">&#9993;</div>
+        <p class="ht-eyebrow">EMAIL SENT</p>
+        <h1>@Model.Heading</h1>
+        <p class="ht-result-lead">@Model.Message</p>
+        @if (!string.IsNullOrEmpty(Model.DevelopmentLink))
+        {
+            <div class="ht-info-panel">
+                <strong>Development mode</strong>
+                <p>Real emails are not sent unless SMTP is configured in appsettings.json. Use this link to continue testing:</p>
+            </div>
+            <a class="ht-primary-button ht-button-link" href="@Model.DevelopmentLink">Open the emailed link <span aria-hidden="true">&#8594;</span></a>
+        }
+        <p class="ht-auth-switch"><a asp-action="Login">Return to sign in</a></p>
+    </section>
+</div>

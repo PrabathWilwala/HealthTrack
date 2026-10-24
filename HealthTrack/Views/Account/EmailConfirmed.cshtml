@@ -1,6 +1,13 @@
 @{
     ViewData["Title"] = "Email confirmed";
 }
-<h1>Your email is confirmed</h1>
-<p>Your email address has been verified successfully.</p>
-<p><a asp-controller="Account" asp-action="Login">Continue to sign in</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-result-card">
+        <div class="ht-result-icon">&#10003;</div>
+        <p class="ht-eyebrow">EMAIL VERIFIED</p>
+        <h1>Your email is confirmed</h1>
+        <p class="ht-result-lead">Your email address has been verified successfully.</p>
+        <a class="ht-primary-button ht-button-link" asp-controller="Account" asp-action="Login">Continue to sign in <span aria-hidden="true">&#8594;</span></a>
+    </section>
+</div>

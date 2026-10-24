@@ -4,79 +4,86 @@
     var isClient = Model.Role == RoleNames.Client;
     var currentUrl = Context.Request.Path + Context.Request.QueryString;
 }
-<h1>Appointments</h1>
-<p>@(isClient ? "Consultations with your trainer or healthcare professional." : "Consultation requests and sessions with your clients.")</p>
-<p>
-    @if (isClient)
-    {
-        <a asp-action="Create">Request appointment</a>
-    }
-    else
-    {
-        <a asp-action="Calendar">Calendar</a> <text>|</text>
-        <a asp-controller="Trainer" asp-action="Availability">Availability</a>
-    }
-</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Appointments</h1>
+        <p class="page-subtitle">@(isClient ? "Consultations with your trainer or healthcare professional." : "Consultation requests and sessions with your clients.")</p>
+    </div>
+    <div class="page-actions">
+        @if (isClient)
+        {
+            <a class="btn btn-primary" asp-action="Create"><i class="bi bi-calendar-plus"></i> Request appointment</a>
+        }
+        else
+        {
+            <a class="btn btn-light" asp-action="Calendar"><i class="bi bi-calendar3"></i> Calendar</a>
+            <a class="btn btn-light" asp-controller="Trainer" asp-action="Availability"><i class="bi bi-clock"></i> Availability</a>
+        }
+    </div>
+</div>
 
 @if (!isClient && Model.PendingCount > 0)
 {
-    <p><b>You have @Model.PendingCount request(s) awaiting your response.</b></p>
+    <div class="alert alert-warning d-flex align-items-center gap-2"><i class="bi bi-hourglass-split"></i> You have <strong>@Model.PendingCount</strong> request(s) awaiting your response.</div>
 }
 @if (Model.RescheduleRequests > 0)
 {
-    <p><b>@Model.RescheduleRequests appointment(s) have a new time waiting for your confirmation.</b></p>
+    <div class="alert alert-info d-flex align-items-center gap-2"><i class="bi bi-arrow-repeat"></i> <strong>@Model.RescheduleRequests</strong> appointment(s) have a new time waiting for your confirmation.</div>
 }
 
-<p>
-    <a asp-route-tab="upcoming" asp-route-status="@Model.StatusFilter">Upcoming</a> |
-    <a asp-route-tab="past" asp-route-status="@Model.StatusFilter">History</a>
-    (current: @Model.Tab)
-</p>
-<form method="get">
-    <input type="hidden" name="tab" value="@Model.Tab" />
-    <label for="status">Status:</label>
-    <select id="status" name="status" onchange="this.form.submit()">
-        <option value="">All statuses</option>
-        @foreach (var s in Enum.GetValues<AppointmentStatus>())
-        {
-            if (Model.StatusFilter == s) { <option value="@s" selected>@s</option> }
-            else { <option value="@s">@s</option> }
-        }
-    </select>
-</form>
-
-@if (Model.Items.Count == 0)
-{
-    <p>No appointments here.
-        @if (isClient) { <a asp-action="Create">Request a consultation</a> }
-    </p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>When</th><th>@(isClient ? "Trainer" : "Client")</th><th>Purpose</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
-                var a = item.Appointment;
-                <tr>
-                    <td>@a.StartTime.ToString("ddd dd MMM yyyy") @a.StartTime.ToString("HH:mm") - @a.EndTime.ToString("HH:mm")</td>
-                    <td>@item.OtherPartyName</td>
-                    <td>@a.Purpose</td>
-                    <td>@a.DurationMinutes min</td>
-                    <td><partial name="_AppointmentStatus" model="a" /></td>
-                    <td>
-                        @if (!isClient && a.Status == AppointmentStatus.Pending && a.StartTime > DateTime.Now)
-                        {
-                            <form asp-action="Approve" asp-route-id="@a.Id" method="post">
-                                <input type="hidden" name="returnUrl" value="@currentUrl" />
-                                <button type="submit">Approve</button>
-                            </form>
-                        }
-                        <a asp-action="Details" asp-route-id="@a.Id">Open</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="card-ht">
+    <div class="card-ht-header flex-wrap">
+        <ul class="nav nav-tabs border-0">
+            <li class="nav-item"><a class="nav-link @(Model.Tab == "upcoming" ? "active" : "")" asp-route-tab="upcoming" asp-route-status="@Model.StatusFilter">Upcoming</a></li>
+            <li class="nav-item"><a class="nav-link @(Model.Tab == "past" ? "active" : "")" asp-route-tab="past" asp-route-status="@Model.StatusFilter">History</a></li>
+        </ul>
+        <form method="get" class="d-flex gap-2">
+            <input type="hidden" name="tab" value="@Model.Tab" />
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All statuses</option>
+                @foreach (var s in Enum.GetValues<AppointmentStatus>())
+                {
+                    if (Model.StatusFilter == s) { <option value="@s" selected>@s</option> }
+                    else { <option value="@s">@s</option> }
+                }
+            </select>
+        </form>
+    </div>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-calendar"></i><p>No appointments here.</p>
+            @if (isClient) { <a class="btn btn-primary btn-sm" asp-action="Create">Request a consultation</a> }
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>When</th><th>@(isClient ? "Trainer" : "Client")</th><th>Purpose</th><th>Duration</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var a = item.Appointment;
+                        <tr>
+                            <td class="text-nowrap"><div class="fw-bold">@a.StartTime.ToString("ddd dd MMM yyyy")</div><div class="small text-muted">@a.StartTime.ToString("HH:mm") – @a.EndTime.ToString("HH:mm")</div></td>
+                            <td>@item.OtherPartyName</td>
+                            <td class="small">@a.Purpose</td>
+                            <td>@a.DurationMinutes min</td>
+                            <td><partial name="_AppointmentStatus" model="a" /></td>
+                            <td class="text-end text-nowrap">
+                                @if (!isClient && a.Status == AppointmentStatus.Pending && a.StartTime > DateTime.Now)
+                                {
+                                    <form asp-action="Approve" asp-route-id="@a.Id" method="post" class="d-inline">
+                                        <input type="hidden" name="returnUrl" value="@currentUrl" />
+                                        <button class="btn btn-sm btn-teal" type="submit"><i class="bi bi-check2"></i> Approve</button>
+                                    </form>
+                                }
+                                <a class="btn btn-light btn-sm" asp-action="Details" asp-route-id="@a.Id">Open</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

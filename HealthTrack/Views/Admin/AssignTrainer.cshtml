@@ -2,31 +2,37 @@
 @{
     ViewData["Title"] = "Assign trainer";
 }
-<p><a asp-action="Users" asp-route-role="Client">&lt; Clients</a></p>
-<h1>Assign a trainer to @Model.ClientName</h1>
-<p>Goals: @(Model.FitnessGoals ?? "not specified"). Trainers whose specialisations match are marked as a good match.</p>
-<form asp-action="AssignTrainer" method="post">
+<div class="page-header">
+    <div>
+        <a asp-action="Users" asp-route-role="Client" class="small fw-bold"><i class="bi bi-arrow-left"></i> Clients</a>
+        <h1 class="page-title mt-1">Assign a trainer to @Model.ClientName</h1>
+        <p class="page-subtitle">Goals: @(Model.FitnessGoals ?? "not specified"). Trainers whose specialisations match are highlighted.</p>
+    </div>
+</div>
+<form asp-action="AssignTrainer" method="post" class="card-ht">
     <input type="hidden" asp-for="ClientId" />
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Select</th><th>Trainer</th><th>Specialisations</th><th>Current clients</th><th>Notes</th></tr></thead>
-        <tbody>
-            <tr>
-                <td><input type="radio" name="TrainerId" value="" id="t_none" checked="@(Model.CurrentTrainerId == null)" /></td>
-                <td colspan="4"><label for="t_none">No trainer</label></td>
-            </tr>
-            @foreach (var t in Model.Trainers.OrderByDescending(t => Model.SuggestedTrainerIds.Contains(t.UserId)).ThenBy(t => t.ClientCount))
-            {
-                var suggested = Model.SuggestedTrainerIds.Contains(t.UserId);
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th style="width:40px"></th><th>Trainer</th><th>Specialisations</th><th>Current clients</th><th></th></tr></thead>
+            <tbody>
                 <tr>
-                    <td><input type="radio" name="TrainerId" value="@t.UserId" id="@("t" + t.UserId)" checked="@(t.UserId == Model.CurrentTrainerId)" /></td>
-                    <td><label for="@("t" + t.UserId)">@t.FullName</label></td>
-                    <td>@t.Specializations</td>
-                    <td>@t.ClientCount</td>
-                    <td>@if (suggested) { <span>Good match</span> }
-                        @if (t.UserId == Model.CurrentTrainerId) { <span>Current</span> }</td>
+                    <td><input class="form-check-input" type="radio" name="TrainerId" value="" id="t_none" checked="@(Model.CurrentTrainerId == null)" /></td>
+                    <td colspan="4"><label for="t_none" class="text-muted">No trainer</label></td>
                 </tr>
-            }
-        </tbody>
-    </table>
-    <p><button type="submit">Save assignment</button></p>
+                @foreach (var t in Model.Trainers.OrderByDescending(t => Model.SuggestedTrainerIds.Contains(t.UserId)).ThenBy(t => t.ClientCount))
+                {
+                    var suggested = Model.SuggestedTrainerIds.Contains(t.UserId);
+                    <tr class="@(suggested ? "table-success" : "")">
+                        <td><input class="form-check-input" type="radio" name="TrainerId" value="@t.UserId" id="@("t" + t.UserId)" checked="@(t.UserId == Model.CurrentTrainerId)" /></td>
+                        <td><label for="@("t" + t.UserId)" class="fw-semibold">@t.FullName</label></td>
+                        <td class="small">@t.Specializations</td>
+                        <td>@t.ClientCount</td>
+                        <td>@if (suggested) { <span class="badge-soft success"><i class="bi bi-stars"></i>Good match</span> }
+                            @if (t.UserId == Model.CurrentTrainerId) { <span class="badge-soft primary">Current</span> }</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-diagram-3"></i> Save assignment</button></div>
 </form>

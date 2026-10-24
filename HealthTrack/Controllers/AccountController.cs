@@ -14,8 +14,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers
 {
-    // Registration, email verification, sign-in (with optional two-factor authentication),
-    // password reset and sign-out for all three roles.
+    /// <summary>
+    /// Registration, email verification, sign-in (with optional two-factor authentication),
+    /// password reset and sign-out for all three roles.
+    /// </summary>
     public class AccountController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -51,7 +53,7 @@ namespace HealthTrack.Controllers
         // Registration and email verification
         // =====================================================================
 
-        // Shows the registration form / creates a client or trainer account, its profile and sends the email confirmation link.
+        /// <summary>Shows the registration form / creates a client or trainer account, its profile and sends the email confirmation link.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Register()
@@ -61,7 +63,7 @@ namespace HealthTrack.Controllers
             return View(new RegisterViewModel());
         }
 
-        // Shows the registration form / creates a client or trainer account, its profile and sends the email confirmation link.
+        /// <summary>Shows the registration form / creates a client or trainer account, its profile and sends the email confirmation link.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -170,7 +172,7 @@ namespace HealthTrack.Controllers
             });
         }
 
-        // Confirms the email address using the token from the confirmation link.
+        /// <summary>Confirms the email address using the token from the confirmation link.</summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string? userId, string? code)
@@ -204,12 +206,12 @@ namespace HealthTrack.Controllers
             return View("EmailConfirmationFailed");
         }
 
-        // Sends a new email confirmation link.
+        /// <summary>Sends a new email confirmation link.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult ResendConfirmation() => View(new ResendConfirmationViewModel());
 
-        // Sends a new email confirmation link.
+        /// <summary>Sends a new email confirmation link.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -237,7 +239,7 @@ namespace HealthTrack.Controllers
         // Sign-in
         // =====================================================================
 
-        // Shows the sign-in page / verifies credentials, lockout, email confirmation, trainer approval and two-factor requirements.
+        /// <summary>Shows the sign-in page / verifies credentials, lockout, email confirmation, trainer approval and two-factor requirements.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
@@ -247,7 +249,7 @@ namespace HealthTrack.Controllers
             return View(new LoginViewModel { ReturnUrl = returnUrl });
         }
 
-        // Shows the sign-in page / verifies credentials, lockout, email confirmation, trainer approval and two-factor requirements.
+        /// <summary>Shows the sign-in page / verifies credentials, lockout, email confirmation, trainer approval and two-factor requirements.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -344,7 +346,7 @@ namespace HealthTrack.Controllers
             return RedirectAfterLogin(model.ReturnUrl);
         }
 
-        // Second sign-in step: verifies the authenticator app code.
+        /// <summary>Second sign-in step: verifies the authenticator app code.</summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> LoginWith2fa(bool rememberMe, string? returnUrl = null)
@@ -356,7 +358,7 @@ namespace HealthTrack.Controllers
             return View(new LoginWith2faViewModel { RememberMe = rememberMe, ReturnUrl = returnUrl });
         }
 
-        // Second sign-in step: verifies the authenticator app code.
+        /// <summary>Second sign-in step: verifies the authenticator app code.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -389,7 +391,7 @@ namespace HealthTrack.Controllers
             return View(model);
         }
 
-        // Signs in with a one-time recovery code when the authenticator is unavailable.
+        /// <summary>Signs in with a one-time recovery code when the authenticator is unavailable.</summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> LoginWithRecoveryCode(string? returnUrl = null)
@@ -400,7 +402,7 @@ namespace HealthTrack.Controllers
             return View(new LoginWithRecoveryCodeViewModel { ReturnUrl = returnUrl });
         }
 
-        // Signs in with a one-time recovery code when the authenticator is unavailable.
+        /// <summary>Signs in with a one-time recovery code when the authenticator is unavailable.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -426,7 +428,7 @@ namespace HealthTrack.Controllers
             return View(model);
         }
 
-        // Sends each role to its own dashboard.
+        /// <summary>Sends each role to its own dashboard.</summary>
         [Authorize]
         [HttpGet]
         public IActionResult Dashboard()
@@ -440,7 +442,7 @@ namespace HealthTrack.Controllers
             return RedirectToAction(nameof(AccessDenied));
         }
 
-        // Signs the user out (also used by the inactivity timer).
+        /// <summary>Signs the user out (also used by the inactivity timer).</summary>
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -457,12 +459,12 @@ namespace HealthTrack.Controllers
         // Password reset
         // =====================================================================
 
-        // Shows the form / emails a password reset link without revealing whether the account exists.
+        /// <summary>Shows the form / emails a password reset link without revealing whether the account exists.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult ForgotPassword() => View(new ForgotPasswordViewModel());
 
-        // Shows the form / emails a password reset link without revealing whether the account exists.
+        /// <summary>Shows the form / emails a password reset link without revealing whether the account exists.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -493,7 +495,7 @@ namespace HealthTrack.Controllers
             });
         }
 
-        // Shows the form / sets a new password using the reset token.
+        /// <summary>Shows the form / sets a new password using the reset token.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult ResetPassword(string? userId, string? code)
@@ -503,7 +505,7 @@ namespace HealthTrack.Controllers
             return View(new ResetPasswordViewModel { UserId = userId, Code = code });
         }
 
-        // Shows the form / sets a new password using the reset token.
+        /// <summary>Shows the form / sets a new password using the reset token.</summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -545,7 +547,7 @@ namespace HealthTrack.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        // Shown when a signed-in user opens a page their role cannot access.
+        /// <summary>Shown when a signed-in user opens a page their role cannot access.</summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult AccessDenied()
@@ -557,7 +559,7 @@ namespace HealthTrack.Controllers
         // Helpers
         // =====================================================================
 
-        // Generates a confirmation link, emails it and returns it (for the Development screen).
+        /// <summary>Generates a confirmation link, emails it and returns it (for the Development screen).</summary>
         private async Task<string?> SendConfirmationEmailAsync(IdentityUser user)
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);

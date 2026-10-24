@@ -13,8 +13,10 @@ public interface IPlanService
     Task<DietPlan> CloneDietPlanAsync(DietPlan source, string ownerId, bool asTemplate);
 }
 
-// Plan assignment and template logic. A client has at most one active workout plan and
-// one active diet plan; assigning a new one ends the previous assignment of the same type.
+/// <summary>
+/// Plan assignment and template logic. A client has at most one active workout plan and
+/// one active diet plan; assigning a new one ends the previous assignment of the same type.
+/// </summary>
 public sealed class PlanService : IPlanService
 {
     private readonly ApplicationDbContext _db;
@@ -28,7 +30,7 @@ public sealed class PlanService : IPlanService
         _directory = directory;
     }
 
-    // Assigns a workout plan to clients for a date range, ending their previous workout assignment, and notifies them.
+    /// <summary>Assigns a workout plan to clients for a date range, ending their previous workout assignment, and notifies them.</summary>
     public async Task<int> AssignWorkoutPlanAsync(int planId, IEnumerable<string> clientIds, DateTime startDate, DateTime? endDate, string assignedById)
     {
         var plan = await _db.WorkoutPlans.AsNoTracking().FirstAsync(p => p.Id == planId);
@@ -63,7 +65,7 @@ public sealed class PlanService : IPlanService
         return ids.Count;
     }
 
-    // Assigns a diet plan to clients for a date range, ending their previous diet assignment, and notifies them.
+    /// <summary>Assigns a diet plan to clients for a date range, ending their previous diet assignment, and notifies them.</summary>
     public async Task<int> AssignDietPlanAsync(int planId, IEnumerable<string> clientIds, DateTime startDate, DateTime? endDate, string assignedById)
     {
         var plan = await _db.DietPlans.AsNoTracking().FirstAsync(p => p.Id == planId);
@@ -97,7 +99,7 @@ public sealed class PlanService : IPlanService
         return ids.Count;
     }
 
-    // Tells every client with an active assignment that the plan changed.
+    /// <summary>Tells every client with an active assignment that the plan changed.</summary>
     public async Task NotifyPlanUpdatedAsync(int? workoutPlanId, int? dietPlanId, string updatedById)
     {
         var query = _db.PlanAssignments.AsNoTracking().Where(a => a.IsActive);
@@ -123,7 +125,7 @@ public sealed class PlanService : IPlanService
         }
     }
 
-    // Copies a workout plan with all exercises (used by templates).
+    /// <summary>Copies a workout plan with all exercises (used by templates).</summary>
     public async Task<WorkoutPlan> CloneWorkoutPlanAsync(WorkoutPlan source, string ownerId, bool asTemplate)
     {
         var copy = new WorkoutPlan
@@ -152,7 +154,7 @@ public sealed class PlanService : IPlanService
         return copy;
     }
 
-    // Copies a diet plan with all meals (used by templates).
+    /// <summary>Copies a diet plan with all meals (used by templates).</summary>
     public async Task<DietPlan> CloneDietPlanAsync(DietPlan source, string ownerId, bool asTemplate)
     {
         var copy = new DietPlan

@@ -3,33 +3,40 @@
     ViewData["Title"] = "Engagement statistics";
     var days = (int)(ViewData["Days"] ?? 30);
 }
-<p><a asp-action="Index">&lt; Reports</a></p>
-<h1>Engagement statistics</h1>
-<p>Login frequency, logging activity, adherence and retention (last @days days).</p>
-<p>
-    Period:
-    @foreach (var d in new[] { 7, 30, 90 })
-    {
-        if (d == days) { <b>@d d</b> } else { <a asp-route-days="@d">@d d</a> }
-        <text> </text>
-    }
-</p>
-<p>Export: <a asp-route-days="@days" asp-route-format="csv">CSV</a> | <a asp-route-days="@days" asp-route-format="pdf">PDF</a></p>
-<table border="1" cellpadding="4">
-    <tr><th>Users</th><td>@Model.TotalUsers</td></tr>
-    <tr><th>Active (7 days)</th><td>@Model.ActiveLast7Days</td></tr>
-    <tr><th>Active (30 days)</th><td>@Model.ActiveLast30Days</td></tr>
-    <tr><th>30-day retention</th><td>@Model.RetentionPercent.ToString("0")% (users older than 30 days who are still active)</td></tr>
-</table>
-<h2>Daily activity</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.DailyActivityChart)" data-type="line"></canvas>
-<h2>Users</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>User</th><th>Logins</th><th>Log entries</th><th>Adherence</th><th>Last active</th></tr></thead>
-    <tbody>
-        @foreach (var r in Model.Rows)
-        {
-            <tr><td>@r.Name</td><td>@r.Logins</td><td>@r.LogEntries</td><td>@DisplayHelpers.Percent(r.AdherencePercent)</td><td>@(r.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(r.LastActiveUtc.Value) : "never")</td></tr>
-        }
-    </tbody>
-</table>
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Reports</a>
+        <h1 class="page-title mt-1">Engagement statistics</h1>
+        <p class="page-subtitle">Login frequency, logging activity, adherence and retention (last @days days).</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            @foreach (var d in new[] { 7, 30, 90 }) { <a class="btn btn-light @(d == days ? "active" : "")" asp-route-days="@d">@d d</a> }
+        </div>
+        <a class="btn btn-light" asp-route-days="@days" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="btn btn-primary" asp-route-days="@days" asp-route-format="pdf"><i class="bi bi-filetype-pdf"></i> PDF</a>
+    </div>
+</div>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Users</div><div class="stat-value">@Model.TotalUsers</div></div>
+    <div class="stat-card"><div class="stat-label">Active (7 days)</div><div class="stat-value">@Model.ActiveLast7Days</div></div>
+    <div class="stat-card"><div class="stat-label">Active (30 days)</div><div class="stat-value">@Model.ActiveLast30Days</div></div>
+    <div class="stat-card"><div class="stat-label">30-day retention</div><div class="stat-value">@Model.RetentionPercent.ToString("0")%</div><div class="stat-meta">Users older than 30 days who are still active</div></div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-graph-up"></i>Daily activity</h2></div>
+    <div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.DailyActivityChart)" data-type="line"></canvas></div></div>
+</div>
+<div class="card-ht">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>User</th><th>Logins</th><th>Log entries</th><th>Adherence</th><th>Last active</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Rows)
+                {
+                    <tr><td class="fw-semibold">@r.Name</td><td>@r.Logins</td><td>@r.LogEntries</td><td>@DisplayHelpers.Percent(r.AdherencePercent)</td><td class="small text-muted">@(r.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(r.LastActiveUtc.Value) : "never")</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

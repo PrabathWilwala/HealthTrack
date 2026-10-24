@@ -3,7 +3,7 @@ using HealthTrack.Infrastructure;
 
 namespace HealthTrack.Services.Reporting;
 
-// Turns analytics results into downloadable PDF and CSV files.
+/// <summary>Turns analytics results into downloadable PDF and CSV files.</summary>
 public static class ReportExporter
 {
     private static string N(decimal? value, string format = "0.#") =>
@@ -13,7 +13,7 @@ public static class ReportExporter
 
     // ------------------------------------------------------------------ client progress
 
-    // PDF version of a client progress report.
+    /// <summary>PDF version of a client progress report.</summary>
     public static byte[] ClientProgressPdf(ClientProgressReport r)
     {
         var pdf = new SimplePdfDocument("Progress report: " + r.ClientName, $"{r.From:dd MMM yyyy} - {r.To:dd MMM yyyy}");
@@ -69,7 +69,7 @@ public static class ReportExporter
         return pdf.Build();
     }
 
-    // CSV export of a client's measurements, workouts and meals.
+    /// <summary>CSV export of a client's measurements, workouts and meals.</summary>
     public static byte[] ClientProgressCsv(ClientProgressReport r)
     {
         // One flat table with a "Type" column so it opens nicely in Excel.
@@ -97,7 +97,7 @@ public static class ReportExporter
 
     // ------------------------------------------------------------------ trainer / admin tables
 
-    // PDF table of client summaries (comparative analysis).
+    /// <summary>PDF table of client summaries (comparative analysis).</summary>
     public static byte[] ClientSummariesPdf(string title, IEnumerable<ClientSummaryRow> rows)
     {
         var pdf = new SimplePdfDocument(title);
@@ -111,7 +111,7 @@ public static class ReportExporter
         return pdf.Build();
     }
 
-    // CSV table of client summaries.
+    /// <summary>CSV table of client summaries.</summary>
     public static byte[] ClientSummariesCsv(IEnumerable<ClientSummaryRow> rows) =>
         CsvBuilder.Build(
             new[] { "Client", "Current weight (kg)", "Weight change 30 days (kg)", "BMI", "Overall adherence %", "Workout adherence %", "Diet adherence %", "Workouts 30 days", "Log entries 30 days", "Goal progress %", "Last active (UTC)", "Alerts" },
@@ -121,7 +121,7 @@ public static class ReportExporter
                 r.Workouts30Days.ToString(), r.Logs30Days.ToString(), N(r.GoalPercent), r.LastActiveUtc?.ToString("u"), string.Join("; ", r.Alerts)
             }));
 
-    // PDF of plan popularity and effectiveness.
+    /// <summary>PDF of plan popularity and effectiveness.</summary>
     public static byte[] RoutinesPdf(string title, IEnumerable<RoutineStatsRow> rows)
     {
         var pdf = new SimplePdfDocument(title);
@@ -134,7 +134,7 @@ public static class ReportExporter
         return pdf.Build();
     }
 
-    // CSV of plan popularity and effectiveness.
+    /// <summary>CSV of plan popularity and effectiveness.</summary>
     public static byte[] RoutinesCsv(IEnumerable<RoutineStatsRow> rows) =>
         CsvBuilder.Build(new[] { "Plan", "Type", "Created by", "Times assigned", "Active clients", "Average adherence %", "Average weight change (kg)" },
             rows.Select(r => (IReadOnlyList<string?>)new[]
@@ -142,7 +142,7 @@ public static class ReportExporter
                 r.Title, r.PlanType, r.CreatedBy, r.TimesAssigned.ToString(), r.ActiveClients.ToString(), N(r.AverageAdherence), N(r.AverageWeightChange)
             }));
 
-    // PDF engagement statistics.
+    /// <summary>PDF engagement statistics.</summary>
     public static byte[] EngagementPdf(string title, EngagementReport report)
     {
         var pdf = new SimplePdfDocument(title);
@@ -162,7 +162,7 @@ public static class ReportExporter
         return pdf.Build();
     }
 
-    // CSV engagement statistics.
+    /// <summary>CSV engagement statistics.</summary>
     public static byte[] EngagementCsv(EngagementReport report) =>
         CsvBuilder.Build(new[] { "User", "Logins", "Log entries", "Adherence %", "Last active (UTC)" },
             report.Rows.Select(r => (IReadOnlyList<string?>)new[]
@@ -170,7 +170,7 @@ public static class ReportExporter
                 r.Name, r.Logins.ToString(), r.LogEntries.ToString(), N(r.AdherencePercent), r.LastActiveUtc?.ToString("u")
             }));
 
-    // PDF system performance report for administrators.
+    /// <summary>PDF system performance report for administrators.</summary>
     public static byte[] SystemPdf(SystemReport r)
     {
         var pdf = new SimplePdfDocument("HealthTrack system report", $"{r.From:dd MMM yyyy} - {r.To:dd MMM yyyy}");
@@ -206,7 +206,7 @@ public static class ReportExporter
         return pdf.Build();
     }
 
-    // CSV trainer performance table from the system report.
+    /// <summary>CSV trainer performance table from the system report.</summary>
     public static byte[] SystemCsv(SystemReport r) =>
         CsvBuilder.Build(
             new[] { "Trainer", "Clients", "Average adherence %", "Average weight change (kg)", "Completed appointments", "Cancellation rate %", "Feedback given", "Plans created" },
@@ -216,14 +216,14 @@ public static class ReportExporter
                 N(t.CancellationRate), t.FeedbackGiven.ToString(), t.PlansCreated.ToString()
             }));
 
-    // CSV output of the custom report builder.
+    /// <summary>CSV output of the custom report builder.</summary>
     public static byte[] CustomCsv(CustomReportResult result) =>
         CsvBuilder.Build(
             new[] { "Period" }.Concat(result.Series.Select(s => AnalyticsService.MetricName(s.Metric))).ToArray(),
             result.Periods.Select((period, i) => (IReadOnlyList<string?>)new[] { period }
                 .Concat(result.Series.Select(s => N(s.Values[i]))).ToArray()));
 
-    // PDF output of the custom report builder.
+    /// <summary>PDF output of the custom report builder.</summary>
     public static byte[] CustomPdf(CustomReportResult result, CustomReportRequest request)
     {
         var pdf = new SimplePdfDocument("Custom report", $"{request.From:dd MMM yyyy} - {request.To:dd MMM yyyy} | {result.SegmentDescription} | by {request.Grouping}");

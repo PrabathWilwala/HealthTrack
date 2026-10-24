@@ -2,7 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HealthTrack.Models;
 
-// A workout programme created by a trainer (or a system-wide template created by an administrator).
+/// <summary>
+/// A workout programme created by a trainer (or a system-wide template created by an administrator).
+/// </summary>
 public class WorkoutPlan
 {
     public int Id { get; set; }
@@ -18,21 +20,21 @@ public class WorkoutPlan
 
     public IntensityLevel Intensity { get; set; } = IntensityLevel.Moderate;
 
-    // Number of sessions the client is expected to complete per week (drives adherence).
+    /// <summary>Number of sessions the client is expected to complete per week (drives adherence).</summary>
     [Range(1, 14)]
     public int SessionsPerWeek { get; set; } = 3;
 
     [Range(1, 104)]
     public int DurationWeeks { get; set; } = 4;
 
-    // User id of the trainer/admin who created the plan. Null if that account was deleted.
+    /// <summary>User id of the trainer/admin who created the plan. Null if that account was deleted.</summary>
     [StringLength(450)]
     public string? CreatedById { get; set; }
 
-    // Templates appear in the template library and can be cloned into new plans.
+    /// <summary>Templates appear in the template library and can be cloned into new plans.</summary>
     public bool IsTemplate { get; set; }
 
-    // System templates are managed by administrators and visible to every trainer.
+    /// <summary>System templates are managed by administrators and visible to every trainer.</summary>
     public bool IsSystemTemplate { get; set; }
 
     public bool IsFlagged { get; set; }
@@ -49,7 +51,7 @@ public class WorkoutPlan
     public List<PlanAssignment> Assignments { get; set; } = new();
 }
 
-// One exercise inside a workout plan.
+/// <summary>One exercise inside a workout plan.</summary>
 public class WorkoutExercise
 {
     public int Id { get; set; }
@@ -59,7 +61,7 @@ public class WorkoutExercise
     [Required, StringLength(120)]
     public string Name { get; set; } = string.Empty;
 
-    // Day the exercise is scheduled for. Null means "any training day".
+    /// <summary>Day the exercise is scheduled for. Null means "any training day".</summary>
     public DayOfWeek? DayOfWeek { get; set; }
 
     [Range(0, 50)]
@@ -77,7 +79,7 @@ public class WorkoutExercise
     public int SortOrder { get; set; }
 }
 
-// A nutrition plan with daily calorie and macronutrient targets.
+/// <summary>A nutrition plan with daily calorie and macronutrient targets.</summary>
 public class DietPlan
 {
     public int Id { get; set; }
@@ -124,7 +126,7 @@ public class DietPlan
     public List<PlanAssignment> Assignments { get; set; } = new();
 }
 
-// One meal inside a diet plan.
+/// <summary>One meal inside a diet plan.</summary>
 public class DietMeal
 {
     public int Id { get; set; }
@@ -154,8 +156,10 @@ public class DietMeal
     public int SortOrder { get; set; }
 }
 
-// Links a client to a workout plan or a diet plan for a date range.
-// Exactly one of WorkoutPlanId and DietPlanId is set.
+/// <summary>
+/// Links a client to a workout plan or a diet plan for a date range.
+/// Exactly one of <see cref="WorkoutPlanId"/> and <see cref="DietPlanId"/> is set.
+/// </summary>
 public class PlanAssignment
 {
     public int Id { get; set; }
@@ -182,7 +186,7 @@ public class PlanAssignment
 
     public DateTime AssignedAtUtc { get; set; } = DateTime.UtcNow;
 
-    // True when the assignment covers the given calendar day.
+    /// <summary>True when the assignment covers the given calendar day.</summary>
     public bool CoversDate(DateTime day) =>
         IsActive && StartDate.Date <= day.Date && (EndDate == null || EndDate.Value.Date >= day.Date);
 }

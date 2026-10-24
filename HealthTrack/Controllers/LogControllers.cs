@@ -9,17 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Shared rules for client log controllers.
+/// <summary>Shared rules for client log controllers.</summary>
 public abstract class ClientLogControllerBase : Controller
 {
-    // Clients can correct or remove an entry for this many days after creating it.
+    /// <summary>Clients can correct or remove an entry for this many days after creating it.</summary>
     public const int EditWindowDays = 7;
 
     protected static DateTime EditableAfterUtc => DateTime.UtcNow.AddDays(-EditWindowDays);
 
     protected static bool IsEditable(DateTime createdAtUtc) => createdAtUtc >= EditableAfterUtc;
 
-    // Normalises an optional date range (defaults to the last 30 days).
+    /// <summary>Normalises an optional date range (defaults to the last 30 days).</summary>
     protected static (DateTime From, DateTime To) ResolveRange(DateTime? from, DateTime? to)
     {
         var end = (to ?? DateTime.Today).Date;
@@ -47,7 +47,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         _notifications = notifications;
     }
 
-    // Log history for a date range.
+    /// <summary>Log history for a date range.</summary>
     [HttpGet]
     public async Task<IActionResult> Index(DateTime? from, DateTime? to)
     {
@@ -69,7 +69,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         });
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpGet]
     public async Task<IActionResult> Create(string? exercise, int? duration)
     {
@@ -79,7 +79,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         return View("Form", model);
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(WorkoutLogFormViewModel model)
@@ -104,7 +104,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -126,7 +126,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         return View("Form", model);
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, WorkoutLogFormViewModel model)
@@ -148,7 +148,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Deletes an entry (only within the edit window).
+    /// <summary>Deletes an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -176,7 +176,7 @@ public class WorkoutLogsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Copies form values onto the entity, estimating calories when none were entered.
+    /// <summary>Copies form values onto the entity, estimating calories when none were entered.</summary>
     private async Task ApplyAsync(WorkoutLog log, WorkoutLogFormViewModel model, string clientId)
     {
         log.ExerciseType = model.ExerciseType!.Trim();
@@ -250,7 +250,7 @@ public class MealLogsController : ClientLogControllerBase
         _notifications = notifications;
     }
 
-    // Log history for a date range.
+    /// <summary>Log history for a date range.</summary>
     [HttpGet]
     public async Task<IActionResult> Index(DateTime? from, DateTime? to)
     {
@@ -277,7 +277,7 @@ public class MealLogsController : ClientLogControllerBase
         });
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpGet]
     public async Task<IActionResult> Create(int? fromPlanMeal)
     {
@@ -299,7 +299,7 @@ public class MealLogsController : ClientLogControllerBase
         return View("Form", model);
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(MealLogFormViewModel model)
@@ -323,7 +323,7 @@ public class MealLogsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -348,7 +348,7 @@ public class MealLogsController : ClientLogControllerBase
         return View("Form", model);
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, MealLogFormViewModel model)
@@ -370,7 +370,7 @@ public class MealLogsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Deletes an entry (only within the edit window).
+    /// <summary>Deletes an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -455,7 +455,7 @@ public class MeasurementsController : ClientLogControllerBase
         _notifications = notifications;
     }
 
-    // Log history for a date range.
+    /// <summary>Log history for a date range.</summary>
     [HttpGet]
     public async Task<IActionResult> Index(DateTime? from, DateTime? to)
     {
@@ -476,7 +476,7 @@ public class MeasurementsController : ClientLogControllerBase
         });
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpGet]
     public async Task<IActionResult> Create()
     {
@@ -485,7 +485,7 @@ public class MeasurementsController : ClientLogControllerBase
         return View("Form", new MeasurementFormViewModel { WeightKg = profile.WeightKg, HeightCm = profile.HeightCm });
     }
 
-    // Shows the form / saves a new log entry and alerts the trainer if they asked for it.
+    /// <summary>Shows the form / saves a new log entry and alerts the trainer if they asked for it.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(MeasurementFormViewModel model)
@@ -512,7 +512,7 @@ public class MeasurementsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -536,7 +536,7 @@ public class MeasurementsController : ClientLogControllerBase
         });
     }
 
-    // Shows the form / updates an entry (only within the edit window).
+    /// <summary>Shows the form / updates an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, MeasurementFormViewModel model)
@@ -560,7 +560,7 @@ public class MeasurementsController : ClientLogControllerBase
         return RedirectToAction(nameof(Index));
     }
 
-    // Deletes an entry (only within the edit window).
+    /// <summary>Deletes an entry (only within the edit window).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -603,7 +603,7 @@ public class MeasurementsController : ClientLogControllerBase
         m.Notes = string.IsNullOrWhiteSpace(model.Notes) ? null : model.Notes.Trim();
     }
 
-    // The profile's current weight always mirrors the most recent measurement.
+    /// <summary>The profile's current weight always mirrors the most recent measurement.</summary>
     private async Task RefreshCurrentWeightAsync(ClientProfile profile)
     {
         var latest = await _db.HealthMeasurements.AsNoTracking()

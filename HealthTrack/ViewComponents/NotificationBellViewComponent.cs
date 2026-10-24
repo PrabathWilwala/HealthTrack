@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.ViewComponents;
 
-// Navigation-bar bell showing the unread count and the five latest notifications.
+/// <summary>Navigation-bar bell showing the unread count and the five latest notifications.</summary>
 public class NotificationBellViewComponent : ViewComponent
 {
     private readonly ApplicationDbContext _db;
@@ -15,7 +15,7 @@ public class NotificationBellViewComponent : ViewComponent
         _db = db;
     }
 
-    // Loads the unread count and latest notifications for the bell dropdown.
+    /// <summary>Loads the unread count and latest notifications for the bell dropdown.</summary>
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var userId = UserClaimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;

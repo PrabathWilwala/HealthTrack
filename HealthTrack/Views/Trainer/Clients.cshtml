@@ -2,39 +2,52 @@
 @{
     ViewData["Title"] = "My clients";
 }
-<h1>My clients</h1>
-<p>Progress, adherence and engagement for every client assigned to you.</p>
-<p><a asp-controller="Reports" asp-action="Comparative" asp-route-format="csv">Export CSV</a></p>
-<form method="get">
-    <input type="search" name="search" value="@ViewData["Search"]" />
-    <button type="submit">Search</button>
-</form>
-@if (Model.Count == 0)
-{
-    <p>No clients found.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Client</th><th>Weight</th><th>BMI</th><th>30 d change</th><th>Workout adh.</th><th>Diet adh.</th><th>Workouts (30 d)</th><th>Goal</th><th>Last active</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var c in Model)
-            {
-                <tr>
-                    <td>@c.Name
-                        @foreach (var alert in c.Alerts) { <br /><small>! @alert</small> }
-                    </td>
-                    <td>@(c.CurrentWeight?.ToString("0.0") ?? "-")</td>
-                    <td>@(c.Bmi?.ToString("0.0") ?? "-")</td>
-                    <td>@DisplayHelpers.Signed(c.WeightChange30Days, " kg")</td>
-                    <td>@DisplayHelpers.Percent(c.WorkoutAdherence)</td>
-                    <td>@DisplayHelpers.Percent(c.DietAdherence)</td>
-                    <td>@c.Workouts30Days</td>
-                    <td>@DisplayHelpers.Percent(c.GoalPercent)</td>
-                    <td>@(c.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(c.LastActiveUtc.Value) : "never")</td>
-                    <td><a href="/Trainer/Client/@c.ClientId">Open</a></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">My clients</h1>
+        <p class="page-subtitle">Progress, adherence and engagement for every client assigned to you.</p>
+    </div>
+    <div class="page-actions">
+      
+        <a class="btn btn-light" asp-controller="Reports" asp-action="Comparative" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> Export CSV</a>
+    </div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header">
+        <form method="get" class="filter-bar">
+            <input type="search" name="search" value="@ViewData["Search"]" class="form-control" placeholder="Search by name" />
+            <button class="btn btn-light" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-people"></i><p>No clients found.</p></div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Client</th><th>Weight</th><th>BMI</th><th>30 d change</th><th>Workout adh.</th><th>Diet adh.</th><th>Workouts (30 d)</th><th>Goal</th><th>Last active</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td><div class="d-flex align-items-center gap-2"><span class="avatar">@DisplayHelpers.Initials(c.Name)</span><div><div class="fw-bold">@c.Name</div>
+                                @foreach (var alert in c.Alerts) { <div class="small text-warning"><i class="bi bi-exclamation-triangle"></i> @alert</div> }
+                            </div></div></td>
+                            <td>@(c.CurrentWeight?.ToString("0.0") ?? "–")</td>
+                            <td>@(c.Bmi?.ToString("0.0") ?? "–")</td>
+                            <td>@DisplayHelpers.Signed(c.WeightChange30Days, " kg")</td>
+                            <td>@DisplayHelpers.Percent(c.WorkoutAdherence)</td>
+                            <td>@DisplayHelpers.Percent(c.DietAdherence)</td>
+                            <td>@c.Workouts30Days</td>
+                            <td>@DisplayHelpers.Percent(c.GoalPercent)</td>
+                            <td class="small text-muted">@(c.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(c.LastActiveUtc.Value) : "never")</td>
+                            <td class="text-end"><a class="btn btn-light btn-sm" href="/Trainer/Client/@c.ClientId">Open</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

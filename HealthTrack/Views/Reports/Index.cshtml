@@ -3,28 +3,35 @@
     var clients = ViewData["Clients"] as List<KeyValuePair<string, string>> ?? new List<KeyValuePair<string, string>>();
     var isAdmin = User.IsInRole(RoleNames.Administrator);
 }
-<h1>Reports &amp; analytics</h1>
-<p>@(isAdmin ? "System-wide reports on users, trainers and routines." : "Reports on your clients' progress, engagement and routines.") Every report can be exported as PDF or CSV.</p>
-
-<h3>Individual client report</h3>
-<p>Weight, BMI, adherence, nutrition and goal progress for one client.</p>
-<form method="get" asp-action="Client">
-    <select name="id" required>
-        <option value="">Choose client...</option>
-        @foreach (var c in clients) { <option value="@c.Key">@c.Value</option> }
-    </select>
-    <button type="submit">Open</button>
-</form>
-
-<h3>Other reports</h3>
-<ul>
-    <li><a asp-action="Comparative">Comparative client analysis</a> - compare adherence, weight change and activity across clients.</li>
-    <li><a asp-action="Engagement">Engagement statistics</a> - logins, log frequency, adherence and retention.</li>
-    <li><a asp-action="Routines">Popular &amp; effective routines</a> - most-assigned plans and the results they produce.</li>
-    <li><a asp-action="FeedbackEffectiveness">Feedback effectiveness</a> - client activity in the week before and after feedback.</li>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Reports &amp; analytics</h1>
+        <p class="page-subtitle">@(isAdmin ? "System-wide reports on users, trainers and routines." : "Reports on your clients' progress, engagement and routines.") Every report can be exported as PDF or CSV.</p>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-md-6 col-xl-4">
+        <div class="card-ht h-100"><div class="card-ht-body">
+            <div class="icon-bubble mb-2"><i class="bi bi-person-lines-fill"></i></div>
+            <h2 class="h6">Individual client report</h2>
+            <p class="small text-muted">Weight, BMI, adherence, nutrition and goal progress for one client.</p>
+            <form method="get" asp-action="Client" class="d-flex gap-2">
+                <select name="id" class="form-select form-select-sm" required>
+                    <option value="">Choose client…</option>
+                    @foreach (var c in clients) { <option value="@c.Key">@c.Value</option> }
+                </select>
+                <button class="btn btn-primary btn-sm" type="submit">Open</button>
+            </form>
+        </div></div>
+    </div>
+    <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="Comparative"><i class="bi bi-bar-chart-steps"></i>Comparative client analysis<span class="small text-muted fw-normal">Compare adherence, weight change and activity across clients.</span></a></div>
+    <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="Engagement"><i class="bi bi-people"></i>Engagement statistics<span class="small text-muted fw-normal">Logins, log frequency, adherence and retention.</span></a></div>
+    <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="Routines"><i class="bi bi-fire"></i>Popular &amp; effective routines<span class="small text-muted fw-normal">Most-assigned plans and the results they produce.</span></a></div>
+    
+    <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="FeedbackEffectiveness"><i class="bi bi-chat-heart"></i>Feedback effectiveness<span class="small text-muted fw-normal">Client activity in the week before and after feedback.</span></a></div>
     @if (isAdmin)
     {
-        <li><a asp-action="Overview">System performance report</a> - outcomes, trainer performance, feature usage and registrations.</li>
-        <li><a asp-action="Custom">Custom report builder</a> - pick metrics, date ranges, grouping and user segments.</li>
+        <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="Overview"><i class="bi bi-speedometer2"></i>System performance report<span class="small text-muted fw-normal">Outcomes, trainer performance, feature usage and registrations.</span></a></div>
+        <div class="col-md-6 col-xl-4"><a class="quick-action h-100" asp-action="Custom"><i class="bi bi-sliders"></i>Custom report builder<span class="small text-muted fw-normal">Pick metrics, date ranges, grouping and user segments.</span></a></div>
     }
-</ul>
+</div>

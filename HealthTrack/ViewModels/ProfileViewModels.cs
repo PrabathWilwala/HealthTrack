@@ -3,7 +3,7 @@ using HealthTrack.Models;
 
 namespace HealthTrack.ViewModels;
 
-// Editable profile for every role. Role-specific sections are shown conditionally.
+/// <summary>Editable profile for every role. Role-specific sections are shown conditionally.</summary>
 public class ProfileViewModel
 {
     public string Role { get; set; } = string.Empty;

@@ -3,140 +3,176 @@
     ViewData["Title"] = "Trainer dashboard";
     var currentUrl = Context.Request.Path.ToString();
 }
-<h1>Welcome back, @Model.FullName.Split(' ')[0]</h1>
-<p>@Model.Clients.Count client(s) - @Model.PendingRequests.Count request(s) waiting - @Model.Alerts.Count alert(s)</p>
-<p>
-    <a asp-controller="WorkoutPlans" asp-action="Create">New workout plan</a> |
-    <a asp-controller="DietPlans" asp-action="Create">New diet plan</a> |
-    <a asp-controller="Appointments" asp-action="Calendar">Calendar</a> |
-    <a asp-controller="Reports" asp-action="Index">Reports</a>
-</p>
+<div class="welcome-banner">
+    <div>
+        <h1>Welcome back, @Model.FullName.Split(' ')[0]</h1>
+        <p>@Model.Clients.Count client(s) · @Model.PendingRequests.Count request(s) waiting · @Model.Alerts.Count alert(s)</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-light" asp-controller="WorkoutPlans" asp-action="Create"><i class="bi bi-plus-lg"></i> Workout plan</a>
+        <a class="btn btn-light" asp-controller="DietPlans" asp-action="Create"><i class="bi bi-plus-lg"></i> Diet plan</a>
+        <a class="btn btn-light" asp-controller="Appointments" asp-action="Calendar"><i class="bi bi-calendar3"></i> Calendar</a>
+        <a class="btn btn-light" asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart-line"></i> Reports</a>
+    </div>
+</div>
 
-<h2>Summary</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Clients</th><td>@Model.Clients.Count</td><td>@Model.ActiveClients7Days active in the last 7 days</td></tr>
-    <tr><th>Avg. adherence (30 d)</th><td>@DisplayHelpers.Percent(Model.AverageAdherence)</td><td>@Model.ActivePlans active plan assignments</td></tr>
-    <tr><th>Client logs this week</th><td>@Model.LogsThisWeek</td><td>Workouts, meals &amp; measurements</td></tr>
-    <tr><th>Avg. weight change (30 d)</th><td>@DisplayHelpers.Signed(Model.AverageWeightChange) kg</td><td>@Model.SessionsCompletedThisMonth consultations completed this month</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-icon"><i class="bi bi-people"></i></div><div class="stat-label">Clients</div><div class="stat-value">@Model.Clients.Count</div><div class="stat-meta">@Model.ActiveClients7Days active in the last 7 days</div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-check2-circle"></i></div><div class="stat-label">Avg. adherence (30 d)</div><div class="stat-value">@DisplayHelpers.Percent(Model.AverageAdherence)</div><div class="stat-meta">@Model.ActivePlans active plan assignments</div></div>
+    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-journal-check"></i></div><div class="stat-label">Client logs this week</div><div class="stat-value">@Model.LogsThisWeek</div><div class="stat-meta">Workouts, meals &amp; measurements</div></div>
+    <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-graph-down-arrow"></i></div><div class="stat-label">Avg. weight change (30 d)</div><div class="stat-value">@DisplayHelpers.Signed(Model.AverageWeightChange)<small> kg</small></div><div class="stat-meta">@Model.SessionsCompletedThisMonth consultations completed this month</div></div>
+</div>
 
-<h2>Pending requests (@Model.PendingRequests.Count)</h2>
-@if (Model.PendingRequests.Count == 0)
-{
-    <p>Nothing waiting for you.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Client</th><th>When</th><th>Purpose</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var item in Model.PendingRequests)
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ht">
+            <div class="card-ht-header">
+                <h2 class="card-ht-title"><i class="bi bi-people"></i>Client overview</h2>
+                <a class="small fw-bold" asp-action="Clients">All clients</a>
+            </div>
+            @if (Model.Clients.Count == 0)
             {
-                var a = item.Appointment;
-                <tr>
-                    <td>@item.OtherPartyName</td>
-                    <td>@a.StartTime.ToString("ddd dd MMM HH:mm"), @a.DurationMinutes min
-                        @if (a.ProposedStartTime != null)
-                        {
-                            <br /><small>Wants to move to @a.ProposedStartTime.Value.ToString("ddd dd MMM HH:mm")</small>
-                        }
-                    </td>
-                    <td>@a.Purpose</td>
-                    <td>
-                        @if (a.Status == AppointmentStatus.Pending)
-                        {
-                            <form asp-controller="Appointments" asp-action="Approve" asp-route-id="@a.Id" method="post">
-                                <input type="hidden" name="returnUrl" value="@currentUrl" />
-                                <button type="submit">Approve</button>
-                            </form>
-                        }
-                        <a asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">Review</a>
-                    </td>
-                </tr>
+                <div class="empty-state"><i class="bi bi-person-plus"></i><p>No clients assigned yet. An administrator assigns clients to trainers.</p></div>
             }
-        </tbody>
-    </table>
-}
-
-<h2>Client overview</h2>
-<p><a asp-action="Clients">All clients</a></p>
-@if (Model.Clients.Count == 0)
-{
-    <p>No clients assigned yet. An administrator assigns clients to trainers.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Client</th><th>Weight</th><th>30 d change</th><th>Adherence</th><th>Goal</th><th>Last active</th><th>Next appt.</th></tr></thead>
-        <tbody>
-            @foreach (var c in Model.Clients)
+            else
             {
-                <tr>
-                    <td><a href="/Trainer/Client/@c.ClientId">@c.Name</a>
-                        @if (c.Alerts.Count > 0) { <span title="@string.Join(" ", c.Alerts)">(!)</span> }
-                    </td>
-                    <td>@(c.CurrentWeight?.ToString("0.0") ?? "-") kg</td>
-                    <td>@DisplayHelpers.Signed(c.WeightChange30Days, " kg")</td>
-                    <td>@DisplayHelpers.Percent(c.AdherencePercent)</td>
-                    <td>@DisplayHelpers.Percent(c.GoalPercent)</td>
-                    <td>@(c.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(c.LastActiveUtc.Value) : "never")</td>
-                    <td>@(c.NextAppointment?.ToString("dd MMM HH:mm") ?? "-")</td>
-                </tr>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead><tr><th>Client</th><th>Weight</th><th>30 d change</th><th>Adherence</th><th>Goal</th><th>Last active</th><th>Next appt.</th></tr></thead>
+                        <tbody>
+                            @foreach (var c in Model.Clients)
+                            {
+                                <tr>
+                                    <td><a class="fw-bold text-reset" href="/Trainer/Client/@c.ClientId">@c.Name</a>
+                                        @if (c.Alerts.Count > 0) { <i class="bi bi-exclamation-triangle-fill text-warning ms-1" title="@string.Join(" ", c.Alerts)"></i> }
+                                    </td>
+                                    <td>@(c.CurrentWeight?.ToString("0.0") ?? "–") kg</td>
+                                    <td class="@(c.WeightChange30Days < 0 ? "trend-up" : c.WeightChange30Days > 0 ? "trend-down" : "")">@DisplayHelpers.Signed(c.WeightChange30Days, " kg")</td>
+                                    <td style="min-width:120px">
+                                        <div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1"><div class="progress-bar" style="width:@(c.AdherencePercent ?? 0)%"></div></div><span class="small">@DisplayHelpers.Percent(c.AdherencePercent)</span></div>
+                                    </td>
+                                    <td>@DisplayHelpers.Percent(c.GoalPercent)</td>
+                                    <td class="small text-muted">@(c.LastActiveUtc.HasValue ? DateHelpers.TimeAgo(c.LastActiveUtc.Value) : "never")</td>
+                                    <td class="small">@(c.NextAppointment?.ToString("dd MMM HH:mm") ?? "–")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
 
-<h2>Adherence by client (30 days)</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.AdherenceChart)" data-type="bar" data-max="100" data-y-label="%"></canvas>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-bar-chart"></i>Adherence by client (30 days)</h2></div>
+            <div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.AdherenceChart)" data-type="bar" data-max="100" data-y-label="%"></canvas></div></div>
+        </div>
 
-<h2>Needs attention</h2>
-@if (Model.Alerts.Count == 0)
-{
-    <p>All clients are on track.</p>
-}
-<ul>
-    @foreach (var alert in Model.Alerts.Take(8))
-    {
-        <li><a href="/Trainer/Client/@alert.ClientId">@alert.ClientName</a>: @alert.Message</li>
-    }
-</ul>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-activity"></i>Recent client activity</h2><span class="small text-muted">Last 7 days</span></div>
+            @if (Model.RecentActivity.Count == 0)
+            {
+                <div class="empty-state"><p>No client activity in the last 7 days.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var item in Model.RecentActivity)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble"><i class="bi @item.Icon"></i></span>
+                        <div class="grow"><div class="title">@item.Who</div><div class="meta">@item.Description</div></div>
+                        <span class="small text-muted text-nowrap">@DateHelpers.TimeAgo(item.WhenUtc)</span>
+                        @if (item.Link != null) { <a class="btn btn-light btn-sm" href="@item.Link">Feedback</a> }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
 
-<h2>Recent client activity (last 7 days)</h2>
-@if (Model.RecentActivity.Count == 0)
-{
-    <p>No client activity in the last 7 days.</p>
-}
-<ul>
-    @foreach (var item in Model.RecentActivity)
-    {
-        <li>@item.Who - @item.Description (@DateHelpers.TimeAgo(item.WhenUtc))
-            @if (item.Link != null) { <a href="@item.Link">Feedback</a> }
-        </li>
-    }
-</ul>
+    <div class="col-xl-4">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-inbox"></i>Pending requests</h2><span class="badge-soft warning">@Model.PendingRequests.Count</span></div>
+            @if (Model.PendingRequests.Count == 0)
+            {
+                <div class="empty-state"><i class="bi bi-check2-all"></i><p>Nothing waiting for you.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var item in Model.PendingRequests)
+                {
+                    var a = item.Appointment;
+                    <li class="list-row align-items-start">
+                        <div class="date-tile"><div class="d">@a.StartTime.Day</div><div class="m">@a.StartTime.ToString("MMM")</div></div>
+                        <div class="grow">
+                            <div class="title">@item.OtherPartyName</div>
+                            <div class="meta">@a.StartTime.ToString("ddd HH:mm") · @a.DurationMinutes min</div>
+                            <div class="meta">@a.Purpose</div>
+                            @if (a.ProposedStartTime != null)
+                            {
+                                <div class="meta text-info">Wants to move to @a.ProposedStartTime.Value.ToString("ddd dd MMM HH:mm")</div>
+                            }
+                            <div class="d-flex gap-2 mt-2">
+                                @if (a.Status == AppointmentStatus.Pending)
+                                {
+                                    <form asp-controller="Appointments" asp-action="Approve" asp-route-id="@a.Id" method="post">
+                                        <input type="hidden" name="returnUrl" value="@currentUrl" />
+                                        <button class="btn btn-teal btn-sm" type="submit">Approve</button>
+                                    </form>
+                                }
+                                <a class="btn btn-light btn-sm" asp-controller="Appointments" asp-action="Details" asp-route-id="@a.Id">Review</a>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
 
-<h2>Upcoming sessions</h2>
-@if (Model.UpcomingSessions.Count == 0)
-{
-    <p>No confirmed sessions.</p>
-}
-<ul>
-    @foreach (var item in Model.UpcomingSessions)
-    {
-        <li>@item.Appointment.StartTime.ToString("ddd dd MMM HH:mm") - <a asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Appointment.Id">@item.OtherPartyName</a> - @item.Appointment.Purpose</li>
-    }
-</ul>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-exclamation-triangle"></i>Needs attention</h2></div>
+            @if (Model.Alerts.Count == 0)
+            {
+                <div class="empty-state"><i class="bi bi-emoji-smile"></i><p>All clients are on track.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var alert in Model.Alerts.Take(8))
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble @(alert.Severity == "warning" ? "amber" : "")"><i class="bi @(alert.Severity == "warning" ? "bi-exclamation-triangle" : "bi-info-circle")"></i></span>
+                        <div class="grow"><a class="title text-reset" href="/Trainer/Client/@alert.ClientId">@alert.ClientName</a><div class="meta">@alert.Message</div></div>
+                    </li>
+                }
+            </ul>
+        </div>
 
-<h2>Notifications</h2>
-<p><a asp-controller="Notifications" asp-action="Index">All notifications</a></p>
-@if (Model.Notifications.Count == 0)
-{
-    <p>No notifications.</p>
-}
-<ul>
-    @foreach (var n in Model.Notifications)
-    {
-        <li>@n.Title (@DateHelpers.TimeAgo(n.CreatedAtUtc))</li>
-    }
-</ul>
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calendar-check"></i>Upcoming sessions</h2></div>
+            @if (Model.UpcomingSessions.Count == 0)
+            {
+                <div class="empty-state"><p>No confirmed sessions.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var item in Model.UpcomingSessions)
+                {
+                    <li class="list-row">
+                        <div class="date-tile"><div class="d">@item.Appointment.StartTime.Day</div><div class="m">@item.Appointment.StartTime.ToString("MMM")</div></div>
+                        <div class="grow"><a class="title text-reset" asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Appointment.Id">@item.OtherPartyName</a><div class="meta">@item.Appointment.StartTime.ToString("ddd HH:mm") · @item.Appointment.Purpose</div></div>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-bell"></i>Notifications</h2><a class="small fw-bold" asp-controller="Notifications" asp-action="Index">All</a></div>
+            <ul class="list-clean">
+                @foreach (var n in Model.Notifications)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble"><i class="bi @DisplayHelpers.NotificationIcon(n.Type)"></i></span>
+                        <div class="grow"><div class="title">@n.Title</div><div class="meta">@DateHelpers.TimeAgo(n.CreatedAtUtc)</div></div>
+                    </li>
+                }
+            </ul>
+            @if (Model.Notifications.Count == 0)
+            {
+                <div class="empty-state"><p>No notifications.</p></div>
+            }
+        </div>
+    </div>
+</div>

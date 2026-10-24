@@ -9,95 +9,115 @@
         dayOptions.Add((((int)d).ToString(), d.ToString()));
     }
 }
-<p><a asp-action="Index">&lt; Workout plans</a></p>
-<h1>@ViewData["Title"]</h1>
-<p>Exercises, sets, reps, duration and intensity. @(isEdit ? "Clients following this plan will be notified of changes." : "")</p>
-<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
-    <div asp-validation-summary="All"></div>
-
-    <h2>Plan details</h2>
-    <p>
-        <label asp-for="Title"></label><br />
-        <input asp-for="Title" size="40" />
-        <span asp-validation-for="Title"></span>
-    </p>
-    <p>
-        <label asp-for="Description"></label><br />
-        <textarea asp-for="Description" rows="3" cols="60"></textarea>
-    </p>
-    <p>
-        <label asp-for="Goal"></label><br />
-        <input asp-for="Goal" size="40" />
-    </p>
-    <p>
-        <label asp-for="Intensity"></label><br />
-        <select asp-for="Intensity" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
-    </p>
-    <p>
-        <label asp-for="SessionsPerWeek"></label><br />
-        <input asp-for="SessionsPerWeek" type="number" min="1" max="14" />
-        <span asp-validation-for="SessionsPerWeek"></span>
-    </p>
-    <p>
-        <label asp-for="DurationWeeks"></label><br />
-        <input asp-for="DurationWeeks" type="number" min="1" max="104" />
-        <span asp-validation-for="DurationWeeks"></span>
-    </p>
-    @if (!isAdmin)
-    {
-        <p>
-            <input asp-for="IsTemplate" />
-            <label asp-for="IsTemplate"></label>
-        </p>
-    }
-
-    <h2>Exercises</h2>
-    <p><button type="button" data-add-row="exerciseRows">Add exercise</button></p>
-    <div id="exerciseRows" data-rows="Exercises">
-        @for (var i = 0; i < Model.Exercises.Count; i++)
-        {
-            var e = Model.Exercises[i];
-            <fieldset data-row>
-                <legend>Exercise <span data-row-number>@(i + 1)</span></legend>
-                Name: <input name="Exercises[@i].Name" value="@e.Name" maxlength="120" required />@Html.ValidationMessage($"Exercises[{i}].Name")
-                Day:
-                <select name="Exercises[@i].DayOfWeek">
-                    @foreach (var opt in dayOptions)
-                    {
-                        var selected = (e.DayOfWeek.HasValue ? ((int)e.DayOfWeek.Value).ToString() : "") == opt.Value;
-                        if (selected) { <option value="@opt.Value" selected>@opt.Text</option> }
-                        else { <option value="@opt.Value">@opt.Text</option> }
-                    }
-                </select>
-                <br />
-                Sets: <input type="number" min="0" max="50" name="Exercises[@i].Sets" value="@e.Sets" />
-                Reps: <input type="number" min="0" max="500" name="Exercises[@i].Reps" value="@e.Reps" />
-                Minutes: <input type="number" min="0" max="600" name="Exercises[@i].DurationMinutes" value="@e.DurationMinutes" />
-                <br />
-                Notes: <input name="Exercises[@i].Notes" value="@e.Notes" maxlength="300" size="50" />@Html.ValidationMessage($"Exercises[{i}].Sets")
-                <button type="button" data-remove-row>Remove</button>
-            </fieldset>
-        }
-        <template data-row-template>
-            <fieldset data-row>
-                <legend>Exercise <span data-row-number></span></legend>
-                Name: <input name="Exercises[__i__].Name" maxlength="120" required />
-                Day:
-                <select name="Exercises[__i__].DayOfWeek">
-                    @foreach (var opt in dayOptions) { <option value="@opt.Value">@opt.Text</option> }
-                </select>
-                <br />
-                Sets: <input type="number" min="0" max="50" name="Exercises[__i__].Sets" value="3" />
-                Reps: <input type="number" min="0" max="500" name="Exercises[__i__].Reps" value="10" />
-                Minutes: <input type="number" min="0" max="600" name="Exercises[__i__].DurationMinutes" value="0" />
-                <br />
-                Notes: <input name="Exercises[__i__].Notes" maxlength="300" size="50" />
-                <button type="button" data-remove-row>Remove</button>
-            </fieldset>
-        </template>
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Workout plans</a>
+        <h1 class="page-title mt-1">@ViewData["Title"]</h1>
+        <p class="page-subtitle">Exercises, sets, reps, duration and intensity. @(isEdit ? "Clients following this plan will be notified of changes." : "")</p>
     </div>
-    <p>
-        <button type="submit">@(isEdit ? "Save changes" : "Create plan")</button>
-        <a asp-action="Index">Cancel</a>
-    </p>
+</div>
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-4">
+        <div class="col-xl-4">
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-info-circle"></i>Plan details</h2></div>
+                <div class="card-ht-body">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. 8-week fat loss" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Goal" class="form-label"></label>
+                        <input asp-for="Goal" class="form-control" placeholder="e.g. Weight loss, strength" />
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label asp-for="Intensity" class="form-label"></label>
+                            <select asp-for="Intensity" class="form-select" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="SessionsPerWeek" class="form-label"></label>
+                            <input asp-for="SessionsPerWeek" class="form-control" type="number" min="1" max="14" />
+                            <span asp-validation-for="SessionsPerWeek" class="text-danger"></span>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="DurationWeeks" class="form-label"></label>
+                            <input asp-for="DurationWeeks" class="form-control" type="number" min="1" max="104" />
+                            <span asp-validation-for="DurationWeeks" class="text-danger"></span>
+                        </div>
+                    </div>
+                    @if (!isAdmin)
+                    {
+                        <div class="form-check mt-3">
+                            <input asp-for="IsTemplate" class="form-check-input" />
+                            <label asp-for="IsTemplate" class="form-check-label"></label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <div class="card-ht">
+                <div class="card-ht-header">
+                    <h2 class="card-ht-title"><i class="bi bi-list-check"></i>Exercises</h2>
+                    <button type="button" class="btn btn-light btn-sm" data-add-row="exerciseRows"><i class="bi bi-plus-lg"></i> Add exercise</button>
+                </div>
+                <div class="card-ht-body" id="exerciseRows" data-rows="Exercises">
+                    @for (var i = 0; i < Model.Exercises.Count; i++)
+                    {
+                        var e = Model.Exercises[i];
+                        <div class="row-editor">
+                            <button type="button" class="btn btn-light btn-sm remove-row" title="Remove"><i class="bi bi-x-lg"></i></button>
+                            <div class="small-caps mb-2">Exercise <span class="row-number">@(i + 1)</span></div>
+                            <div class="row g-2">
+                                <div class="col-md-5"><input class="form-control" name="Exercises[@i].Name" value="@e.Name" placeholder="Exercise name" maxlength="120" required />@Html.ValidationMessage($"Exercises[{i}].Name", new { @class = "text-danger" })</div>
+                                <div class="col-md-3">
+                                    <select class="form-select" name="Exercises[@i].DayOfWeek">
+                                        @foreach (var opt in dayOptions)
+                                        {
+                                            var selected = (e.DayOfWeek.HasValue ? ((int)e.DayOfWeek.Value).ToString() : "") == opt.Value;
+                                            if (selected) { <option value="@opt.Value" selected>@opt.Text</option> }
+                                            else { <option value="@opt.Value">@opt.Text</option> }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-4 col-md-1"><input class="form-control" type="number" min="0" max="50" name="Exercises[@i].Sets" value="@e.Sets" title="Sets" placeholder="Sets" /></div>
+                                <div class="col-4 col-md-1"><input class="form-control" type="number" min="0" max="500" name="Exercises[@i].Reps" value="@e.Reps" title="Reps" placeholder="Reps" /></div>
+                                <div class="col-4 col-md-2"><input class="form-control" type="number" min="0" max="600" name="Exercises[@i].DurationMinutes" value="@e.DurationMinutes" title="Minutes" placeholder="Min" /></div>
+                                <div class="col-12"><input class="form-control form-control-sm" name="Exercises[@i].Notes" value="@e.Notes" maxlength="300" placeholder="Notes (optional) – technique, rest time…" />@Html.ValidationMessage($"Exercises[{i}].Sets", new { @class = "text-danger" })</div>
+                            </div>
+                        </div>
+                    }
+                    <template data-row-template>
+                        <div class="row-editor">
+                            <button type="button" class="btn btn-light btn-sm remove-row" title="Remove"><i class="bi bi-x-lg"></i></button>
+                            <div class="small-caps mb-2">Exercise <span class="row-number"></span></div>
+                            <div class="row g-2">
+                                <div class="col-md-5"><input class="form-control" name="Exercises[__i__].Name" placeholder="Exercise name" maxlength="120" required /></div>
+                                <div class="col-md-3">
+                                    <select class="form-select" name="Exercises[__i__].DayOfWeek">
+                                        @foreach (var opt in dayOptions) { <option value="@opt.Value">@opt.Text</option> }
+                                    </select>
+                                </div>
+                                <div class="col-4 col-md-1"><input class="form-control" type="number" min="0" max="50" name="Exercises[__i__].Sets" value="3" title="Sets" /></div>
+                                <div class="col-4 col-md-1"><input class="form-control" type="number" min="0" max="500" name="Exercises[__i__].Reps" value="10" title="Reps" /></div>
+                                <div class="col-4 col-md-2"><input class="form-control" type="number" min="0" max="600" name="Exercises[__i__].DurationMinutes" value="0" title="Minutes" /></div>
+                                <div class="col-12"><input class="form-control form-control-sm" name="Exercises[__i__].Notes" maxlength="300" placeholder="Notes (optional)" /></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-light" asp-action="Index">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> @(isEdit ? "Save changes" : "Create plan")</button>
+            </div>
+        </div>
+    </div>
 </form>

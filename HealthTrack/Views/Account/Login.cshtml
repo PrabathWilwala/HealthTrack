@@ -2,35 +2,56 @@
 @{
     ViewData["Title"] = "Sign in to HealthTrack";
 }
-<h1>Sign in</h1>
-<p>Use the same sign-in page whether you are a client, trainer or administrator.</p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
 
-<form asp-controller="Account" asp-action="Login" method="post">
-    <div asp-validation-summary="ModelOnly" role="alert"></div>
-    <input asp-for="ReturnUrl" type="hidden" />
-    <p>
-        <label asp-for="UserNameOrEmail">Username or email</label><br />
-        <input asp-for="UserNameOrEmail" autocomplete="username" autofocus />
-        <span asp-validation-for="UserNameOrEmail"></span>
-    </p>
-    <p>
-        <label asp-for="Password">Password</label><br />
-        <input asp-for="Password" autocomplete="current-password" />
-        <span asp-validation-for="Password"></span>
-    </p>
-    <p>
-        <input asp-for="RememberMe" />
-        <label asp-for="RememberMe">Remember me on this device</label>
-    </p>
-    @if (ViewData["ShowResendLink"] is true)
-    {
-        <p><a asp-controller="Account" asp-action="ResendConfirmation">Resend the confirmation email</a></p>
-    }
-    <button type="submit">Sign in</button>
-</form>
-<p><a asp-controller="Account" asp-action="ForgotPassword">Forgot password?</a></p>
-<p>New to HealthTrack? <a asp-controller="Account" asp-action="Register">Create an account</a></p>
-<p>Accounts must have a confirmed email address. Trainer accounts must also be approved by an administrator. After 5 failed attempts an account is locked for 10 minutes.</p>
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-login-card">
+        <div class="ht-auth-brand">
+            <div class="ht-brand-mark"><span>H</span></div>
+            <div>
+                <div class="ht-brand-name">HealthTrack</div>
+                <div class="ht-brand-caption">Personal health &amp; fitness management</div>
+            </div>
+        </div>
+
+        <header class="ht-auth-heading">
+            <p class="ht-eyebrow">WELCOME BACK</p>
+            <h1>Sign in to your account</h1>
+            <p>Use the same sign-in page whether you are a client, trainer or administrator.</p>
+        </header>
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="ht-validation-summary" role="alert"></div>
+            <input asp-for="ReturnUrl" type="hidden" />
+
+            <div class="ht-field">
+                <label asp-for="UserNameOrEmail">Username or email</label>
+                <input asp-for="UserNameOrEmail" class="ht-control" autocomplete="username" placeholder="Enter your username or email" autofocus />
+                <span asp-validation-for="UserNameOrEmail" class="ht-field-error"></span>
+            </div>
+            <div class="ht-field">
+                <label asp-for="Password">Password</label>
+                <input asp-for="Password" class="ht-control" autocomplete="current-password" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="ht-field-error"></span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <label class="ht-checkbox-line">
+                    <input asp-for="RememberMe" />
+                    <span>Remember me on this device</span>
+                </label>
+                <a class="small fw-bold mb-3" asp-controller="Account" asp-action="ForgotPassword">Forgot password?</a>
+            </div>
+            @if (ViewData["ShowResendLink"] is true)
+            {
+                <p class="small"><a asp-controller="Account" asp-action="ResendConfirmation">Resend the confirmation email</a></p>
+            }
+
+            <button type="submit" class="ht-primary-button">Sign in <span aria-hidden="true">&#8594;</span></button>
+            <p class="ht-auth-switch">New to HealthTrack? <a asp-controller="Account" asp-action="Register">Create an account</a></p>
+        </form>
+        <p class="ht-security-footnote">Accounts must have a confirmed email address. Trainer accounts must also be approved by an administrator. After 5 failed attempts an account is locked for 10 minutes.</p>
+    </section>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

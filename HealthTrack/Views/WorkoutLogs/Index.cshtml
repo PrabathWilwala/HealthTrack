@@ -2,57 +2,63 @@
 @{
     ViewData["Title"] = "Workout log";
 }
-<h1>Workouts</h1>
-<p>Your logged sessions. Entries can be edited or deleted for @ClientLogControllerBase.EditWindowDays days.</p>
-<p><a asp-action="Create">Log workout</a></p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Workouts</h1>
+        <p class="page-subtitle">Your logged sessions. Entries can be edited or deleted for @ClientLogControllerBase.EditWindowDays days.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> Log workout</a></div>
+</div>
 
-<p>
-    Period @Model.From.ToString("dd MMM") - @Model.To.ToString("dd MMM"):
-    Sessions: @Model.Items.Count |
-    Active minutes: @Model.Items.Sum(w => w.DurationMinutes) |
-    Calories burned: @Model.Items.Sum(w => w.CaloriesBurned) kcal |
-    Active days: @Model.Items.Select(w => w.LogDate).Distinct().Count()
-</p>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value">@Model.Items.Count</div><div class="stat-meta">@Model.From.ToString("dd MMM") – @Model.To.ToString("dd MMM")</div></div>
+    <div class="stat-card"><div class="stat-label">Active minutes</div><div class="stat-value">@Model.Items.Sum(w => w.DurationMinutes)</div></div>
+    <div class="stat-card"><div class="stat-label">Calories burned</div><div class="stat-value">@Model.Items.Sum(w => w.CaloriesBurned)<small> kcal</small></div></div>
+    <div class="stat-card"><div class="stat-label">Active days</div><div class="stat-value">@Model.Items.Select(w => w.LogDate).Distinct().Count()</div></div>
+</div>
 
-<partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" />
-
-@if (Model.Items.Count == 0)
-{
-    <p>No workouts in this period. <a asp-action="Create">Log your first workout</a></p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Activity</th><th>Duration</th><th>Intensity</th><th>Calories</th><th>Plan</th><th>Notes</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var w in Model.Items)
-            {
-                var editable = w.CreatedAtUtc >= Model.EditableAfterUtc;
-                <tr>
-                    <td>@w.LogDate.ToString("ddd dd MMM")</td>
-                    <td>@w.ExerciseType
-                        @if (Model.FeedbackCounts.TryGetValue(w.Id, out var fc)) { <a asp-controller="Client" asp-action="Feedback">(@fc feedback)</a> }
-                    </td>
-                    <td>@w.DurationMinutes min</td>
-                    <td>@w.Intensity</td>
-                    <td>@w.CaloriesBurned kcal</td>
-                    <td>@(w.WorkoutPlan?.Title ?? "-")</td>
-                    <td>@w.Notes</td>
-                    <td>
-                        @if (editable)
-                        {
-                            <a asp-action="Edit" asp-route-id="@w.Id">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@w.Id" method="post" data-confirm="Delete this workout?">
-                                <button type="submit">Delete</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span>Locked</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="card-ht">
+    <div class="card-ht-header"><partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" /></div>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-activity"></i><p>No workouts in this period.</p><a class="btn btn-primary btn-sm" asp-action="Create">Log your first workout</a></div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Date</th><th>Activity</th><th>Duration</th><th>Intensity</th><th>Calories</th><th>Plan</th><th>Notes</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var w in Model.Items)
+                    {
+                        var editable = w.CreatedAtUtc >= Model.EditableAfterUtc;
+                        <tr>
+                            <td class="text-nowrap">@w.LogDate.ToString("ddd dd MMM")</td>
+                            <td class="fw-semibold">@w.ExerciseType
+                                @if (Model.FeedbackCounts.TryGetValue(w.Id, out var fc)) { <a asp-controller="Client" asp-action="Feedback" class="badge-soft primary ms-1 text-decoration-none" title="Trainer feedback"><i class="bi bi-chat-heart"></i>@fc</a> }
+                            </td>
+                            <td>@w.DurationMinutes min</td>
+                            <td><span class="badge-soft @(w.Intensity == IntensityLevel.High ? "danger" : w.Intensity == IntensityLevel.Moderate ? "warning" : "success")">@w.Intensity</span></td>
+                            <td>@w.CaloriesBurned kcal</td>
+                            <td class="small text-muted">@(w.WorkoutPlan?.Title ?? "–")</td>
+                            <td class="small text-muted">@w.Notes</td>
+                            <td class="text-end text-nowrap">
+                                @if (editable)
+                                {
+                                    <a class="btn btn-light btn-sm" asp-action="Edit" asp-route-id="@w.Id" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@w.Id" method="post" class="d-inline" data-confirm="Delete this workout?">
+                                        <button type="submit" class="btn btn-light btn-sm text-danger" title="Delete"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small" title="Older than @ClientLogControllerBase.EditWindowDays days"><i class="bi bi-lock"></i></span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

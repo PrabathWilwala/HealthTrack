@@ -2,16 +2,22 @@
 @{
     ViewData["Title"] = "Consultation notes";
 }
-<p><a asp-action="Details" asp-route-id="@Model.Id">&lt; Back to appointment</a></p>
-<h1>Complete consultation</h1>
-<p>@Model.ClientName - @Model.StartTime.ToString("ddd dd MMM yyyy, HH:mm") - @Model.Purpose</p>
-<form asp-action="Complete" method="post">
-    <input type="hidden" asp-for="Id" />
-    <p>
-        <label asp-for="Notes"></label><br />
-        <textarea asp-for="Notes" rows="9" cols="70"></textarea><br />
-        <small>Notes are encrypted in the database. The client is notified when notes are added.</small>
-        <span asp-validation-for="Notes"></span>
-    </p>
-    <button type="submit">Save &amp; mark completed</button>
-</form>
+<div class="page-header">
+    <div>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="small fw-bold"><i class="bi bi-arrow-left"></i> Back to appointment</a>
+        <h1 class="page-title mt-1">Complete consultation</h1>
+        <p class="page-subtitle">@Model.ClientName · @Model.StartTime.ToString("ddd dd MMM yyyy, HH:mm") · @Model.Purpose</p>
+    </div>
+</div>
+<div class="row"><div class="col-lg-8">
+    <form asp-action="Complete" method="post" class="card-ht">
+        <input type="hidden" asp-for="Id" />
+        <div class="card-ht-body">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="9" placeholder="Summary, advice, changes to the plan, next steps…"></textarea>
+            <div class="form-text"><i class="bi bi-lock-fill text-success"></i> Notes are encrypted in the database. The client is notified when notes are added.</div>
+            <span asp-validation-for="Notes" class="text-danger"></span>
+        </div>
+        <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Save &amp; mark completed</button></div>
+    </form>
+</div></div>

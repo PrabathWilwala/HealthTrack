@@ -4,34 +4,36 @@
     var improved = Model.Count(r => r.Change > 0);
     var avg = Model.Count == 0 ? 0 : Model.Average(r => r.Change);
 }
-<p><a asp-action="Index">&lt; Reports</a></p>
-<h1>Feedback effectiveness</h1>
-<p>Compares each client's number of log entries in the 7 days before and after feedback (last 90 days).</p>
-<p>
-    Feedback given: @Model.Count |
-    Followed by more activity: @improved (@(Model.Count == 0 ? "-" : (improved * 100 / Model.Count) + "% of feedback")) |
-    Avg. change in weekly logs: @avg.ToString("+0.0;-0.0;0.0")
-</p>
-@if (Model.Count == 0)
-{
-    <p>No feedback in the last 90 days.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Client</th><th>Feedback</th><th>Logs week before</th><th>Logs week after</th><th>Change</th></tr></thead>
-        <tbody>
-            @foreach (var r in Model)
-            {
-                <tr>
-                    <td>@r.GivenAtUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
-                    <td>@r.ClientName</td>
-                    <td>@r.Message</td>
-                    <td>@r.LogsWeekBefore</td>
-                    <td>@r.LogsWeekAfter</td>
-                    <td>@r.Change.ToString("+0;-0;0")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Reports</a>
+        <h1 class="page-title mt-1">Feedback effectiveness</h1>
+        <p class="page-subtitle">Compares each client's number of log entries in the 7 days before and after feedback (last 90 days).</p>
+    </div>
+</div>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Feedback given</div><div class="stat-value">@Model.Count</div></div>
+    <div class="stat-card"><div class="stat-label">Followed by more activity</div><div class="stat-value">@improved</div><div class="stat-meta">@(Model.Count == 0 ? "–" : (improved * 100 / Model.Count) + "% of feedback")</div></div>
+    <div class="stat-card"><div class="stat-label">Avg. change in weekly logs</div><div class="stat-value">@avg.ToString("+0.0;-0.0;0.0")</div></div>
+</div>
+<div class="card-ht">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Date</th><th>Client</th><th>Feedback</th><th>Logs week before</th><th>Logs week after</th><th>Change</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td class="text-nowrap">@r.GivenAtUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
+                        <td class="fw-semibold">@r.ClientName</td>
+                        <td class="small">@r.Message</td>
+                        <td>@r.LogsWeekBefore</td>
+                        <td>@r.LogsWeekAfter</td>
+                        <td class="@(r.Change > 0 ? "trend-up" : r.Change < 0 ? "trend-down" : "")">@r.Change.ToString("+0;-0;0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Count == 0) { <div class="empty-state"><p>No feedback in the last 90 days.</p></div> }
+</div>

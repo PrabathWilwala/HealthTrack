@@ -1,6 +1,12 @@
 @{
     ViewData["Title"] = "Access denied";
 }
-<h1>Access denied</h1>
-<p>Your account does not have permission to access that page.</p>
-<p><a asp-controller="Account" asp-action="Dashboard">Return to HealthTrack</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card ht-result-card">
+        <div class="ht-result-icon ht-result-icon-error">!</div>
+        <h1>Access denied</h1>
+        <p class="ht-result-lead">Your account does not have permission to access that page.</p>
+        <a class="ht-primary-button ht-button-link" asp-controller="Account" asp-action="Dashboard">Return to HealthTrack</a>
+    </section>
+</div>

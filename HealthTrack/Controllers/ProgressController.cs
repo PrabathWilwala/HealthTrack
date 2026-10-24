@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthTrack.Controllers;
 
-// Client progress tracking: trends, goal progress, comparisons and exports.
+/// <summary>Client progress tracking: trends, goal progress, comparisons and exports.</summary>
 [Authorize(Roles = RoleNames.Client)]
 public class ProgressController : Controller
 {
@@ -19,8 +19,8 @@ public class ProgressController : Controller
         _audit = audit;
     }
 
-    // days: Length of the period ending today (7, 30, 90, 180 or 365).
-    // grouping: Day, week or month buckets for the charts.
+    /// <param name="days">Length of the period ending today (7, 30, 90, 180 or 365).</param>
+    /// <param name="grouping">Day, week or month buckets for the charts.</param>
     [HttpGet]
     public async Task<IActionResult> Index(int days = 30, ReportGrouping? grouping = null)
     {

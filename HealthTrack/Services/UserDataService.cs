@@ -10,8 +10,10 @@ public interface IUserDataService
     Task<object> ExportUserDataAsync(string userId);
 }
 
-// GDPR helpers: right to erasure (delete every record that belongs to a user)
-// and right of access / data portability (export everything as JSON).
+/// <summary>
+/// GDPR helpers: right to erasure (delete every record that belongs to a user)
+/// and right of access / data portability (export everything as JSON).
+/// </summary>
 public sealed class UserDataService : IUserDataService
 {
     private readonly ApplicationDbContext _db;
@@ -28,7 +30,7 @@ public sealed class UserDataService : IUserDataService
         _logger = logger;
     }
 
-    // Right to erasure: removes or detaches every record that references the user inside one transaction, then deletes the account.
+    /// <summary>Right to erasure: removes or detaches every record that references the user inside one transaction, then deletes the account.</summary>
     public async Task<ServiceResult> DeleteUserCompletelyAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -84,7 +86,7 @@ public sealed class UserDataService : IUserDataService
         }
     }
 
-    // Right of access: collects all of the user's data into one object that is downloaded as JSON.
+    /// <summary>Right of access: collects all of the user's data into one object that is downloaded as JSON.</summary>
     public async Task<object> ExportUserDataAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -116,8 +118,10 @@ public interface IFileStorageService
     void DeleteFile(string? relativePath);
 }
 
-// Stores profile pictures under wwwroot/uploads/profiles with random file names.
-// Validates size, extension and the file signature ("magic bytes") to block disguised files.
+/// <summary>
+/// Stores profile pictures under wwwroot/uploads/profiles with random file names.
+/// Validates size, extension and the file signature ("magic bytes") to block disguised files.
+/// </summary>
 public sealed class FileStorageService : IFileStorageService
 {
     private const long MaxBytes = 2 * 1024 * 1024;
@@ -166,7 +170,7 @@ public sealed class FileStorageService : IFileStorageService
         return ("/" + UploadFolder + "/" + fileName, null);
     }
 
-    // Deletes a previously uploaded file (only inside the uploads folder).
+    /// <summary>Deletes a previously uploaded file (only inside the uploads folder).</summary>
     public void DeleteFile(string? relativePath)
     {
         if (string.IsNullOrWhiteSpace(relativePath) || !relativePath.StartsWith("/" + UploadFolder + "/", StringComparison.Ordinal))

@@ -1,83 +1,75 @@
 @model CalendarViewModel
 @{
     ViewData["Title"] = "Calendar";
+    string Css(Appointment a) => a.Status == AppointmentStatus.Completed ? "completed" : a.Status == AppointmentStatus.Pending ? "pending" : "approved";
 }
-<h1>@Model.Title</h1>
-<p>Your consultations.</p>
-<p>
-    View:
-    <a asp-route-view="day" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Day</a> |
-    <a asp-route-view="week" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Week</a> |
-    <a asp-route-view="month" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Month</a>
-    (current: @Model.View)
-</p>
-<p>
-    <a asp-route-view="@Model.View" asp-route-date="@Model.Previous.ToString("yyyy-MM-dd")">&lt; Previous</a> |
-    <a asp-route-view="@Model.View" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")">Today</a> |
-    <a asp-route-view="@Model.View" asp-route-date="@Model.Next.ToString("yyyy-MM-dd")">Next &gt;</a>
-</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@Model.Title</h1>
+        <p class="page-subtitle">Your consultations. Pending requests are shown in amber.</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            <a class="btn btn-light @(Model.View == "day" ? "active" : "")" asp-route-view="day" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Day</a>
+            <a class="btn btn-light @(Model.View == "week" ? "active" : "")" asp-route-view="week" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Week</a>
+            <a class="btn btn-light @(Model.View == "month" ? "active" : "")" asp-route-view="month" asp-route-date="@Model.Date.ToString("yyyy-MM-dd")">Month</a>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-light" asp-route-view="@Model.View" asp-route-date="@Model.Previous.ToString("yyyy-MM-dd")"><i class="bi bi-chevron-left"></i></a>
+            <a class="btn btn-light" asp-route-view="@Model.View" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")">Today</a>
+            <a class="btn btn-light" asp-route-view="@Model.View" asp-route-date="@Model.Next.ToString("yyyy-MM-dd")"><i class="bi bi-chevron-right"></i></a>
+        </div>
+    </div>
+</div>
 
-@if (Model.View == "month")
-{
-    <table border="1" cellpadding="4">
-        <thead>
-            <tr>
-                @foreach (var name in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
-                {
-                    <th>@name</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @for (var i = 0; i < Model.Days.Count; i += 7)
+<div class="card-ht overflow-hidden">
+    @if (Model.View == "month")
+    {
+        <div class="calendar-grid">
+            @foreach (var name in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
             {
-                <tr>
-                    @foreach (var day in Model.Days.Skip(i).Take(7))
-                    {
-                        <td valign="top">
-                            <a asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">@if (day.Date == DateTime.Today) { <b>@day.Date.Day</b> } else if (!day.InCurrentMonth) { <i>@day.Date.Day</i> } else { <text>@day.Date.Day</text> }</a>
-                            @foreach (var item in day.Items.Take(3))
-                            {
-                                <br />
-                                <a asp-action="Details" asp-route-id="@item.Appointment.Id" title="@item.Appointment.Purpose">@item.Appointment.StartTime.ToString("HH:mm") @item.OtherPartyName (@item.Appointment.Status)</a>
-                            }
-                            @if (day.Items.Count > 3)
-                            {
-                                <br />
-                                <a asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">+@(day.Items.Count - 3) more</a>
-                            }
-                        </td>
-                    }
-                </tr>
+                <div class="head">@name</div>
             }
-        </tbody>
-    </table>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Day</th><th>Appointments</th></tr></thead>
-        <tbody>
             @foreach (var day in Model.Days)
             {
-                <tr>
-                    <td valign="top">@day.Date.ToString("ddd dd MMM")@(day.Date == DateTime.Today ? " (today)" : "")</td>
-                    <td>
+                <div class="calendar-cell @(day.InCurrentMonth ? "" : "muted") @(day.Date == DateTime.Today ? "today" : "")">
+                    <div class="day-num"><a class="text-reset text-decoration-none" asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">@day.Date.Day</a></div>
+                    @foreach (var item in day.Items.Take(3))
+                    {
+                        <a class="cal-event @Css(item.Appointment)" asp-action="Details" asp-route-id="@item.Appointment.Id" title="@item.Appointment.Purpose">@item.Appointment.StartTime.ToString("HH:mm") @item.OtherPartyName</a>
+                    }
+                    @if (day.Items.Count > 3)
+                    {
+                        <a class="small" asp-route-view="day" asp-route-date="@day.Date.ToString("yyyy-MM-dd")">+@(day.Items.Count - 3) more</a>
+                    }
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <ul class="list-clean">
+            @foreach (var day in Model.Days)
+            {
+                <li class="list-row align-items-start @(day.Date == DateTime.Today ? "bg-light" : "")">
+                    <div class="date-tile"><div class="d">@day.Date.Day</div><div class="m">@day.Date.ToString("ddd")</div></div>
+                    <div class="grow">
                         @if (day.Items.Count == 0)
                         {
-                            <span>No appointments</span>
+                            <div class="text-muted small pt-2">No appointments</div>
                         }
                         @foreach (var item in day.Items)
                         {
                             var a = item.Appointment;
-                            <div>
-                                <a asp-action="Details" asp-route-id="@a.Id">@a.StartTime.ToString("HH:mm") - @a.EndTime.ToString("HH:mm") @item.OtherPartyName: @a.Purpose</a>
+                            <a class="d-flex align-items-center gap-2 py-2 border-bottom text-decoration-none text-reset" asp-action="Details" asp-route-id="@a.Id">
+                                <span class="fw-bold" style="width:110px">@a.StartTime.ToString("HH:mm") – @a.EndTime.ToString("HH:mm")</span>
+                                <span class="grow">@item.OtherPartyName · <span class="text-muted">@a.Purpose</span></span>
                                 <partial name="_AppointmentStatus" model="a" />
-                            </div>
+                            </a>
                         }
-                    </td>
-                </tr>
+                    </div>
+                </li>
             }
-        </tbody>
-    </table>
-}
+        </ul>
+    }
+</div>

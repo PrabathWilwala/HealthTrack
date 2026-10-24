@@ -4,136 +4,175 @@
     var isClient = Model.Role == RoleNames.Client;
     var isTrainer = Model.Role == RoleNames.Trainer;
 }
-<h1>Profile &amp; security</h1>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Profile &amp; security</h1>
+        <p class="page-subtitle">Manage your personal information, contact details and account security.</p>
+    </div>
+</div>
 <partial name="_ProfileTabs" />
 
-<h2>Account</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Username</th><td>@Model.UserName</td></tr>
-    <tr><th>Role</th><td>@Model.Role</td></tr>
-    <tr><th>Email</th><td>@Model.Email</td></tr>
-    <tr><th>2FA</th><td>@(Model.TwoFactorEnabled ? "Enabled" : "Not enabled")</td></tr>
-</table>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <form asp-action="Index" method="post" enctype="multipart/form-data" class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-person-vcard"></i>Personal information</h2></div>
+            <div class="card-ht-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
 
-<h2>Personal information</h2>
-<form asp-action="Index" method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly"></div>
+                @if (isClient || isTrainer)
+                {
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+                        {
+                            <img src="@Model.ProfilePicturePath" alt="Profile picture" class="avatar avatar-xl" />
+                        }
+                        else
+                        {
+                            <span class="avatar avatar-xl">@DisplayHelpers.Initials(Model.FullName)</span>
+                        }
+                        <div class="flex-grow-1">
+                            <label asp-for="ProfilePicture" class="form-label">Profile picture</label>
+                            <input asp-for="ProfilePicture" type="file" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                            <div class="form-text">JPG or PNG, up to 2 MB.</div>
+                            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+                            {
+                                <div class="form-check mt-1">
+                                    <input asp-for="RemovePicture" class="form-check-input" />
+                                    <label asp-for="RemovePicture" class="form-check-label small">Remove current picture</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
 
-    @if (isClient || isTrainer)
-    {
-        <p>
-            @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
-            {
-                <img src="@Model.ProfilePicturePath" alt="Profile picture" width="100" height="100" /><br />
-            }
-            <label asp-for="ProfilePicture">Profile picture</label><br />
-            <input asp-for="ProfilePicture" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
-            <small>JPG or PNG, up to 2 MB.</small>
-            <span asp-validation-for="ProfilePicture"></span>
-            @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
-            {
-                <br />
-                <input asp-for="RemovePicture" />
-                <label asp-for="RemovePicture">Remove current picture</label>
-            }
-        </p>
-        <p>
-            <label asp-for="FullName"></label><br />
-            <input asp-for="FullName" />
-            <span asp-validation-for="FullName"></span>
-        </p>
-    }
-    <p>
-        <label asp-for="PhoneNumber"></label><br />
-        <input asp-for="PhoneNumber" />
-        <span asp-validation-for="PhoneNumber"></span>
-    </p>
+                <div class="row g-3">
+                    @if (isClient || isTrainer)
+                    {
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    }
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="+94 77 123 4567" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
 
-    @if (isClient)
-    {
-        <h3>Health profile</h3>
-        <p>
-            <label asp-for="Age"></label><br />
-            <input asp-for="Age" type="number" min="1" max="120" />
-            <span asp-validation-for="Age"></span>
-        </p>
-        <p>
-            <label asp-for="Gender"></label><br />
-            <select asp-for="Gender">
-                <option>Female</option>
-                <option>Male</option>
-                <option>Non-binary</option>
-                <option>Other</option>
-                <option>Prefer not to say</option>
-            </select>
-        </p>
-        <p>
-            <label asp-for="HeightCm"></label><br />
-            <input asp-for="HeightCm" type="number" step="0.1" min="50" max="300" />
-            <span asp-validation-for="HeightCm"></span>
-        </p>
-        <p>
-            Current weight: @Model.CurrentWeightKg.ToString("0.0") kg
-            (<a asp-controller="Measurements" asp-action="Create">Log a measurement</a> to update)
-        </p>
-        <p>
-            <label asp-for="TargetWeightKg"></label><br />
-            <input asp-for="TargetWeightKg" type="number" step="0.1" min="10" max="500" />
-            <span asp-validation-for="TargetWeightKg"></span>
-        </p>
-        <p>
-            <label asp-for="DailyCalorieTarget"></label><br />
-            <input asp-for="DailyCalorieTarget" type="number" min="800" max="6000" />
-            <small>Used when no diet plan is assigned.</small>
-            <span asp-validation-for="DailyCalorieTarget"></span>
-        </p>
-        <p>Assigned trainer: @(Model.TrainerName ?? "Not assigned yet")</p>
-        <p>
-            <label asp-for="FitnessGoals"></label><br />
-            <textarea asp-for="FitnessGoals" rows="2" cols="60"></textarea>
-            <span asp-validation-for="FitnessGoals"></span>
-        </p>
-        <p>
-            <label asp-for="MedicalNotes">Medical notes (private, encrypted)</label><br />
-            <textarea asp-for="MedicalNotes" rows="3" cols="60"></textarea><br />
-            <small>Stored encrypted. Visible only to you and your assigned trainer.</small>
-            <span asp-validation-for="MedicalNotes"></span>
-        </p>
-    }
+                @if (isClient)
+                {
+                    <h3 class="h6 mt-4 mb-3">Health profile</h3>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label asp-for="Age" class="form-label"></label>
+                            <input asp-for="Age" class="form-control" type="number" min="1" max="120" />
+                            <span asp-validation-for="Age" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Gender" class="form-label"></label>
+                            <select asp-for="Gender" class="form-select">
+                                <option>Female</option>
+                                <option>Male</option>
+                                <option>Non-binary</option>
+                                <option>Other</option>
+                                <option>Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="HeightCm" class="form-label"></label>
+                            <input asp-for="HeightCm" class="form-control" type="number" step="0.1" min="50" max="300" />
+                            <span asp-validation-for="HeightCm" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Current weight</label>
+                            <input class="form-control" value="@Model.CurrentWeightKg.ToString("0.0") kg" disabled />
+                            <div class="form-text"><a asp-controller="Measurements" asp-action="Create">Log a measurement</a> to update.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="TargetWeightKg" class="form-label"></label>
+                            <input asp-for="TargetWeightKg" class="form-control" type="number" step="0.1" min="10" max="500" />
+                            <span asp-validation-for="TargetWeightKg" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="DailyCalorieTarget" class="form-label"></label>
+                            <input asp-for="DailyCalorieTarget" class="form-control" type="number" min="800" max="6000" />
+                            <div class="form-text">Used when no diet plan is assigned.</div>
+                            <span asp-validation-for="DailyCalorieTarget" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Assigned trainer</label>
+                            <input class="form-control" value="@(Model.TrainerName ?? "Not assigned yet")" disabled />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="FitnessGoals" class="form-label"></label>
+                            <textarea asp-for="FitnessGoals" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="FitnessGoals" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MedicalNotes" class="form-label"><i class="bi bi-lock-fill text-success"></i> Medical notes (private, encrypted)</label>
+                            <textarea asp-for="MedicalNotes" class="form-control" rows="3" placeholder="Injuries, conditions or medication your trainer should know about"></textarea>
+                            <div class="form-text">Stored encrypted. Visible only to you and your assigned trainer.</div>
+                            <span asp-validation-for="MedicalNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
 
-    @if (isTrainer)
-    {
-        <h3>Professional profile</h3>
-        <p>
-            <label asp-for="Qualifications"></label><br />
-            <textarea asp-for="Qualifications" rows="2" cols="60"></textarea>
-            <span asp-validation-for="Qualifications"></span>
-        </p>
-        <p>
-            <label asp-for="Specializations"></label><br />
-            <textarea asp-for="Specializations" rows="2" cols="60"></textarea>
-            <span asp-validation-for="Specializations"></span>
-        </p>
-        <p>
-            <label asp-for="Certifications"></label><br />
-            <textarea asp-for="Certifications" rows="2" cols="60"></textarea>
-        </p>
-        <p>
-            <label asp-for="Bio"></label><br />
-            <textarea asp-for="Bio" rows="2" cols="60"></textarea>
-        </p>
-        <p><a asp-controller="Trainer" asp-action="Availability">Manage your consultation availability</a></p>
-    }
-    <button type="submit">Save changes</button>
-</form>
+                @if (isTrainer)
+                {
+                    <h3 class="h6 mt-4 mb-3">Professional profile</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Qualifications" class="form-label"></label>
+                            <textarea asp-for="Qualifications" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Qualifications" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Specializations" class="form-label"></label>
+                            <textarea asp-for="Specializations" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Specializations" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Certifications" class="form-label"></label>
+                            <textarea asp-for="Certifications" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Bio" class="form-label"></label>
+                            <textarea asp-for="Bio" class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="col-12"><a asp-controller="Trainer" asp-action="Availability"><i class="bi bi-clock"></i> Manage your consultation availability</a></div>
+                    </div>
+                }
+            </div>
+            <div class="card-ht-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Save changes</button>
+            </div>
+        </form>
+    </div>
 
-<h2>Change email</h2>
-<form asp-action="ChangeEmail" method="post">
-    <p>
-        <label for="NewEmail">New email address</label><br />
-        <input id="NewEmail" name="NewEmail" type="email" required maxlength="256" /><br />
-        <small>We'll send a confirmation link to the new address. Your email changes once you open it.</small>
-    </p>
-    <button type="submit">Send confirmation link</button>
-</form>
+    <div class="col-xl-4">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-person-badge"></i>Account</h2></div>
+            <div class="card-ht-body">
+                <dl class="kv" style="grid-template-columns:100px 1fr">
+                    <dt>Username</dt><dd>@Model.UserName</dd>
+                    <dt>Role</dt><dd>@Model.Role</dd>
+                    <dt>Email</dt><dd class="text-break">@Model.Email</dd>
+                    <dt>2FA</dt><dd>@(Model.TwoFactorEnabled ? "Enabled" : "Not enabled")</dd>
+                </dl>
+            </div>
+        </div>
+        <form asp-action="ChangeEmail" method="post" class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-envelope"></i>Change email</h2></div>
+            <div class="card-ht-body">
+                <label for="NewEmail" class="form-label">New email address</label>
+                <input id="NewEmail" name="NewEmail" type="email" class="form-control" required maxlength="256" />
+                <div class="form-text">We'll send a confirmation link to the new address. Your email changes once you open it.</div>
+                <button type="submit" class="btn btn-light mt-3 w-100">Send confirmation link</button>
+            </div>
+        </form>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

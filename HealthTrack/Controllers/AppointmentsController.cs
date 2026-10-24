@@ -10,9 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Appointment screens for clients (request, reschedule, cancel, export) and trainers
-// (approve, decline, reschedule, cancel, complete with notes, calendar).
-// Business rules are implemented in IAppointmentService.
+/// <summary>
+/// Appointment screens for clients (request, reschedule, cancel, export) and trainers
+/// (approve, decline, reschedule, cancel, complete with notes, calendar).
+/// Business rules are implemented in <see cref="IAppointmentService"/>.
+/// </summary>
 [Authorize]
 public class AppointmentsController : Controller
 {
@@ -35,7 +37,7 @@ public class AppointmentsController : Controller
     // Lists and details
     // =====================================================================
 
-    // Upcoming or past appointments for the current client or trainer, optionally filtered by status.
+    /// <summary>Upcoming or past appointments for the current client or trainer, optionally filtered by status.</summary>
     [HttpGet]
     public async Task<IActionResult> Index(string tab = "upcoming", AppointmentStatus? status = null)
     {
@@ -75,7 +77,7 @@ public class AppointmentsController : Controller
         });
     }
 
-    // Appointment details with the actions the current user is allowed to take.
+    /// <summary>Appointment details with the actions the current user is allowed to take.</summary>
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
@@ -108,7 +110,7 @@ public class AppointmentsController : Controller
     // Client: request a consultation
     // =====================================================================
 
-    // Client: shows trainers and their availability / submits an appointment request.
+    /// <summary>Client: shows trainers and their availability / submits an appointment request.</summary>
     [Authorize(Roles = RoleNames.Client)]
     [HttpGet]
     public async Task<IActionResult> Create(string? trainerId)
@@ -120,7 +122,7 @@ public class AppointmentsController : Controller
         return View(model);
     }
 
-    // Client: shows trainers and their availability / submits an appointment request.
+    /// <summary>Client: shows trainers and their availability / submits an appointment request.</summary>
     [Authorize(Roles = RoleNames.Client)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -146,7 +148,7 @@ public class AppointmentsController : Controller
     // Trainer: approve / decline / complete
     // =====================================================================
 
-    // Trainer: approves a pending request.
+    /// <summary>Trainer: approves a pending request.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -157,7 +159,7 @@ public class AppointmentsController : Controller
         return RedirectBack(returnUrl, id);
     }
 
-    // Trainer: declines a request with a reason and suggested alternative.
+    /// <summary>Trainer: declines a request with a reason and suggested alternative.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -168,7 +170,7 @@ public class AppointmentsController : Controller
         return RedirectBack(returnUrl, id);
     }
 
-    // Trainer: shows / saves consultation notes and marks the appointment completed.
+    /// <summary>Trainer: shows / saves consultation notes and marks the appointment completed.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpGet]
     public async Task<IActionResult> Complete(int id)
@@ -187,7 +189,7 @@ public class AppointmentsController : Controller
         });
     }
 
-    // Trainer: shows / saves consultation notes and marks the appointment completed.
+    /// <summary>Trainer: shows / saves consultation notes and marks the appointment completed.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -209,7 +211,7 @@ public class AppointmentsController : Controller
     // Both parties: reschedule and cancel
     // =====================================================================
 
-    // Client or trainer: proposes a new time.
+    /// <summary>Client or trainer: proposes a new time.</summary>
     [Authorize(Roles = RoleNames.Client + "," + RoleNames.Trainer)]
     [HttpGet]
     public async Task<IActionResult> Reschedule(int id)
@@ -228,7 +230,7 @@ public class AppointmentsController : Controller
         });
     }
 
-    // Client or trainer: proposes a new time.
+    /// <summary>Client or trainer: proposes a new time.</summary>
     [Authorize(Roles = RoleNames.Client + "," + RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -254,7 +256,7 @@ public class AppointmentsController : Controller
         return View(model);
     }
 
-    // Accepts or rejects a proposed new time.
+    /// <summary>Accepts or rejects a proposed new time.</summary>
     [Authorize(Roles = RoleNames.Client + "," + RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -265,7 +267,7 @@ public class AppointmentsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    // Cancels an appointment with a reason (policy enforced for clients).
+    /// <summary>Cancels an appointment with a reason (policy enforced for clients).</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int id, string? reason, string? returnUrl)
@@ -279,7 +281,7 @@ public class AppointmentsController : Controller
     // Calendar export and trainer calendar
     // =====================================================================
 
-    // Downloads the appointment as an iCalendar (.ics) file.
+    /// <summary>Downloads the appointment as an iCalendar (.ics) file.</summary>
     [HttpGet]
     public async Task<IActionResult> Ics(int id)
     {
@@ -292,7 +294,7 @@ public class AppointmentsController : Controller
         return File(bytes, "text/calendar", $"healthtrack-appointment-{appointment.Id}.ics");
     }
 
-    // Trainer calendar in day, week or month view.
+    /// <summary>Trainer calendar in day, week or month view.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpGet]
     public async Task<IActionResult> Calendar(string view = "month", DateTime? date = null)
@@ -354,7 +356,7 @@ public class AppointmentsController : Controller
     // Helpers
     // =====================================================================
 
-    // Loads an appointment only if the current user is a participant (or an administrator).
+    /// <summary>Loads an appointment only if the current user is a participant (or an administrator).</summary>
     private async Task<Appointment?> FindAccessibleAsync(int id)
     {
         var appointment = await _db.Appointments.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Trainer dashboard, client monitoring, feedback and availability management.
+/// <summary>Trainer dashboard, client monitoring, feedback and availability management.</summary>
 [Authorize(Roles = RoleNames.Trainer)]
 public class TrainerController : Controller
 {
@@ -32,7 +32,7 @@ public class TrainerController : Controller
         _userManager = userManager;
     }
 
-    // Trainer dashboard: client overview, pending requests, alerts, activity feed, notifications and metrics.
+    /// <summary>Trainer dashboard: client overview, pending requests, alerts, activity feed, notifications and metrics.</summary>
     [HttpGet]
     public async Task<IActionResult> Dashboard()
     {
@@ -101,7 +101,7 @@ public class TrainerController : Controller
         return View(model);
     }
 
-    // All assigned clients with progress summaries.
+    /// <summary>All assigned clients with progress summaries.</summary>
     [HttpGet]
     public async Task<IActionResult> Clients(string? search)
     {
@@ -114,7 +114,7 @@ public class TrainerController : Controller
         return View(rows);
     }
 
-    // Detailed view of one client: charts, logs, plans, feedback and appointments.
+    /// <summary>Detailed view of one client: charts, logs, plans, feedback and appointments.</summary>
     [HttpGet("Trainer/Client/{id}")]
     public async Task<IActionResult> Client(string id)
     {
@@ -151,7 +151,7 @@ public class TrainerController : Controller
         return View(model);
     }
 
-    // Saves feedback on a client log (or general feedback) and notifies the client.
+    /// <summary>Saves feedback on a client log (or general feedback) and notifies the client.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GiveFeedback(FeedbackFormViewModel model)
@@ -198,7 +198,7 @@ public class TrainerController : Controller
         return Redirect($"/Trainer/Client/{model.ClientId}#feedback");
     }
 
-    // Ends an active plan assignment for one of the trainer's clients.
+    /// <summary>Ends an active plan assignment for one of the trainer's clients.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EndAssignment(int id)
@@ -220,7 +220,7 @@ public class TrainerController : Controller
     // Availability
     // =====================================================================
 
-    // Shows / adds weekly consultation hours.
+    /// <summary>Shows / adds weekly consultation hours.</summary>
     [HttpGet]
     public async Task<IActionResult> Availability()
     {
@@ -231,7 +231,7 @@ public class TrainerController : Controller
         });
     }
 
-    // Shows / adds weekly consultation hours.
+    /// <summary>Shows / adds weekly consultation hours.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Availability(TrainerAvailabilityViewModel model)
@@ -265,7 +265,7 @@ public class TrainerController : Controller
         return RedirectToAction(nameof(Availability));
     }
 
-    // Removes an availability slot.
+    /// <summary>Removes an availability slot.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RemoveSlot(int id)

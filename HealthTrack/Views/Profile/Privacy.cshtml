@@ -2,21 +2,37 @@
 @{
     ViewData["Title"] = "Privacy & my data";
 }
-<h1>Profile &amp; security</h1>
+<div class="page-header"><div><h1 class="page-title">Profile &amp; security</h1><p class="page-subtitle">Your data rights under GDPR principles: access, portability and erasure.</p></div></div>
 <partial name="_ProfileTabs" />
-<h2>Delete my account</h2>
-<form asp-action="DeleteAccount" method="post" data-confirm="This permanently deletes your account and all of your data. Continue?">
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>This permanently removes your account and all associated health records. This cannot be undone.</p>
-    <p>
-        <label asp-for="Password"></label><br />
-        <input asp-for="Password" autocomplete="current-password" />
-        <span asp-validation-for="Password"></span>
-    </p>
-    <p>
-        <input asp-for="ConfirmDeletion" />
-        <label asp-for="ConfirmDeletion">I understand this cannot be undone</label>
-        <span asp-validation-for="ConfirmDeletion"></span>
-    </p>
-    <button type="submit">Delete my account permanently</button>
-</form>
+<div class="row g-4">
+   @*  <div class="col-lg-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-download"></i>Download my data</h2></div>
+            <div class="card-ht-body">
+                <p>Get a copy of everything HealthTrack stores about you — profile, measurements, workouts, meals, appointments, feedback and notifications — as a JSON file.</p>
+                <a class="btn btn-primary" asp-action="DownloadData"><i class="bi bi-file-earmark-arrow-down"></i> Download (JSON)</a>
+                <p class="small text-muted mt-3 mb-0">Read our <a asp-controller="Home" asp-action="Privacy">privacy policy</a> to learn how your data is protected.</p>
+            </div>
+        </div>
+    </div> *@
+    <div class="col-lg-6">
+        <form asp-action="DeleteAccount" method="post" class="card-ht h-100 border-danger-subtle" data-confirm="This permanently deletes your account and all of your data. Continue?">
+            <div class="card-ht-header"><h2 class="card-ht-title text-danger"><i class="bi bi-trash3 text-danger"></i>Delete my account</h2></div>
+            <div class="card-ht-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                <p>This permanently removes your account and all associated health records. This cannot be undone.</p>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-check mb-3">
+                    <input asp-for="ConfirmDeletion" class="form-check-input" />
+                    <label asp-for="ConfirmDeletion" class="form-check-label">I understand this cannot be undone</label>
+                    <span asp-validation-for="ConfirmDeletion" class="text-danger d-block"></span>
+                </div>
+                <button type="submit" class="btn btn-danger">Delete my account permanently</button>
+            </div>
+        </form>
+    </div>
+</div>

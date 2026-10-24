@@ -5,91 +5,111 @@
     ViewData["Title"] = isEdit ? "Edit diet plan" : (isAdmin ? "New system diet template" : "New diet plan");
     var mealTypes = Enum.GetValues<MealType>();
 }
-<p><a asp-action="Index">&lt; Diet plans</a></p>
-<h1>@ViewData["Title"]</h1>
-<p>Meals, portions, calorie targets and nutritional guidelines.</p>
-<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
-    <div asp-validation-summary="All"></div>
-
-    <h2>Plan details</h2>
-    <p>
-        <label asp-for="Title"></label><br />
-        <input asp-for="Title" size="40" />
-        <span asp-validation-for="Title"></span>
-    </p>
-    <p>
-        <label asp-for="Description"></label><br />
-        <textarea asp-for="Description" rows="2" cols="60"></textarea>
-    </p>
-    <p>
-        <label asp-for="DailyCalorieTarget"></label><br />
-        <input asp-for="DailyCalorieTarget" type="number" min="800" max="6000" />
-        <small>Meals below add up to <b id="mealTotal">@Model.TotalMealCalories</b> kcal.</small>
-        <span asp-validation-for="DailyCalorieTarget"></span>
-    </p>
-    <p>
-        <label asp-for="ProteinTargetG">Protein (g)</label> <input asp-for="ProteinTargetG" type="number" min="0" />
-        <label asp-for="CarbsTargetG">Carbs (g)</label> <input asp-for="CarbsTargetG" type="number" min="0" />
-        <label asp-for="FatTargetG">Fat (g)</label> <input asp-for="FatTargetG" type="number" min="0" />
-    </p>
-    <p>
-        <label asp-for="Guidelines"></label><br />
-        <textarea asp-for="Guidelines" rows="3" cols="60"></textarea>
-    </p>
-    @if (!isAdmin)
-    {
-        <p>
-            <input asp-for="IsTemplate" />
-            <label asp-for="IsTemplate"></label>
-        </p>
-    }
-
-    <h2>Meals</h2>
-    <p><button type="button" data-add-row="mealRows">Add meal</button></p>
-    <div id="mealRows" data-rows="Meals" data-total-target="#mealTotal">
-        @for (var i = 0; i < Model.Meals.Count; i++)
-        {
-            var m = Model.Meals[i];
-            <fieldset data-row>
-                <legend>Meal <span data-row-number>@(i + 1)</span></legend>
-                Type:
-                <select name="Meals[@i].MealType">
-                    @foreach (var t in mealTypes)
-                    {
-                        if (t == m.MealType) { <option value="@((int)t)" selected>@t</option> }
-                        else { <option value="@((int)t)">@t</option> }
-                    }
-                </select>
-                Food items: <input name="Meals[@i].FoodItems" value="@m.FoodItems" maxlength="300" size="40" required />@Html.ValidationMessage($"Meals[{i}].FoodItems")
-                Portion: <input name="Meals[@i].Portion" value="@m.Portion" maxlength="100" />
-                <br />
-                kcal: <input type="number" min="0" max="5000" name="Meals[@i].Calories" value="@m.Calories" data-sum />
-                Protein g: <input type="number" min="0" max="500" name="Meals[@i].ProteinG" value="@m.ProteinG" />
-                Carbs g: <input type="number" min="0" max="800" name="Meals[@i].CarbsG" value="@m.CarbsG" />
-                Fat g: <input type="number" min="0" max="300" name="Meals[@i].FatG" value="@m.FatG" />
-                <button type="button" data-remove-row>Remove</button>
-            </fieldset>
-        }
-        <template data-row-template>
-            <fieldset data-row>
-                <legend>Meal <span data-row-number></span></legend>
-                Type:
-                <select name="Meals[__i__].MealType">
-                    @foreach (var t in mealTypes) { <option value="@((int)t)">@t</option> }
-                </select>
-                Food items: <input name="Meals[__i__].FoodItems" maxlength="300" size="40" required />
-                Portion: <input name="Meals[__i__].Portion" maxlength="100" />
-                <br />
-                kcal: <input type="number" min="0" max="5000" name="Meals[__i__].Calories" value="0" data-sum />
-                Protein g: <input type="number" min="0" max="500" name="Meals[__i__].ProteinG" value="0" />
-                Carbs g: <input type="number" min="0" max="800" name="Meals[__i__].CarbsG" value="0" />
-                Fat g: <input type="number" min="0" max="300" name="Meals[__i__].FatG" value="0" />
-                <button type="button" data-remove-row>Remove</button>
-            </fieldset>
-        </template>
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Diet plans</a>
+        <h1 class="page-title mt-1">@ViewData["Title"]</h1>
+        <p class="page-subtitle">Meals, portions, calorie targets and nutritional guidelines.</p>
     </div>
-    <p>
-        <button type="submit">@(isEdit ? "Save changes" : "Create plan")</button>
-        <a asp-action="Index">Cancel</a>
-    </p>
+</div>
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-4">
+        <div class="col-xl-4">
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-info-circle"></i>Plan details</h2></div>
+                <div class="card-ht-body">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. Balanced 1800 kcal" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="DailyCalorieTarget" class="form-label"></label>
+                            <input asp-for="DailyCalorieTarget" class="form-control" type="number" min="800" max="6000" />
+                            <div class="form-text">Meals below add up to <strong id="mealTotal">@Model.TotalMealCalories</strong> kcal.</div>
+                            <span asp-validation-for="DailyCalorieTarget" class="text-danger"></span>
+                        </div>
+                        <div class="col-4"><label asp-for="ProteinTargetG" class="form-label">Protein (g)</label><input asp-for="ProteinTargetG" class="form-control" type="number" min="0" /></div>
+                        <div class="col-4"><label asp-for="CarbsTargetG" class="form-label">Carbs (g)</label><input asp-for="CarbsTargetG" class="form-control" type="number" min="0" /></div>
+                        <div class="col-4"><label asp-for="FatTargetG" class="form-label">Fat (g)</label><input asp-for="FatTargetG" class="form-control" type="number" min="0" /></div>
+                    </div>
+                    <div class="mt-3">
+                        <label asp-for="Guidelines" class="form-label"></label>
+                        <textarea asp-for="Guidelines" class="form-control" rows="3" placeholder="Hydration, foods to avoid, timing…"></textarea>
+                    </div>
+                    @if (!isAdmin)
+                    {
+                        <div class="form-check mt-3">
+                            <input asp-for="IsTemplate" class="form-check-input" />
+                            <label asp-for="IsTemplate" class="form-check-label"></label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <div class="card-ht">
+                <div class="card-ht-header">
+                    <h2 class="card-ht-title"><i class="bi bi-egg-fried"></i>Meals</h2>
+                    <button type="button" class="btn btn-light btn-sm" data-add-row="mealRows"><i class="bi bi-plus-lg"></i> Add meal</button>
+                </div>
+                <div class="card-ht-body" id="mealRows" data-rows="Meals" data-total-target="#mealTotal">
+                    @for (var i = 0; i < Model.Meals.Count; i++)
+                    {
+                        var m = Model.Meals[i];
+                        <div class="row-editor">
+                            <button type="button" class="btn btn-light btn-sm remove-row" title="Remove"><i class="bi bi-x-lg"></i></button>
+                            <div class="small-caps mb-2">Meal <span class="row-number">@(i + 1)</span></div>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <select class="form-select" name="Meals[@i].MealType">
+                                        @foreach (var t in mealTypes)
+                                        {
+                                            if (t == m.MealType) { <option value="@((int)t)" selected>@t</option> }
+                                            else { <option value="@((int)t)">@t</option> }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6"><input class="form-control" name="Meals[@i].FoodItems" value="@m.FoodItems" maxlength="300" placeholder="Food items" required />@Html.ValidationMessage($"Meals[{i}].FoodItems", new { @class = "text-danger" })</div>
+                                <div class="col-md-3"><input class="form-control" name="Meals[@i].Portion" value="@m.Portion" maxlength="100" placeholder="Portion" /></div>
+                                <div class="col-3"><label class="form-text">kcal</label><input class="form-control" type="number" min="0" max="5000" name="Meals[@i].Calories" value="@m.Calories" data-sum /></div>
+                                <div class="col-3"><label class="form-text">Protein g</label><input class="form-control" type="number" min="0" max="500" name="Meals[@i].ProteinG" value="@m.ProteinG" /></div>
+                                <div class="col-3"><label class="form-text">Carbs g</label><input class="form-control" type="number" min="0" max="800" name="Meals[@i].CarbsG" value="@m.CarbsG" /></div>
+                                <div class="col-3"><label class="form-text">Fat g</label><input class="form-control" type="number" min="0" max="300" name="Meals[@i].FatG" value="@m.FatG" /></div>
+                            </div>
+                        </div>
+                    }
+                    <template data-row-template>
+                        <div class="row-editor">
+                            <button type="button" class="btn btn-light btn-sm remove-row" title="Remove"><i class="bi bi-x-lg"></i></button>
+                            <div class="small-caps mb-2">Meal <span class="row-number"></span></div>
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <select class="form-select" name="Meals[__i__].MealType">
+                                        @foreach (var t in mealTypes) { <option value="@((int)t)">@t</option> }
+                                    </select>
+                                </div>
+                                <div class="col-md-6"><input class="form-control" name="Meals[__i__].FoodItems" maxlength="300" placeholder="Food items" required /></div>
+                                <div class="col-md-3"><input class="form-control" name="Meals[__i__].Portion" maxlength="100" placeholder="Portion" /></div>
+                                <div class="col-3"><label class="form-text">kcal</label><input class="form-control" type="number" min="0" max="5000" name="Meals[__i__].Calories" value="0" data-sum /></div>
+                                <div class="col-3"><label class="form-text">Protein g</label><input class="form-control" type="number" min="0" max="500" name="Meals[__i__].ProteinG" value="0" /></div>
+                                <div class="col-3"><label class="form-text">Carbs g</label><input class="form-control" type="number" min="0" max="800" name="Meals[__i__].CarbsG" value="0" /></div>
+                                <div class="col-3"><label class="form-text">Fat g</label><input class="form-control" type="number" min="0" max="300" name="Meals[__i__].FatG" value="0" /></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a class="btn btn-light" asp-action="Index">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> @(isEdit ? "Save changes" : "Create plan")</button>
+            </div>
+        </div>
+    </div>
 </form>

@@ -1,18 +1,45 @@
 @{
     ViewData["Title"] = "Personal health & fitness management";
 }
-<h1>Welcome to HealthTrack</h1>
-<p>HealthTrack brings clients, trainers and administrators together: personalised workout and diet plans, simple logging, consultations and analytics.</p>
-<p>
-    <a asp-controller="Account" asp-action="Register">Create a free account</a> |
-    <a asp-controller="Account" asp-action="Login">Sign in</a>
-</p>
-
-<h3>For clients</h3>
-<p>Log workouts, meals and measurements, follow your trainer's plans, book consultations and watch your weight, BMI and calories trend over time.</p>
-
-<h3>For trainers</h3>
-<p>Build personalised plans from templates, monitor adherence, give feedback on client logs, manage your calendar and export progress reports.</p>
-
-<h3>For administrators</h3>
-<p>Approve trainers, assign clients, oversee plans and appointments, broadcast announcements and analyse engagement across the platform.</p>
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge-soft primary mb-3"><i class="bi bi-heart-pulse"></i> Health · Fitness · Coaching</span>
+                <h1>Track your health. Train with a professional. See real progress.</h1>
+                <p class="lead mt-3">HealthTrack brings clients, trainers and administrators together: personalised workout and diet plans, simple logging, consultations and clear analytics — with your health data protected.</p>
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a class="btn btn-primary btn-lg px-4" asp-controller="Account" asp-action="Register">Create a free account</a>
+                    <a class="btn btn-light btn-lg px-4" asp-controller="Account" asp-action="Login">Sign in</a>
+                </div>
+                <p class="small text-muted mt-3"><i class="bi bi-shield-lock"></i> Encrypted health notes · role-based access · two-factor authentication</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-visual">
+                    <div class="stat-grid mb-3" style="grid-template-columns:repeat(3,1fr)">
+                        <div class="stat-card"><div class="stat-label">Weight</div><div class="stat-value">66.2<small> kg</small></div><div class="stat-meta trend-up">−2.3 kg this month</div></div>
+                        <div class="stat-card"><div class="stat-label">BMI</div><div class="stat-value">25.2</div><div class="stat-meta">Healthy range soon</div></div>
+                        <div class="stat-card"><div class="stat-label">Adherence</div><div class="stat-value">86%</div><div class="stat-meta">Workout plan</div></div>
+                    </div>
+                    <div class="card-ht">
+                        <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calendar-check"></i>Today</h2><span class="badge-soft success">On track</span></div>
+                        <ul class="list-clean">
+                            <li class="list-row"><span class="icon-bubble"><i class="bi bi-activity"></i></span><div class="grow"><div class="title">Goblet squat · 3 × 12</div><div class="meta">Fat Loss Foundations</div></div><span class="badge-soft success">Done</span></li>
+                            <li class="list-row"><span class="icon-bubble teal"><i class="bi bi-egg-fried"></i></span><div class="grow"><div class="title">Lunch · 650 kcal</div><div class="meta">Red rice, chicken curry, dhal</div></div></li>
+                            <li class="list-row"><span class="icon-bubble amber"><i class="bi bi-alarm"></i></span><div class="grow"><div class="title">Consultation at 11:00</div><div class="meta">Running technique session</div></div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="pb-5">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-4"><div class="feature-card"><i class="bi bi-person-heart"></i><h3>For clients</h3><p>Log workouts, meals and measurements, follow your trainer's plans, book consultations and watch your weight, BMI and calories trend over time.</p></div></div>
+            <div class="col-md-4"><div class="feature-card"><i class="bi bi-clipboard2-pulse"></i><h3>For trainers</h3><p>Build personalised plans from templates, monitor adherence, give feedback on client logs, manage your calendar and export progress reports.</p></div></div>
+            <div class="col-md-4"><div class="feature-card"><i class="bi bi-speedometer2"></i><h3>For administrators</h3><p>Approve trainers, assign clients, oversee plans and appointments, broadcast announcements and analyse engagement across the platform.</p></div></div>
+        </div>
+    </div>
+</section>

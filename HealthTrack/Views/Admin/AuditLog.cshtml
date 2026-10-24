@@ -2,50 +2,58 @@
 @{
     ViewData["Title"] = "Audit log";
 }
-<h1>Audit log</h1>
-<p>Security-relevant events, data access and administrative actions.</p>
-<form method="get">
-    <input type="search" name="search" value="@Model.Search" />
-    <select name="category">
-        <option value="">All areas</option>
-        @foreach (var c in Model.Categories)
-        {
-            if (c == Model.Category) { <option selected>@c</option> } else { <option>@c</option> }
-        }
-    </select>
-    <input type="checkbox" name="securityOnly" value="true" id="securityOnly" checked="@Model.SecurityOnly" />
-    <label for="securityOnly">Security events only</label>
-    <button type="submit">Filter</button>
-</form>
-<p>@Model.TotalCount event(s)</p>
-@if (Model.Entries.Count == 0)
-{
-    <p>No events match.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>When</th><th>User</th><th>Area</th><th>Action</th><th>Details</th><th>IP address</th></tr></thead>
-        <tbody>
-            @foreach (var e in Model.Entries)
-            {
-                <tr>
-                    <td>@e.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss")</td>
-                    <td>@(e.UserName ?? "-")</td>
-                    <td>@e.Category</td>
-                    <td>@e.Action@(e.IsSecurityEvent ? " (security)" : "")</td>
-                    <td>@e.Details</td>
-                    <td>@e.IpAddress</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-@if (Model.TotalPages > 1)
-{
-    <p>
-        Page @Model.Page of @Model.TotalPages
-        @if (Model.Page > 1) { <a asp-route-page="@(Model.Page - 1)" asp-route-search="@Model.Search" asp-route-category="@Model.Category" asp-route-securityOnly="@Model.SecurityOnly">Previous</a> }
-        @if (Model.Page < Model.TotalPages) { <a asp-route-page="@(Model.Page + 1)" asp-route-search="@Model.Search" asp-route-category="@Model.Category" asp-route-securityOnly="@Model.SecurityOnly">Next</a> }
-    </p>
-}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Audit log</h1>
+        <p class="page-subtitle">Security-relevant events, data access and administrative actions.</p>
+    </div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header">
+        <form method="get" class="filter-bar">
+            <input type="search" name="search" value="@Model.Search" class="form-control" placeholder="User, action, IP or details" />
+            <select name="category" class="form-select">
+                <option value="">All areas</option>
+                @foreach (var c in Model.Categories)
+                {
+                    if (c == Model.Category) { <option selected>@c</option> } else { <option>@c</option> }
+                }
+            </select>
+            <div class="form-check ms-1">
+                <input class="form-check-input" type="checkbox" name="securityOnly" value="true" id="securityOnly" checked="@Model.SecurityOnly" />
+                <label class="form-check-label" for="securityOnly">Security events only</label>
+            </div>
+            <button class="btn btn-light" type="submit"><i class="bi bi-funnel"></i> Filter</button>
+        </form>
+        <span class="small text-muted">@Model.TotalCount event(s)</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>When</th><th>User</th><th>Area</th><th>Action</th><th>Details</th><th>IP address</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.Entries)
+                {
+                    <tr class="@(e.IsSecurityEvent && e.Action != "Login.Success" ? "table-warning" : "")">
+                        <td class="text-nowrap small">@e.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss")</td>
+                        <td>@(e.UserName ?? "–")</td>
+                        <td><span class="badge-soft">@e.Category</span></td>
+                        <td class="fw-semibold">@if (e.IsSecurityEvent) { <i class="bi bi-shield-lock text-danger me-1"></i> }@e.Action</td>
+                        <td class="small">@e.Details</td>
+                        <td class="small text-muted">@e.IpAddress</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Entries.Count == 0) { <div class="empty-state"><p>No events match.</p></div> }
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-ht-footer d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Page @Model.Page of @Model.TotalPages</span>
+            <div class="btn-group">
+                @if (Model.Page > 1) { <a class="btn btn-light btn-sm" asp-route-page="@(Model.Page - 1)" asp-route-search="@Model.Search" asp-route-category="@Model.Category" asp-route-securityOnly="@Model.SecurityOnly">Previous</a> }
+                @if (Model.Page < Model.TotalPages) { <a class="btn btn-light btn-sm" asp-route-page="@(Model.Page + 1)" asp-route-search="@Model.Search" asp-route-category="@Model.Category" asp-route-securityOnly="@Model.SecurityOnly">Next</a> }
+            </div>
+        </div>
+    }
+</div>

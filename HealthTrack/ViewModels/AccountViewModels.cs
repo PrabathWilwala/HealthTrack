@@ -16,12 +16,12 @@ public class ResendConfirmationViewModel
     public string? Email { get; set; }
 }
 
-// Shown after a request that sends an email (reset or confirmation).
+/// <summary>Shown after a request that sends an email (reset or confirmation).</summary>
 public class EmailSentViewModel
 {
     public string Heading { get; set; } = "Check your email";
     public string Message { get; set; } = string.Empty;
-    // In Development the link is shown on screen because no real email is sent.
+    /// <summary>In Development the link is shown on screen because no real email is sent.</summary>
     public string? DevelopmentLink { get; set; }
 }
 

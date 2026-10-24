@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HealthTrack.Services;
 
-// How time-series data is bucketed in charts and reports.
+/// <summary>How time-series data is bucketed in charts and reports.</summary>
 public enum ReportGrouping
 {
     Day = 0,
@@ -10,7 +10,7 @@ public enum ReportGrouping
     Month = 2
 }
 
-// Chart.js compatible structure (serialised with camelCase names).
+/// <summary>Chart.js compatible structure (serialised with camelCase names).</summary>
 public sealed class ChartData
 {
     public List<string> Labels { get; set; } = new();
@@ -21,11 +21,11 @@ public sealed class ChartDataset
 {
     public string Label { get; set; } = string.Empty;
     public List<decimal?> Data { get; set; } = new();
-    // Optional per-dataset chart type for mixed charts ("line" or "bar").
+    /// <summary>Optional per-dataset chart type for mixed charts ("line" or "bar").</summary>
     public string? Type { get; set; }
 }
 
-// Plan adherence for one client over a period. Null percentages mean "no plan assigned".
+/// <summary>Plan adherence for one client over a period. Null percentages mean "no plan assigned".</summary>
 public sealed class AdherenceResult
 {
     public decimal? WorkoutPercent { get; set; }
@@ -45,7 +45,7 @@ public sealed class AdherenceResult
     }
 }
 
-// Start → current → target weight progress.
+/// <summary>Start → current → target weight progress.</summary>
 public sealed class GoalProgress
 {
     public decimal StartWeight { get; set; }
@@ -55,7 +55,7 @@ public sealed class GoalProgress
     public string Description { get; set; } = string.Empty;
 }
 
-// One metric compared between this month and last month.
+/// <summary>One metric compared between this month and last month.</summary>
 public sealed record PeriodComparison(string Metric, decimal? Previous, decimal? Current, string Unit, bool HigherIsBetter)
 {
     public decimal? Change => Previous.HasValue && Current.HasValue ? Current - Previous : (decimal?)null;
@@ -63,7 +63,7 @@ public sealed record PeriodComparison(string Metric, decimal? Previous, decimal?
     public bool? IsImprovement => Change == null || Change == 0 ? (bool?)null : (Change > 0) == HigherIsBetter;
 }
 
-// Everything the client progress page and personal reports need.
+/// <summary>Everything the client progress page and personal reports need.</summary>
 public sealed class ClientProgressReport
 {
     public string ClientName { get; set; } = string.Empty;
@@ -102,7 +102,7 @@ public sealed class ClientProgressReport
     public List<Models.MealLog> Meals { get; set; } = new();
 }
 
-// Row in the trainer's client list / comparative report.
+/// <summary>Row in the trainer's client list / comparative report.</summary>
 public sealed class ClientSummaryRow
 {
     public string ClientId { get; set; } = string.Empty;
@@ -121,7 +121,7 @@ public sealed class ClientSummaryRow
     public List<string> Alerts { get; set; } = new();
 }
 
-// Popularity and effectiveness of one workout or diet plan.
+/// <summary>Popularity and effectiveness of one workout or diet plan.</summary>
 public sealed class RoutineStatsRow
 {
     public int PlanId { get; set; }
@@ -134,7 +134,7 @@ public sealed class RoutineStatsRow
     public decimal? AverageWeightChange { get; set; }
 }
 
-// A pattern that may need the trainer's attention.
+/// <summary>A pattern that may need the trainer's attention.</summary>
 public sealed record TrendAlert(string ClientId, string ClientName, string Severity, string Message);
 
 public sealed class FeedbackEffectivenessRow
@@ -197,7 +197,7 @@ public sealed class SystemReport
     public EngagementReport Engagement { get; set; } = new();
 }
 
-// Metrics available in the administrator's custom report builder.
+/// <summary>Metrics available in the administrator's custom report builder.</summary>
 public enum ReportMetric
 {
     [Display(Name = "Workouts logged")] WorkoutsLogged = 0,
@@ -224,10 +224,10 @@ public sealed class CustomReportRequest
 
     public ReportGrouping Grouping { get; set; } = ReportGrouping.Week;
 
-    // Restrict to the clients of one trainer (optional).
+    /// <summary>Restrict to the clients of one trainer (optional).</summary>
     public string? TrainerId { get; set; }
 
-    // Restrict to one gender (optional segment).
+    /// <summary>Restrict to one gender (optional segment).</summary>
     public string? Gender { get; set; }
 }
 

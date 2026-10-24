@@ -205,7 +205,7 @@ public class MeasurementFormViewModel : IValidatableObject
     }
 }
 
-// History page for any log type with a date-range filter.
+/// <summary>History page for any log type with a date-range filter.</summary>
 public class LogHistoryViewModel<T>
 {
     [DataType(DataType.Date)]
@@ -216,11 +216,11 @@ public class LogHistoryViewModel<T>
 
     public List<T> Items { get; set; } = new();
 
-    // Entries created after this moment can still be edited or deleted.
+    /// <summary>Entries created after this moment can still be edited or deleted.</summary>
     public DateTime EditableAfterUtc { get; set; }
 
     public Dictionary<int, int> FeedbackCounts { get; set; } = new();
 }
 
-// Model for the shared date-range filter partial.
+/// <summary>Model for the shared date-range filter partial.</summary>
 public sealed record DateRange(DateTime From, DateTime To);

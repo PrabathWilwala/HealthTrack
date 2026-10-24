@@ -2,56 +2,72 @@
 @{
     ViewData["Title"] = "Health measurements";
     var ordered = Model.Items.OrderBy(m => m.MeasuredOn).ThenBy(m => m.Id).ToList();
+    var chart = new ChartData
+    {
+        Labels = ordered.Select(m => DateHelpers.ShortLabel(m.MeasuredOn)).ToList(),
+        Datasets = new List<ChartDataset>
+        {
+            new() { Label = "Weight (kg)", Data = ordered.Select(m => (decimal?)m.WeightKg).ToList() }
+        }
+    };
     var latest = Model.Items.FirstOrDefault();
 }
-<h1>Health measurements</h1>
-<p>Weight, BMI, body composition, blood pressure and heart rate.</p>
-<p><a asp-action="Create">New measurement</a></p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Health measurements</h1>
+        <p class="page-subtitle">Weight, BMI, body composition, blood pressure and heart rate.</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i> New measurement</a></div>
+</div>
 
 @if (latest != null)
 {
-    <p>
-        Latest weight: @latest.WeightKg.ToString("0.0") kg (@latest.MeasuredOn.ToString("dd MMM yyyy")) |
-        BMI: @latest.Bmi.ToString("0.0") (@BmiCalculator.Category(latest.Bmi)) |
-        Blood pressure: @(latest.SystolicBp.HasValue ? $"{latest.SystolicBp}/{latest.DiastolicBp}" : "-") mmHg |
-        Change in period: @DisplayHelpers.Signed(ordered.Count >= 2 ? ordered[^1].WeightKg - ordered[0].WeightKg : (decimal?)null, " kg")
-    </p>
+    <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">Latest weight</div><div class="stat-value">@latest.WeightKg.ToString("0.0")<small> kg</small></div><div class="stat-meta">@latest.MeasuredOn.ToString("dd MMM yyyy")</div></div>
+        <div class="stat-card"><div class="stat-label">BMI</div><div class="stat-value">@latest.Bmi.ToString("0.0")</div><div class="stat-meta">@BmiCalculator.Category(latest.Bmi)</div></div>
+        <div class="stat-card"><div class="stat-label">Blood pressure</div><div class="stat-value">@(latest.SystolicBp.HasValue ? $"{latest.SystolicBp}/{latest.DiastolicBp}" : "–")</div><div class="stat-meta">mmHg</div></div>
+        <div class="stat-card"><div class="stat-label">Change in period</div><div class="stat-value">@DisplayHelpers.Signed(ordered.Count >= 2 ? ordered[^1].WeightKg - ordered[0].WeightKg : (decimal?)null, " kg")</div></div>
+    </div>
+   
 }
 
-<partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" />
-
-@if (Model.Items.Count == 0)
-{
-    <p>No measurements in this period. <a asp-action="Create">Record one now</a></p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Body fat</th><th>Waist</th><th>Blood pressure</th><th>Heart rate</th><th>Notes</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var m in Model.Items)
-            {
-                <tr>
-                    <td>@m.MeasuredOn.ToString("ddd dd MMM yyyy")</td>
-                    <td>@m.WeightKg.ToString("0.0") kg</td>
-                    <td>@m.Bmi.ToString("0.0") (@BmiCalculator.Category(m.Bmi))</td>
-                    <td>@(m.BodyFatPercent.HasValue ? m.BodyFatPercent.Value.ToString("0.0") + " %" : "-")</td>
-                    <td>@(m.WaistCm.HasValue ? m.WaistCm.Value.ToString("0.0") + " cm" : "-")</td>
-                    <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "-")</td>
-                    <td>@(m.RestingHeartRate.HasValue ? m.RestingHeartRate + " bpm" : "-")</td>
-                    <td>@m.Notes</td>
-                    <td>
-                        @if (m.CreatedAtUtc >= Model.EditableAfterUtc)
-                        {
-                            <a asp-action="Edit" asp-route-id="@m.Id">Edit</a>
-                            <form asp-action="Delete" asp-route-id="@m.Id" method="post" data-confirm="Delete this measurement?">
-                                <button type="submit">Delete</button>
-                            </form>
-                        }
-                        else { <span>Locked</span> }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="card-ht">
+    <div class="card-ht-header"><partial name="_DateRangeFilter" model="new DateRange(Model.From, Model.To)" /></div>
+    @if (Model.Items.Count == 0)
+    {
+        <div class="empty-state"><i class="bi bi-heart-pulse"></i><p>No measurements in this period.</p><a class="btn btn-primary btn-sm" asp-action="Create">Record one now</a></div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Date</th><th>Weight</th><th>BMI</th><th>Body fat</th><th>Waist</th><th>Blood pressure</th><th>Heart rate</th><th>Notes</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var m in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@m.MeasuredOn.ToString("ddd dd MMM yyyy")</td>
+                            <td class="fw-semibold">@m.WeightKg.ToString("0.0") kg</td>
+                            <td>@m.Bmi.ToString("0.0") <span class="text-muted small">@BmiCalculator.Category(m.Bmi)</span></td>
+                            <td>@(m.BodyFatPercent.HasValue ? m.BodyFatPercent.Value.ToString("0.0") + " %" : "–")</td>
+                            <td>@(m.WaistCm.HasValue ? m.WaistCm.Value.ToString("0.0") + " cm" : "–")</td>
+                            <td>@(m.SystolicBp.HasValue ? $"{m.SystolicBp}/{m.DiastolicBp}" : "–")</td>
+                            <td>@(m.RestingHeartRate.HasValue ? m.RestingHeartRate + " bpm" : "–")</td>
+                            <td class="small text-muted">@if (!string.IsNullOrEmpty(m.Notes)) { <span><i class="bi bi-lock-fill text-success" title="Encrypted"></i> @m.Notes</span> }</td>
+                            <td class="text-end text-nowrap">
+                                @if (m.CreatedAtUtc >= Model.EditableAfterUtc)
+                                {
+                                    <a class="btn btn-light btn-sm" asp-action="Edit" asp-route-id="@m.Id"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="d-inline" data-confirm="Delete this measurement?">
+                                        <button type="submit" class="btn btn-light btn-sm text-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                }
+                                else { <i class="bi bi-lock text-muted"></i> }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

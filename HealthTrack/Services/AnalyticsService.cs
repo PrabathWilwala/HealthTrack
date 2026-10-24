@@ -20,11 +20,13 @@ public interface IAnalyticsService
     Task<Dictionary<string, DateTime>> GetLastActiveAsync(IReadOnlyCollection<string> userIds);
 }
 
-// Progress tracking and reporting. Data is fetched with simple, index-friendly queries
-// and aggregated in memory, which keeps the algorithms easy to read and test.
+/// <summary>
+/// Progress tracking and reporting. Data is fetched with simple, index-friendly queries
+/// and aggregated in memory, which keeps the algorithms easy to read and test.
+/// </summary>
 public sealed class AnalyticsService : IAnalyticsService
 {
-    // Daily calories within ±15% of the target count as "on target".
+    /// <summary>Daily calories within ±15% of the target count as "on target".</summary>
     private const decimal DietTolerance = 0.15m;
 
     private readonly ApplicationDbContext _db;
@@ -40,7 +42,7 @@ public sealed class AnalyticsService : IAnalyticsService
     // Adherence
     // =====================================================================
 
-    // Calculates workout and diet adherence for many clients over a date range.
+    /// <summary>Calculates workout and diet adherence for many clients over a date range.</summary>
     public async Task<Dictionary<string, AdherenceResult>> GetAdherenceAsync(IReadOnlyCollection<string> clientIds, DateTime from, DateTime to)
     {
         var ids = clientIds.Distinct().ToList();
@@ -69,9 +71,11 @@ public sealed class AnalyticsService : IAnalyticsService
         return result;
     }
 
-    // Core adherence algorithm.
-    // Workout: sessions completed ÷ sessions expected (SessionsPerWeek ÷ 7 for each covered day), capped at 100%.
-    // Diet: covered days whose logged calories fall within ±15% of the plan's daily target ÷ covered days.
+    /// <summary>
+    /// Core adherence algorithm.
+    /// Workout: sessions completed ÷ sessions expected (SessionsPerWeek ÷ 7 for each covered day), capped at 100%.
+    /// Diet: covered days whose logged calories fall within ±15% of the plan's daily target ÷ covered days.
+    /// </summary>
     private static AdherenceResult ComputeAdherence(
         IEnumerable<PlanAssignment> assignments,
         IEnumerable<DateTime> workoutDates,
@@ -122,8 +126,10 @@ public sealed class AnalyticsService : IAnalyticsService
         return result;
     }
 
-    // An assignment covers a day if the day is within its date range. Assignments that were
-    // switched off without an end date are treated as no longer covering anything.
+    /// <summary>
+    /// An assignment covers a day if the day is within its date range. Assignments that were
+    /// switched off without an end date are treated as no longer covering anything.
+    /// </summary>
     private static bool Covers(PlanAssignment a, DateTime day) =>
         a.StartDate.Date <= day.Date && (a.EndDate == null ? a.IsActive : a.EndDate.Value.Date >= day.Date);
 
@@ -138,7 +144,7 @@ public sealed class AnalyticsService : IAnalyticsService
     // Client progress (client analytics page + individual reports)
     // =====================================================================
 
-    // Builds the complete progress report for one client: charts, totals, goal progress, adherence and month-over-month comparison.
+    /// <summary>Builds the complete progress report for one client: charts, totals, goal progress, adherence and month-over-month comparison.</summary>
     public async Task<ClientProgressReport> GetClientProgressAsync(string clientId, DateTime from, DateTime to, ReportGrouping grouping)
     {
         from = from.Date;
@@ -344,7 +350,7 @@ public sealed class AnalyticsService : IAnalyticsService
     // Trainer views: client summaries, routines, trends, feedback effectiveness
     // =====================================================================
 
-    // One summary row per client for trainer dashboards and comparative reports.
+    /// <summary>One summary row per client for trainer dashboards and comparative reports.</summary>
     public async Task<List<ClientSummaryRow>> GetClientSummariesAsync(IReadOnlyCollection<string> clientIds)
     {
         var ids = clientIds.Distinct().ToList();
@@ -412,7 +418,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return rows.OrderBy(r => r.Name).ToList();
     }
 
-    // Popularity (times assigned, active clients) and effectiveness (adherence, weight change) of each plan.
+    /// <summary>Popularity (times assigned, active clients) and effectiveness (adherence, weight change) of each plan.</summary>
     public async Task<List<RoutineStatsRow>> GetRoutineStatsAsync(string? trainerId)
     {
         var workoutPlans = await _db.WorkoutPlans.AsNoTracking()
@@ -491,8 +497,10 @@ public sealed class AnalyticsService : IAnalyticsService
         return rows.OrderByDescending(r => r.TimesAssigned).ThenByDescending(r => r.AverageAdherence ?? 0).ToList();
     }
 
-    // Detects patterns that need proactive intervention: inactivity, falling adherence,
-    // weight-loss plateaus and weight moving away from the goal.
+    /// <summary>
+    /// Detects patterns that need proactive intervention: inactivity, falling adherence,
+    /// weight-loss plateaus and weight moving away from the goal.
+    /// </summary>
     public async Task<List<TrendAlert>> GetTrendAlertsAsync(IReadOnlyCollection<string> clientIds)
     {
         var ids = clientIds.Distinct().ToList();
@@ -543,7 +551,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return alerts;
     }
 
-    // Compares each client's logging activity in the week before and after feedback.
+    /// <summary>Compares each client's logging activity in the week before and after feedback.</summary>
     public async Task<List<FeedbackEffectivenessRow>> GetFeedbackEffectivenessAsync(string? trainerId)
     {
         var since = DateTime.UtcNow.AddDays(-90);
@@ -581,7 +589,7 @@ public sealed class AnalyticsService : IAnalyticsService
     // Engagement, trainer performance, system report, custom reports
     // =====================================================================
 
-    // Most recent audit-log activity time for each user.
+    /// <summary>Most recent audit-log activity time for each user.</summary>
     public async Task<Dictionary<string, DateTime>> GetLastActiveAsync(IReadOnlyCollection<string> userIds)
     {
         var ids = userIds.Distinct().ToList();
@@ -593,7 +601,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return rows.ToDictionary(r => r.UserId, r => r.Last);
     }
 
-    // Login and logging activity, active users, retention and per-user engagement.
+    /// <summary>Login and logging activity, active users, retention and per-user engagement.</summary>
     public async Task<EngagementReport> GetEngagementAsync(IReadOnlyCollection<string>? userIds, DateTime from, DateTime to)
     {
         from = from.Date;
@@ -671,7 +679,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return report;
     }
 
-    // Compares trainers by client adherence, weight change, completed consultations, cancellations and feedback.
+    /// <summary>Compares trainers by client adherence, weight change, completed consultations, cancellations and feedback.</summary>
     public async Task<List<TrainerPerformanceRow>> GetTrainerPerformanceAsync(DateTime from, DateTime to)
     {
         from = from.Date;
@@ -724,7 +732,7 @@ public sealed class AnalyticsService : IAnalyticsService
         }).OrderByDescending(r => r.AverageAdherence ?? -1).ToList();
     }
 
-    // System-wide administrator report: outcomes, goals achieved, trainer performance, feature usage, peak hours and registrations.
+    /// <summary>System-wide administrator report: outcomes, goals achieved, trainer performance, feature usage, peak hours and registrations.</summary>
     public async Task<SystemReport> GetSystemReportAsync(DateTime from, DateTime to)
     {
         from = from.Date;
@@ -801,8 +809,10 @@ public sealed class AnalyticsService : IAnalyticsService
         return report;
     }
 
-    // Custom report builder: any combination of metrics, a date range, a grouping and an
-    // optional user segment (clients of one trainer and/or one gender).
+    /// <summary>
+    /// Custom report builder: any combination of metrics, a date range, a grouping and an
+    /// optional user segment (clients of one trainer and/or one gender).
+    /// </summary>
     public async Task<CustomReportResult> RunCustomReportAsync(CustomReportRequest request)
     {
         var from = request.From.Date;
@@ -924,7 +934,7 @@ public sealed class AnalyticsService : IAnalyticsService
     // Shared helpers
     // =====================================================================
 
-    // Human-readable name of a custom-report metric.
+    /// <summary>Human-readable name of a custom-report metric.</summary>
     public static string MetricName(ReportMetric metric) => metric switch
     {
         ReportMetric.WorkoutsLogged => "Workouts logged",
@@ -939,7 +949,7 @@ public sealed class AnalyticsService : IAnalyticsService
         _ => "New registrations"
     };
 
-    // First day of the day/week/month bucket containing a date.
+    /// <summary>First day of the day/week/month bucket containing a date.</summary>
     public static DateTime PeriodStart(DateTime date, ReportGrouping grouping) => grouping switch
     {
         ReportGrouping.Week => DateHelpers.StartOfWeek(date),
@@ -947,7 +957,7 @@ public sealed class AnalyticsService : IAnalyticsService
         _ => date.Date
     };
 
-    // All bucket start dates between two dates.
+    /// <summary>All bucket start dates between two dates.</summary>
     public static List<DateTime> Periods(DateTime from, DateTime to, ReportGrouping grouping)
     {
         var list = new List<DateTime>();
@@ -965,7 +975,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return list;
     }
 
-    // Chart label for a bucket (e.g. "Wk 06 Oct" or "Oct 2026").
+    /// <summary>Chart label for a bucket (e.g. "Wk 06 Oct" or "Oct 2026").</summary>
     public static string PeriodLabel(DateTime period, ReportGrouping grouping) => grouping switch
     {
         ReportGrouping.Month => period.ToString("MMM yyyy"),
@@ -979,7 +989,7 @@ public sealed class AnalyticsService : IAnalyticsService
         return list.Count == 0 ? null : Math.Round(list.Average(), 1);
     }
 
-    // Average total calories per day, counting only days on which meals were logged.
+    /// <summary>Average total calories per day, counting only days on which meals were logged.</summary>
     private static decimal? AverageDailyCalories(IEnumerable<MealLog> meals)
     {
         var perDay = meals.GroupBy(m => m.LogDate.Date).Select(g => g.Sum(m => m.Calories)).ToList();

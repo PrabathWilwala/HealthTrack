@@ -3,8 +3,10 @@ using HealthTrack.Infrastructure;
 
 namespace HealthTrack.Models;
 
-// A consultation between a client and a trainer/healthcare professional.
-// Times are stored in the server's local time zone.
+/// <summary>
+/// A consultation between a client and a trainer/healthcare professional.
+/// Times are stored in the server's local time zone.
+/// </summary>
 public class Appointment
 {
     public int Id { get; set; }
@@ -25,26 +27,26 @@ public class Appointment
 
     public AppointmentStatus Status { get; set; } = AppointmentStatus.Pending;
 
-    // A new time proposed by either party while a reschedule is pending.
+    /// <summary>A new time proposed by either party while a reschedule is pending.</summary>
     public DateTime? ProposedStartTime { get; set; }
 
-    // "Client" or "Trainer" — who proposed the pending reschedule.
+    /// <summary>"Client" or "Trainer" — who proposed the pending reschedule.</summary>
     [StringLength(20)]
     public string? RescheduleRequestedBy { get; set; }
 
-    // Reason given when the appointment was declined or cancelled.
+    /// <summary>Reason given when the appointment was declined or cancelled.</summary>
     [StringLength(500)]
     public string? StatusReason { get; set; }
 
-    // Alternative times suggested by a trainer when declining.
+    /// <summary>Alternative times suggested by a trainer when declining.</summary>
     [StringLength(200)]
     public string? SuggestedAlternative { get; set; }
 
-    // "Client", "Trainer" or "Administrator".
+    /// <summary>"Client", "Trainer" or "Administrator".</summary>
     [StringLength(20)]
     public string? CancelledBy { get; set; }
 
-    // Post-consultation notes written by the trainer. Encrypted at rest.
+    /// <summary>Post-consultation notes written by the trainer. Encrypted at rest.</summary>
     [Encrypted]
     public string? ConsultationNotes { get; set; }
 
@@ -54,6 +56,6 @@ public class Appointment
 
     public DateTime EndTime => StartTime.AddMinutes(DurationMinutes);
 
-    // True if this appointment's time range overlaps the given range.
+    /// <summary>True if this appointment's time range overlaps the given range.</summary>
     public bool Overlaps(DateTime start, DateTime end) => StartTime < end && start < EndTime;
 }

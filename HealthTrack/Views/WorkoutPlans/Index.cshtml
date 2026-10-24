@@ -4,81 +4,96 @@
     var controller = isWorkout ? "WorkoutPlans" : "DietPlans";
     ViewData["Title"] = Model.IsAdministrator ? $"System {Model.PlanType.ToLower()} templates" : $"{Model.PlanType} plans";
 }
-<h1>@ViewData["Title"]</h1>
-<p>@(Model.IsAdministrator
-    ? "Templates you publish here are available to every trainer."
-    : isWorkout ? "Personalised workout programmes for your clients, plus your reusable templates." : "Personalised nutrition plans for your clients, plus your reusable templates.")</p>
-<p><a asp-controller="@controller" asp-action="Create">@(Model.IsAdministrator ? "New system template" : $"New {Model.PlanType.ToLower()} plan")</a></p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <p class="page-subtitle">@(Model.IsAdministrator
+            ? "Templates you publish here are available to every trainer."
+            : isWorkout ? "Personalised workout programmes for your clients, plus your reusable templates." : "Personalised nutrition plans for your clients, plus your reusable templates.")</p>
+    </div>
+    <div class="page-actions">
+        <a class="btn btn-primary" asp-controller="@controller" asp-action="Create"><i class="bi bi-plus-lg"></i> @(Model.IsAdministrator ? "New system template" : $"New {Model.PlanType.ToLower()} plan")</a>
+    </div>
+</div>
 
 @if (!Model.IsAdministrator)
 {
-    <h2>My plans (@Model.Plans.Count)</h2>
-    @if (Model.Plans.Count == 0)
+    <div class="card-ht">
+        <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi @(isWorkout ? "bi-activity" : "bi-basket")"></i>My plans</h2><span class="badge-soft">@Model.Plans.Count</span></div>
+        @if (Model.Plans.Count == 0)
+        {
+            <div class="empty-state"><i class="bi bi-clipboard2-plus"></i><p>No plans yet. Create one from scratch or start from a template below.</p></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead><tr><th>Plan</th><th>Summary</th><th>Active clients</th><th>Updated</th><th class="text-end">Actions</th></tr></thead>
+                    <tbody>
+                        @foreach (var p in Model.Plans)
+                        {
+                            <tr>
+                                <td><a class="fw-bold text-reset" asp-controller="@controller" asp-action="Details" asp-route-id="@p.Id">@p.Title</a>
+                                    @if (p.IsFlagged) { <span class="badge-soft danger ms-1" title="@p.FlagReason"><i class="bi bi-flag-fill"></i>Flagged</span> }
+                                    <div class="small text-muted">@p.Description</div></td>
+                                <td class="small">@p.Summary</td>
+                                <td><span class="badge-soft @(p.ActiveAssignments > 0 ? "success" : "")">@p.ActiveAssignments</span></td>
+                                <td class="small text-muted">@DateHelpers.TimeAgo(p.UpdatedAtUtc)</td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-teal btn-sm" asp-controller="@controller" asp-action="Assign" asp-route-id="@p.Id"><i class="bi bi-person-plus"></i> Assign</a>
+                                    <a class="btn btn-light btn-sm" asp-controller="@controller" asp-action="Edit" asp-route-id="@p.Id"><i class="bi bi-pencil"></i></a>
+                                    <form asp-controller="@controller" asp-action="SaveAsTemplate" asp-route-id="@p.Id" method="post" class="d-inline">
+                                        <button class="btn btn-light btn-sm" type="submit" title="Save as template"><i class="bi bi-bookmark-plus"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-collection"></i>Template library</h2><span class="badge-soft">@Model.Templates.Count</span></div>
+    @if (Model.Templates.Count == 0)
     {
-        <p>No plans yet. Create one from scratch or start from a template below.</p>
+        <div class="empty-state"><i class="bi bi-bookmark"></i><p>No templates yet. Tick “Save as a reusable template” when creating a plan.</p></div>
     }
     else
     {
-        <table border="1" cellpadding="4">
-            <thead><tr><th>Plan</th><th>Summary</th><th>Active clients</th><th>Updated</th><th>Actions</th></tr></thead>
-            <tbody>
-                @foreach (var p in Model.Plans)
+        <div class="card-ht-body">
+            <div class="row g-3">
+                @foreach (var t in Model.Templates)
                 {
-                    <tr>
-                        <td><a asp-controller="@controller" asp-action="Details" asp-route-id="@p.Id">@p.Title</a>
-                            @if (p.IsFlagged) { <b title="@p.FlagReason">(Flagged)</b> }
-                            <br /><small>@p.Description</small></td>
-                        <td>@p.Summary</td>
-                        <td>@p.ActiveAssignments</td>
-                        <td>@DateHelpers.TimeAgo(p.UpdatedAtUtc)</td>
-                        <td>
-                            <a asp-controller="@controller" asp-action="Assign" asp-route-id="@p.Id">Assign</a> |
-                            <a asp-controller="@controller" asp-action="Edit" asp-route-id="@p.Id">Edit</a>
-                            <form asp-controller="@controller" asp-action="SaveAsTemplate" asp-route-id="@p.Id" method="post">
-                                <button type="submit">Save as template</button>
-                            </form>
-                        </td>
-                    </tr>
+                    <div class="col-md-6 col-xl-4">
+                        <div class="border rounded-4 p-3 h-100 d-flex flex-column">
+                            <div class="d-flex justify-content-between gap-2">
+                                <a class="fw-bold text-reset" asp-controller="@controller" asp-action="Details" asp-route-id="@t.Id">@t.Title</a>
+                                @if (t.IsSystemTemplate) { <span class="badge-soft dark">System</span> } else { <span class="badge-soft primary">Mine</span> }
+                            </div>
+                            <div class="small text-muted mt-1 flex-grow-1">@t.Description</div>
+                            <div class="small mt-2">@t.Summary</div>
+                            <div class="d-flex gap-2 mt-3">
+                                @if (!Model.IsAdministrator)
+                                {
+                                    <form asp-controller="@controller" asp-action="UseTemplate" asp-route-id="@t.Id" method="post">
+                                        <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-files"></i> Use template</button>
+                                    </form>
+                                }
+                                @if (t.CanEdit)
+                                {
+                                    <a class="btn btn-light btn-sm" asp-controller="@controller" asp-action="Edit" asp-route-id="@t.Id"><i class="bi bi-pencil"></i> Edit</a>
+                                    <form asp-controller="@controller" asp-action="Delete" asp-route-id="@t.Id" method="post" data-confirm="Delete this template?">
+                                        <button class="btn btn-light btn-sm text-danger" type="submit"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
     }
-}
-
-<h2>Template library (@Model.Templates.Count)</h2>
-@if (Model.Templates.Count == 0)
-{
-    <p>No templates yet. Tick "Save as a reusable template" when creating a plan.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Template</th><th>Owner</th><th>Description</th><th>Summary</th><th>Actions</th></tr></thead>
-        <tbody>
-            @foreach (var t in Model.Templates)
-            {
-                <tr>
-                    <td><a asp-controller="@controller" asp-action="Details" asp-route-id="@t.Id">@t.Title</a></td>
-                    <td>@(t.IsSystemTemplate ? "System" : "Mine")</td>
-                    <td>@t.Description</td>
-                    <td>@t.Summary</td>
-                    <td>
-                        @if (!Model.IsAdministrator)
-                        {
-                            <form asp-controller="@controller" asp-action="UseTemplate" asp-route-id="@t.Id" method="post">
-                                <button type="submit">Use template</button>
-                            </form>
-                        }
-                        @if (t.CanEdit)
-                        {
-                            <a asp-controller="@controller" asp-action="Edit" asp-route-id="@t.Id">Edit</a>
-                            <form asp-controller="@controller" asp-action="Delete" asp-route-id="@t.Id" method="post" data-confirm="Delete this template?">
-                                <button type="submit">Delete</button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+</div>

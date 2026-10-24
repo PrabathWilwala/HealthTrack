@@ -2,37 +2,45 @@
 @{
     ViewData["Title"] = "Broadcast announcement";
 }
-<h1>Broadcast announcements</h1>
-<p>Send a system-wide message to every user or to one role. It appears in their notification centre.</p>
-<form asp-action="Broadcast" method="post" data-confirm="Send this announcement?">
-    <div asp-validation-summary="All"></div>
-    <p>
-        <label asp-for="Role"></label><br />
-        <select asp-for="Role">
-            <option value="">Everyone</option>
-            <option value="Client">All clients</option>
-            <option value="Trainer">All trainers</option>
-            <option value="Administrator">All administrators</option>
-        </select>
-    </p>
-    <p><label asp-for="Title"></label><br /><input asp-for="Title" size="50" /><span asp-validation-for="Title"></span></p>
-    <p><label asp-for="Message"></label><br /><textarea asp-for="Message" rows="4" cols="60"></textarea><span asp-validation-for="Message"></span></p>
-    <p><label asp-for="LinkUrl"></label><br /><input asp-for="LinkUrl" size="50" /><span asp-validation-for="LinkUrl"></span></p>
-    <button type="submit">Send announcement</button>
-</form>
-
-<h2>Recent broadcasts</h2>
-@if (Model.History.Count == 0) { <p>No announcements sent yet.</p> }
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Sent</th><th>Title</th><th>Message</th><th>Recipients</th></tr></thead>
-        <tbody>
-            @foreach (var h in Model.History)
-            {
-                <tr><td>@h.SentAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td><td>@h.Title</td><td>@h.Message</td><td>@h.Recipients</td></tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Broadcast announcements</h1>
+        <p class="page-subtitle">Send a system-wide message to every user or to one role. It appears in their notification centre.</p>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-6">
+        <form asp-action="Broadcast" method="post" class="card-ht">
+            <div class="card-ht-body">
+                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label"></label>
+                    <select asp-for="Role" class="form-select">
+                        <option value="">Everyone</option>
+                        <option value="Client">All clients</option>
+                        <option value="Trainer">All trainers</option>
+                        <option value="Administrator">All administrators</option>
+                    </select>
+                </div>
+                <div class="mb-3"><label asp-for="Title" class="form-label"></label><input asp-for="Title" class="form-control" /><span asp-validation-for="Title" class="text-danger"></span></div>
+                <div class="mb-3"><label asp-for="Message" class="form-label"></label><textarea asp-for="Message" class="form-control" rows="4"></textarea><span asp-validation-for="Message" class="text-danger"></span></div>
+                <div class="mb-1"><label asp-for="LinkUrl" class="form-label"></label><input asp-for="LinkUrl" class="form-control" placeholder="/Appointments/Create" /><span asp-validation-for="LinkUrl" class="text-danger"></span></div>
+            </div>
+            <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary" data-confirm="Send this announcement?"><i class="bi bi-megaphone"></i> Send announcement</button></div>
+        </form>
+    </div>
+    <div class="col-lg-6">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock-history"></i>Recent broadcasts</h2></div>
+            @if (Model.History.Count == 0) { <div class="empty-state"><p>No announcements sent yet.</p></div> }
+            <ul class="list-clean">
+                @foreach (var h in Model.History)
+                {
+                    <li class="list-row align-items-start"><span class="icon-bubble"><i class="bi bi-megaphone"></i></span>
+                        <div class="grow"><div class="title">@h.Title</div><div class="small">@h.Message</div><div class="meta">@h.SentAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm") · @h.Recipients recipient(s)</div></div></li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

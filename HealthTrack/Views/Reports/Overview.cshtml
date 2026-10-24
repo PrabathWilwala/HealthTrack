@@ -6,54 +6,57 @@
     trainerChart.Datasets.Add(new ChartDataset { Label = "Avg. client adherence %", Data = Model.Trainers.Select(t => t.AverageAdherence).ToList() });
     trainerChart.Datasets.Add(new ChartDataset { Label = "Clients", Data = Model.Trainers.Select(t => (decimal?)t.Clients).ToList() });
 }
-<h1>System performance report</h1>
-<p>@Model.From.ToString("dd MMM yyyy") - @Model.To.ToString("dd MMM yyyy"): outcomes, trainer performance, routines and engagement.</p>
-<p>
-    Period:
-    @foreach (var d in new[] { 7, 30, 90, 365 })
-    {
-        if (d == days) { <b>@(d == 365 ? "1 y" : d + " d")</b> } else { <a asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a> }
-        <text> </text>
-    }
-</p>
-<p>Export: <a asp-route-days="@days" asp-route-format="csv">CSV</a> | <a asp-route-days="@days" asp-route-format="pdf">PDF</a></p>
-
-<table border="1" cellpadding="4">
-    <tr><th>Clients</th><td>@Model.ClientCount</td></tr>
-    <tr><th>Avg. weight change</th><td>@DisplayHelpers.Signed(Model.AverageWeightChange) kg</td></tr>
-    <tr><th>Avg. adherence</th><td>@DisplayHelpers.Percent(Model.AverageAdherence)</td></tr>
-    <tr><th>Goals achieved</th><td>@Model.GoalsAchieved / @Model.ClientsWithGoals</td></tr>
-    <tr><th>30-day retention</th><td>@Model.Engagement.RetentionPercent.ToString("0")% (@Model.Engagement.ActiveLast7Days active this week)</td></tr>
-</table>
-
-<h2>Trainer performance</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(trainerChart)" data-type="bar"></canvas>
-<h2>New registrations per week</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.RegistrationsChart)" data-type="bar" data-stacked></canvas>
-<h2>Feature usage</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.FeatureUsageChart)" data-type="bar" data-horizontal></canvas>
-<h2>Peak usage hours</h2>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.PeakHoursChart)" data-type="bar"></canvas>
-
-<h2>Trainer comparison</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>Trainer</th><th>Clients</th><th>Avg. adherence</th><th>Avg. weight change</th><th>Completed consultations</th><th>Cancellation rate</th><th>Feedback given</th><th>Plans</th></tr></thead>
-    <tbody>
-        @foreach (var t in Model.Trainers)
-        {
-            <tr><td>@t.Name</td><td>@t.Clients</td><td>@DisplayHelpers.Percent(t.AverageAdherence)</td><td>@DisplayHelpers.Signed(t.AverageWeightChange, " kg")</td><td>@t.CompletedAppointments</td><td>@DisplayHelpers.Percent(t.CancellationRate)</td><td>@t.FeedbackGiven</td><td>@t.PlansCreated</td></tr>
-        }
-    </tbody>
-</table>
-
-<h2>Most popular routines</h2>
-<p><a asp-action="Routines">All routines</a></p>
-<table border="1" cellpadding="4">
-    <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Assigned</th><th>Active</th><th>Avg. adherence</th><th>Avg. weight change</th></tr></thead>
-    <tbody>
-        @foreach (var r in Model.PopularRoutines)
-        {
-            <tr><td>@r.Title</td><td>@r.PlanType</td><td>@r.CreatedBy</td><td>@r.TimesAssigned</td><td>@r.ActiveClients</td><td>@DisplayHelpers.Percent(r.AverageAdherence)</td><td>@DisplayHelpers.Signed(r.AverageWeightChange, " kg")</td></tr>
-        }
-    </tbody>
-</table>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">System performance report</h1>
+        <p class="page-subtitle">@Model.From.ToString("dd MMM yyyy") – @Model.To.ToString("dd MMM yyyy") · outcomes, trainer performance, routines and engagement.</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            @foreach (var d in new[] { 7, 30, 90, 365 }) { <a class="btn btn-light @(d == days ? "active" : "")" asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a> }
+        </div>
+        <a class="btn btn-light" asp-route-days="@days" asp-route-format="csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+        <a class="btn btn-primary" asp-route-days="@days" asp-route-format="pdf"><i class="bi bi-filetype-pdf"></i> PDF</a>
+    </div>
+</div>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-icon"><i class="bi bi-people"></i></div><div class="stat-label">Clients</div><div class="stat-value">@Model.ClientCount</div></div>
+    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-graph-down-arrow"></i></div><div class="stat-label">Avg. weight change</div><div class="stat-value">@DisplayHelpers.Signed(Model.AverageWeightChange)<small> kg</small></div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-check2-circle"></i></div><div class="stat-label">Avg. adherence</div><div class="stat-value">@DisplayHelpers.Percent(Model.AverageAdherence)</div></div>
+    <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-trophy"></i></div><div class="stat-label">Goals achieved</div><div class="stat-value">@Model.GoalsAchieved<small> / @Model.ClientsWithGoals</small></div></div>
+    <div class="stat-card"><div class="stat-icon rose"><i class="bi bi-arrow-repeat"></i></div><div class="stat-label">30-day retention</div><div class="stat-value">@Model.Engagement.RetentionPercent.ToString("0")%</div><div class="stat-meta">@Model.Engagement.ActiveLast7Days active this week</div></div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-person-badge"></i>Trainer performance</h2></div><div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(trainerChart)" data-type="bar"></canvas></div></div></div></div>
+    <div class="col-xl-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-person-plus"></i>New registrations per week</h2></div><div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.RegistrationsChart)" data-type="bar" data-stacked></canvas></div></div></div></div>
+    <div class="col-xl-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-grid"></i>Feature usage</h2></div><div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.FeatureUsageChart)" data-type="bar" data-horizontal></canvas></div></div></div></div>
+    <div class="col-xl-6"><div class="card-ht h-100"><div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock"></i>Peak usage hours</h2></div><div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.PeakHoursChart)" data-type="bar"></canvas></div></div></div></div>
+</div>
+<div class="card-ht section-gap">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-table"></i>Trainer comparison</h2></div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Trainer</th><th>Clients</th><th>Avg. adherence</th><th>Avg. weight change</th><th>Completed consultations</th><th>Cancellation rate</th><th>Feedback given</th><th>Plans</th></tr></thead>
+            <tbody>
+                @foreach (var t in Model.Trainers)
+                {
+                    <tr><td class="fw-semibold">@t.Name</td><td>@t.Clients</td><td>@DisplayHelpers.Percent(t.AverageAdherence)</td><td>@DisplayHelpers.Signed(t.AverageWeightChange, " kg")</td><td>@t.CompletedAppointments</td><td>@DisplayHelpers.Percent(t.CancellationRate)</td><td>@t.FeedbackGiven</td><td>@t.PlansCreated</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-fire"></i>Most popular routines</h2><a class="small fw-bold" asp-action="Routines">All routines</a></div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Plan</th><th>Type</th><th>Created by</th><th>Assigned</th><th>Active</th><th>Avg. adherence</th><th>Avg. weight change</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.PopularRoutines)
+                {
+                    <tr><td class="fw-semibold">@r.Title</td><td>@r.PlanType</td><td>@r.CreatedBy</td><td>@r.TimesAssigned</td><td>@r.ActiveClients</td><td>@DisplayHelpers.Percent(r.AverageAdherence)</td><td>@DisplayHelpers.Signed(r.AverageWeightChange, " kg")</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

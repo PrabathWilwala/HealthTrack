@@ -5,53 +5,63 @@
     var isTrainer = User.IsInRole(RoleNames.Trainer);
     var days = Model.Exercises.OrderBy(e => e.SortOrder).GroupBy(e => e.DayOfWeek).OrderBy(g => g.Key.HasValue ? ((int)g.Key.Value + 6) % 7 : 7);
 }
-<p><a asp-action="Index">&lt; Workout plans</a></p>
-<h1>@Model.Title</h1>
-<p>@Model.Description</p>
-@if (isTrainer && !Model.IsTemplate && canEdit)
-{
-    <p><a asp-action="Assign" asp-route-id="@Model.Id">Assign to clients</a></p>
-}
-@if (isTrainer && Model.IsTemplate)
-{
-    <form asp-action="UseTemplate" asp-route-id="@Model.Id" method="post"><button type="submit">Use template</button></form>
-}
-@if (canEdit)
-{
-    <p><a asp-action="Edit" asp-route-id="@Model.Id">Edit</a></p>
-    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this plan? Client assignments of this plan will also be removed.">
-        <button type="submit">Delete</button>
-    </form>
-}
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Workout plans</a>
+        <h1 class="page-title mt-1">@Model.Title</h1>
+        <p class="page-subtitle">@Model.Description</p>
+    </div>
+    <div class="page-actions">
+        @if (isTrainer && !Model.IsTemplate && canEdit)
+        {
+            <a class="btn btn-teal" asp-action="Assign" asp-route-id="@Model.Id"><i class="bi bi-person-plus"></i> Assign to clients</a>
+        }
+        @if (isTrainer && Model.IsTemplate)
+        {
+            <form asp-action="UseTemplate" asp-route-id="@Model.Id" method="post"><button class="btn btn-primary" type="submit"><i class="bi bi-files"></i> Use template</button></form>
+        }
+        @if (canEdit)
+        {
+            <a class="btn btn-light" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil"></i> Edit</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this plan? Client assignments of this plan will also be removed.">
+                <button class="btn btn-light text-danger" type="submit"><i class="bi bi-trash"></i></button>
+            </form>
+        }
+    </div>
+</div>
 @if (Model.IsFlagged)
 {
-    <p><b>This plan was flagged by an administrator:</b> @Model.FlagReason</p>
+    <div class="alert alert-danger"><i class="bi bi-flag-fill"></i> This plan was flagged by an administrator: @Model.FlagReason</div>
 }
-<table border="1" cellpadding="4">
-    <tr><th>Intensity</th><td>@Model.Intensity</td></tr>
-    <tr><th>Sessions / week</th><td>@Model.SessionsPerWeek</td></tr>
-    <tr><th>Duration</th><td>@Model.DurationWeeks weeks</td></tr>
-    <tr><th>Goal</th><td>@(Model.Goal ?? "-")</td></tr>
-    @if (Model.IsTemplate) { <tr><th>Type</th><td>@(Model.IsSystemTemplate ? "System template" : "Template")</td></tr> }
-</table>
-
-<h2>Exercises</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>Day</th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Minutes</th><th>Notes</th></tr></thead>
-    <tbody>
-        @foreach (var group in days)
-        {
-            foreach (var e in group)
-            {
-                <tr>
-                    <td>@(group.Key?.ToString() ?? "Any day")</td>
-                    <td>@e.Name</td>
-                    <td>@(e.Sets > 0 ? e.Sets.ToString() : "-")</td>
-                    <td>@(e.Reps > 0 ? e.Reps.ToString() : "-")</td>
-                    <td>@(e.DurationMinutes > 0 ? e.DurationMinutes.ToString() : "-")</td>
-                    <td>@e.Notes</td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Intensity</div><div class="stat-value fs-4">@Model.Intensity</div></div>
+    <div class="stat-card"><div class="stat-label">Sessions / week</div><div class="stat-value fs-4">@Model.SessionsPerWeek</div></div>
+    <div class="stat-card"><div class="stat-label">Duration</div><div class="stat-value fs-4">@Model.DurationWeeks<small> weeks</small></div></div>
+    <div class="stat-card"><div class="stat-label">Goal</div><div class="stat-value fs-6 mt-2">@(Model.Goal ?? "–")</div></div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-list-check"></i>Exercises</h2>
+        @if (Model.IsTemplate) { <span class="badge-soft @(Model.IsSystemTemplate ? "dark" : "primary")">@(Model.IsSystemTemplate ? "System template" : "Template")</span> }
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Day</th><th>Exercise</th><th>Sets</th><th>Reps</th><th>Minutes</th><th>Notes</th></tr></thead>
+            <tbody>
+                @foreach (var group in days)
+                {
+                    foreach (var e in group)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@(group.Key?.ToString() ?? "Any day")</td>
+                            <td>@e.Name</td>
+                            <td>@(e.Sets > 0 ? e.Sets.ToString() : "–")</td>
+                            <td>@(e.Reps > 0 ? e.Reps.ToString() : "–")</td>
+                            <td>@(e.DurationMinutes > 0 ? e.DurationMinutes.ToString() : "–")</td>
+                            <td class="small text-muted">@e.Notes</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

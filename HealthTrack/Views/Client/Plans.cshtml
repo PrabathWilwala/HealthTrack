@@ -5,109 +5,128 @@
     var diet = Model.DietAssignment?.DietPlan;
     var weekStart = DateHelpers.StartOfWeek(DateTime.Today);
 }
-<h1>My plans</h1>
-<p>Plans assigned by your trainer and how closely you're following them.</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">My plans</h1>
+        <p class="page-subtitle">Plans assigned by your trainer and how closely you're following them.</p>
+        @* <p class="page-subtitle">Plans assigned by @(Model.TrainerName ?? "your trainer") and how closely you're following them.</p> *@
+    </div>
+</div>
 
-<h2>Adherence</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Workout adherence (7 d)</th><td>@DisplayHelpers.Percent(Model.Adherence7.WorkoutPercent)</td><td>@Model.Adherence7.WorkoutsCompleted of @Model.Adherence7.WorkoutsExpected.ToString("0.#") sessions</td></tr>
-    <tr><th>Workout adherence (30 d)</th><td>@DisplayHelpers.Percent(Model.Adherence30.WorkoutPercent)</td><td>@Model.Adherence30.WorkoutsCompleted of @Model.Adherence30.WorkoutsExpected.ToString("0.#") sessions</td></tr>
-    <tr><th>Diet adherence (30 d)</th><td>@DisplayHelpers.Percent(Model.Adherence30.DietPercent)</td><td>@Model.Adherence30.DietDaysOnTarget of @Model.Adherence30.DietDaysPlanned days within 15% of target</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Workout adherence (7 d)</div><div class="stat-value">@DisplayHelpers.Percent(Model.Adherence7.WorkoutPercent)</div><div class="stat-meta">@Model.Adherence7.WorkoutsCompleted of @Model.Adherence7.WorkoutsExpected.ToString("0.#") sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Workout adherence (30 d)</div><div class="stat-value">@DisplayHelpers.Percent(Model.Adherence30.WorkoutPercent)</div><div class="stat-meta">@Model.Adherence30.WorkoutsCompleted of @Model.Adherence30.WorkoutsExpected.ToString("0.#") sessions</div></div>
+    <div class="stat-card"><div class="stat-label">Diet adherence (30 d)</div><div class="stat-value">@DisplayHelpers.Percent(Model.Adherence30.DietPercent)</div><div class="stat-meta">@Model.Adherence30.DietDaysOnTarget of @Model.Adherence30.DietDaysPlanned days within ±15% of target</div></div>
+</div>
 
-<h2>Workout plan</h2>
-@if (workout == null)
-{
-    <p>Your trainer hasn't assigned a workout plan yet.</p>
-}
-else
-{
-    <h3>@workout.Title</h3>
-    <p>@workout.Description</p>
-    <ul>
-        <li>Intensity: @workout.Intensity</li>
-        <li>@workout.SessionsPerWeek sessions / week</li>
-        <li>@workout.DurationWeeks weeks</li>
-        <li>@Model.WorkoutAssignment!.StartDate.ToString("dd MMM") - @(Model.WorkoutAssignment.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</li>
-        @if (!string.IsNullOrEmpty(workout.Goal)) { <li>Goal: @workout.Goal</li> }
-    </ul>
-    <p>This week:
-        @for (var i = 0; i < 7; i++)
-        {
-            var day = weekStart.AddDays(i);
-            var done = Model.WorkoutDaysThisWeek.TryGetValue(day.DayOfWeek, out var d) && d;
-            <span>@day.ToString("ddd")@(done ? " (done)" : "")@(day == DateTime.Today ? " (today)" : "")</span>
-            if (i < 6) { <text> | </text> }
-        }
-    </p>
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Day</th><th>Exercise</th><th>Sets x reps</th><th>Duration</th><th>Notes</th></tr></thead>
-        <tbody>
-            @foreach (var e in workout.Exercises.OrderBy(x => x.SortOrder))
+<div class="row g-4">
+    <div class="col-xl-7">
+        <div class="card-ht">
+            <div class="card-ht-header">
+                <h2 class="card-ht-title"><i class="bi bi-activity"></i>Workout plan</h2>
+                @if (workout != null) { <span class="badge-soft primary">@workout.Intensity intensity</span> }
+            </div>
+            @if (workout == null)
             {
-                <tr>
-                    <td>@(e.DayOfWeek?.ToString() ?? "Any day")</td>
-                    <td>@e.Name</td>
-                    <td>@(e.Sets > 0 ? $"{e.Sets} x {e.Reps}" : "-")</td>
-                    <td>@(e.DurationMinutes > 0 ? $"{e.DurationMinutes} min" : "-")</td>
-                    <td>@e.Notes</td>
-                </tr>
+                <div class="empty-state"><i class="bi bi-clipboard2"></i><p>Your trainer hasn't assigned a workout plan yet.</p></div>
             }
-        </tbody>
-    </table>
-}
-
-<h2>Diet plan</h2>
-@if (diet == null)
-{
-    <p>Your trainer hasn't assigned a diet plan yet.</p>
-}
-else
-{
-    <h3>@diet.Title</h3>
-    <p>@diet.Description</p>
-    <p>Daily targets: @diet.DailyCalorieTarget kcal | Protein @diet.ProteinTargetG g | Carbs @diet.CarbsTargetG g | Fat @diet.FatTargetG g</p>
-    @if (!string.IsNullOrEmpty(diet.Guidelines))
-    {
-        <p>Guidelines: @diet.Guidelines</p>
-    }
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Meal</th><th>Food</th><th>Portion</th><th>Calories</th><th>Macros</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var meal in diet.Meals.OrderBy(m => m.SortOrder))
+            else
             {
-                <tr>
-                    <td>@meal.MealType</td>
-                    <td>@meal.FoodItems</td>
-                    <td>@meal.Portion</td>
-                    <td>@meal.Calories kcal</td>
-                    <td>@($"P{meal.ProteinG} / C{meal.CarbsG} / F{meal.FatG} g")</td>
-                    <td><a asp-controller="MealLogs" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Log</a></td>
-                </tr>
+                <div class="card-ht-body">
+                    <h3 class="h5 mb-1">@workout.Title</h3>
+                    <p class="text-muted mb-2">@workout.Description</p>
+                    <p class="small mb-3">
+                        <span class="badge-soft">@workout.SessionsPerWeek sessions / week</span>
+                        <span class="badge-soft">@workout.DurationWeeks weeks</span>
+                        <span class="badge-soft">@Model.WorkoutAssignment!.StartDate.ToString("dd MMM") – @(Model.WorkoutAssignment.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</span>
+                        @if (!string.IsNullOrEmpty(workout.Goal)) { <span class="badge-soft teal">Goal: @workout.Goal</span> }
+                    </p>
+                    <div class="small-caps mb-2">This week</div>
+                    <div class="week-dots mb-3">
+                        @for (var i = 0; i < 7; i++)
+                        {
+                            var day = weekStart.AddDays(i);
+                            var done = Model.WorkoutDaysThisWeek.TryGetValue(day.DayOfWeek, out var d) && d;
+                            <span class="@(done ? "done" : "") @(day == DateTime.Today ? "today" : "")" title="@day.ToString("dddd")">@day.ToString("ddd").Substring(0, 2)</span>
+                        }
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead><tr><th>Day</th><th>Exercise</th><th>Sets × reps</th><th>Duration</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            @foreach (var e in workout.Exercises.OrderBy(x => x.SortOrder))
+                            {
+                                <tr>
+                                    <td>@(e.DayOfWeek?.ToString() ?? "Any day")</td>
+                                    <td class="fw-semibold">@e.Name</td>
+                                    <td>@(e.Sets > 0 ? $"{e.Sets} × {e.Reps}" : "–")</td>
+                                    <td>@(e.DurationMinutes > 0 ? $"{e.DurationMinutes} min" : "–")</td>
+                                    <td class="text-muted small">@e.Notes</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    </div>
 
-<h2>Plan history</h2>
-@if (Model.History.Count == 0)
-{
-    <p>No plans assigned yet.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Type</th><th>Plan</th><th>Dates</th><th>Status</th></tr></thead>
-        <tbody>
-            @foreach (var a in Model.History)
+    <div class="col-xl-5">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-basket"></i>Diet plan</h2></div>
+            @if (diet == null)
             {
-                <tr>
-                    <td>@(a.DietPlan != null ? "Diet" : "Workout")</td>
-                    <td>@(a.WorkoutPlan?.Title ?? a.DietPlan?.Title)</td>
-                    <td>@a.StartDate.ToString("dd MMM yyyy") - @(a.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</td>
-                    <td>@(a.CoversDate(DateTime.Today) ? "Active" : "Ended")</td>
-                </tr>
+                <div class="empty-state"><i class="bi bi-basket"></i><p>Your trainer hasn't assigned a diet plan yet.</p></div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="card-ht-body">
+                    <h3 class="h5 mb-1">@diet.Title</h3>
+                    <p class="text-muted mb-3">@diet.Description</p>
+                    <div class="row text-center g-2 mb-3">
+                        <div class="col-3"><div class="small-caps">kcal</div><div class="fw-bold fs-5">@diet.DailyCalorieTarget</div></div>
+                        <div class="col-3"><div class="small-caps">Protein</div><div class="fw-bold fs-5">@diet.ProteinTargetG g</div></div>
+                        <div class="col-3"><div class="small-caps">Carbs</div><div class="fw-bold fs-5">@diet.CarbsTargetG g</div></div>
+                        <div class="col-3"><div class="small-caps">Fat</div><div class="fw-bold fs-5">@diet.FatTargetG g</div></div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(diet.Guidelines))
+                    {
+                        <div class="alert alert-info small mb-0"><i class="bi bi-info-circle"></i> @diet.Guidelines</div>
+                    }
+                </div>
+                <ul class="list-clean border-top">
+                    @foreach (var meal in diet.Meals.OrderBy(m => m.SortOrder))
+                    {
+                        <li class="list-row">
+                            <span class="badge-soft primary">@meal.MealType</span>
+                            <div class="grow"><div class="title">@meal.FoodItems</div><div class="meta">@meal.Portion · @meal.Calories kcal · @($"P{meal.ProteinG} / C{meal.CarbsG} / F{meal.FatG} g")</div></div>
+                            <a class="btn btn-light btn-sm" asp-controller="MealLogs" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Log</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock-history"></i>Plan history</h2></div>
+            @if (Model.History.Count == 0)
+            {
+                <div class="empty-state"><p>No plans assigned yet.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var a in Model.History)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble @(a.DietPlan != null ? "teal" : "")"><i class="bi @(a.DietPlan != null ? "bi-basket" : "bi-activity")"></i></span>
+                        <div class="grow">
+                            <div class="title">@(a.WorkoutPlan?.Title ?? a.DietPlan?.Title)</div>
+                            <div class="meta">@a.StartDate.ToString("dd MMM yyyy") – @(a.EndDate?.ToString("dd MMM yyyy") ?? "ongoing")</div>
+                        </div>
+                        <span class="badge-soft @(a.CoversDate(DateTime.Today) ? "success" : "")">@(a.CoversDate(DateTime.Today) ? "Active" : "Ended")</span>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>

@@ -5,45 +5,55 @@
     var isTrainer = User.IsInRole(RoleNames.Trainer);
     var mealTotal = Model.Meals.Sum(m => m.Calories);
 }
-<p><a asp-action="Index">&lt; Diet plans</a></p>
-<h1>@Model.Title</h1>
-<p>@Model.Description</p>
-@if (isTrainer && !Model.IsTemplate && canEdit)
-{
-    <p><a asp-action="Assign" asp-route-id="@Model.Id">Assign to clients</a></p>
-}
-@if (isTrainer && Model.IsTemplate)
-{
-    <form asp-action="UseTemplate" asp-route-id="@Model.Id" method="post"><button type="submit">Use template</button></form>
-}
-@if (canEdit)
-{
-    <p><a asp-action="Edit" asp-route-id="@Model.Id">Edit</a></p>
-    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this plan? Client assignments of this plan will also be removed.">
-        <button type="submit">Delete</button>
-    </form>
-}
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Diet plans</a>
+        <h1 class="page-title mt-1">@Model.Title</h1>
+        <p class="page-subtitle">@Model.Description</p>
+    </div>
+    <div class="page-actions">
+        @if (isTrainer && !Model.IsTemplate && canEdit)
+        {
+            <a class="btn btn-teal" asp-action="Assign" asp-route-id="@Model.Id"><i class="bi bi-person-plus"></i> Assign to clients</a>
+        }
+        @if (isTrainer && Model.IsTemplate)
+        {
+            <form asp-action="UseTemplate" asp-route-id="@Model.Id" method="post"><button class="btn btn-primary" type="submit"><i class="bi bi-files"></i> Use template</button></form>
+        }
+        @if (canEdit)
+        {
+            <a class="btn btn-light" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil"></i> Edit</a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-confirm="Delete this plan? Client assignments of this plan will also be removed.">
+                <button class="btn btn-light text-danger" type="submit"><i class="bi bi-trash"></i></button>
+            </form>
+        }
+    </div>
+</div>
 @if (Model.IsFlagged)
 {
-    <p><b>This plan was flagged by an administrator:</b> @Model.FlagReason</p>
+    <div class="alert alert-danger"><i class="bi bi-flag-fill"></i> This plan was flagged by an administrator: @Model.FlagReason</div>
 }
-<table border="1" cellpadding="4">
-    <tr><th>Daily target</th><td>@Model.DailyCalorieTarget kcal (meals total @mealTotal kcal)</td></tr>
-    <tr><th>Protein</th><td>@Model.ProteinTargetG g</td></tr>
-    <tr><th>Carbohydrates</th><td>@Model.CarbsTargetG g</td></tr>
-    <tr><th>Fat</th><td>@Model.FatTargetG g</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Daily target</div><div class="stat-value">@Model.DailyCalorieTarget<small> kcal</small></div><div class="stat-meta">Meals total @mealTotal kcal</div></div>
+    <div class="stat-card"><div class="stat-label">Protein</div><div class="stat-value">@Model.ProteinTargetG<small> g</small></div></div>
+    <div class="stat-card"><div class="stat-label">Carbohydrates</div><div class="stat-value">@Model.CarbsTargetG<small> g</small></div></div>
+    <div class="stat-card"><div class="stat-label">Fat</div><div class="stat-value">@Model.FatTargetG<small> g</small></div></div>
+</div>
 @if (!string.IsNullOrEmpty(Model.Guidelines))
 {
-    <p><b>Guidelines:</b> @Model.Guidelines</p>
+    <div class="alert alert-info"><i class="bi bi-info-circle"></i> <strong>Guidelines:</strong> @Model.Guidelines</div>
 }
-<h2>Meals</h2>
-<table border="1" cellpadding="4">
-    <thead><tr><th>Meal</th><th>Food items</th><th>Portion</th><th>kcal</th><th>Protein</th><th>Carbs</th><th>Fat</th></tr></thead>
-    <tbody>
-        @foreach (var m in Model.Meals.OrderBy(m => m.SortOrder))
-        {
-            <tr><td>@m.MealType</td><td>@m.FoodItems</td><td>@m.Portion</td><td>@m.Calories</td><td>@m.ProteinG g</td><td>@m.CarbsG g</td><td>@m.FatG g</td></tr>
-        }
-    </tbody>
-</table>
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-basket"></i>Meals</h2></div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th>Meal</th><th>Food items</th><th>Portion</th><th>kcal</th><th>Protein</th><th>Carbs</th><th>Fat</th></tr></thead>
+            <tbody>
+                @foreach (var m in Model.Meals.OrderBy(m => m.SortOrder))
+                {
+                    <tr><td><span class="badge-soft primary">@m.MealType</span></td><td class="fw-semibold">@m.FoodItems</td><td>@m.Portion</td><td>@m.Calories</td><td>@m.ProteinG g</td><td>@m.CarbsG g</td><td>@m.FatG g</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,7 +1,11 @@
-<p>
-    <a asp-action="Index">Profile</a> |
-    <a asp-action="ChangePassword">Password</a> |
-    <a asp-action="TwoFactor">Two-factor</a> |
-    <a asp-controller="Notifications" asp-action="Preferences">Notifications</a> |
-    <a asp-action="Privacy">Privacy &amp; data</a>
-</p>
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    string Tab(string a) => string.Equals(action, a, StringComparison.OrdinalIgnoreCase) ? "nav-link active" : "nav-link";
+}
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item"><a class="@Tab("Index")" asp-action="Index"><i class="bi bi-person me-1"></i>Profile</a></li>
+    <li class="nav-item"><a class="@Tab("ChangePassword")" asp-action="ChangePassword"><i class="bi bi-key me-1"></i>Password</a></li>
+    <li class="nav-item"><a class="@Tab("TwoFactor")" asp-action="TwoFactor"><i class="bi bi-shield-lock me-1"></i>Two-factor</a></li>
+    <li class="nav-item"><a class="nav-link" asp-controller="Notifications" asp-action="Preferences"><i class="bi bi-bell me-1"></i>Notifications</a></li>
+    <li class="nav-item"><a class="@Tab("Privacy")" asp-action="Privacy"><i class="bi bi-file-lock2 me-1"></i>Privacy &amp; data</a></li>
+</ul>

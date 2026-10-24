@@ -2,74 +2,93 @@
 @{
     ViewData["Title"] = "Request an appointment";
 }
-<p><a asp-action="Index">&lt; Appointments</a></p>
-<h1>Request a consultation</h1>
-<p>Choose a trainer or healthcare professional and a time within their availability.</p>
-<form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
-    @if (Model.Trainers.Count == 0)
-    {
-        <p><b>No approved trainers are available yet.</b></p>
-    }
-    <p>
-        <label asp-for="TrainerId"></label><br />
-        <select asp-for="TrainerId" id="trainerSelect">
-            <option value="">Choose...</option>
-            @foreach (var t in Model.Trainers)
-            {
-                <option value="@t.UserId">@($"{t.FullName} - {t.Specializations}{(t.UserId == Model.AssignedTrainerId ? " (your trainer)" : "")}")</option>
-            }
-        </select>
-        <span asp-validation-for="TrainerId"></span>
-    </p>
-    <p>
-        <label asp-for="StartTime"></label><br />
-        <input asp-for="StartTime" type="datetime-local" step="900" />
-        <span asp-validation-for="StartTime"></span>
-    </p>
-    <p>
-        <label asp-for="DurationMinutes"></label><br />
-        <select asp-for="DurationMinutes">
-            <option value="15">15 minutes</option>
-            <option value="30">30 minutes</option>
-            <option value="45">45 minutes</option>
-            <option value="60">60 minutes</option>
-            <option value="90">90 minutes</option>
-        </select>
-    </p>
-    <p>
-        <label asp-for="Purpose"></label><br />
-        <textarea asp-for="Purpose" rows="3" cols="60"></textarea>
-        <span asp-validation-for="Purpose"></span>
-    </p>
-    <button type="submit">Send request</button>
-    <a asp-action="Index">Cancel</a>
-</form>
-
-<h3>Weekly availability</h3>
-@foreach (var t in Model.Trainers)
-{
-    <div data-availability data-trainer="@t.UserId">
-        <p><b>@t.FullName</b></p>
-        @if (Model.Availability.TryGetValue(t.UserId, out var slots) && slots.Count > 0)
-        {
-            <ul>
-                @foreach (var slot in slots) { <li>@slot</li> }
-            </ul>
-        }
-        else
-        {
-            <p>No fixed hours published - any time can be requested.</p>
-        }
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Appointments</a>
+        <h1 class="page-title mt-1">Request a consultation</h1>
+        <p class="page-subtitle">Choose a trainer or healthcare professional and a time within their availability.</p>
     </div>
-}
+</div>
+<div class="row g-4">
+    <div class="col-xl-7">
+        <form asp-action="Create" method="post" class="card-ht">
+            <div class="card-ht-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                @if (Model.Trainers.Count == 0)
+                {
+                    <div class="alert alert-warning">No approved trainers are available yet.</div>
+                }
+                <div class="mb-3">
+                    <label asp-for="TrainerId" class="form-label"></label>
+                    <select asp-for="TrainerId" class="form-select" id="trainerSelect">
+                        <option value="">Choose…</option>
+                        @foreach (var t in Model.Trainers)
+                        {
+                            <option value="@t.UserId">@($"{t.FullName} — {t.Specializations}{(t.UserId == Model.AssignedTrainerId ? " (your trainer)" : "")}")</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TrainerId" class="text-danger"></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <label asp-for="StartTime" class="form-label"></label>
+                        <input asp-for="StartTime" class="form-control" type="datetime-local" step="900" />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-5">
+                        <label asp-for="DurationMinutes" class="form-label"></label>
+                        <select asp-for="DurationMinutes" class="form-select">
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label asp-for="Purpose" class="form-label"></label>
+                    <textarea asp-for="Purpose" class="form-control" rows="3" placeholder="What would you like to discuss?"></textarea>
+                    <span asp-validation-for="Purpose" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="card-ht-footer d-flex justify-content-between">
+                <a class="btn btn-light" asp-action="Index">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Send request</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-xl-5">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock"></i>Weekly availability</h2></div>
+            <div class="card-ht-body">
+                @foreach (var t in Model.Trainers)
+                {
+                    <div class="availability-block mb-3" data-trainer="@t.UserId">
+                        <div class="fw-bold">@t.FullName</div>
+                        @if (Model.Availability.TryGetValue(t.UserId, out var slots) && slots.Count > 0)
+                        {
+                            <ul class="small mb-0 ps-3">
+                                @foreach (var slot in slots) { <li>@slot</li> }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="small text-muted">No fixed hours published — any time can be requested.</div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         (function () {
             var select = document.getElementById('trainerSelect');
             function update() {
-                document.querySelectorAll('[data-availability]').forEach(function (b) {
+                document.querySelectorAll('.availability-block').forEach(function (b) {
                     b.hidden = select.value && b.getAttribute('data-trainer') !== select.value;
                 });
             }

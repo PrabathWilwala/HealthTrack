@@ -3,26 +3,30 @@
     ViewData["Title"] = "Progress & analytics";
     var days = (int)(ViewData["Days"] ?? 30);
 }
-<h1>Progress &amp; analytics</h1>
-<p>@Model.From.ToString("dd MMM yyyy") - @Model.To.ToString("dd MMM yyyy")</p>
-<p>
-    Period:
-    @foreach (var d in new[] { 7, 30, 90, 180, 365 })
-    {
-        if (d == days) { <b>@(d == 365 ? "1 y" : d + " d")</b> } else { <a asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a> }
-        <text> </text>
-    }
-</p>
-<p>
-    Grouping:
-    <a asp-route-days="@days" asp-route-grouping="Day">Daily</a> |
-    <a asp-route-days="@days" asp-route-grouping="Week">Weekly</a> |
-    <a asp-route-days="@days" asp-route-grouping="Month">Monthly</a>
-    (current: @Model.Grouping)
-</p>
-<p>
-    Export:
-    <a asp-action="Export" asp-route-format="pdf" asp-route-days="@days">PDF report</a> |
-    <a asp-action="Export" asp-route-format="csv" asp-route-days="@days">CSV data</a>
-</p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Progress &amp; analytics</h1>
+        <p class="page-subtitle">@Model.From.ToString("dd MMM yyyy") – @Model.To.ToString("dd MMM yyyy")</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            @foreach (var d in new[] { 7, 30, 90, 180, 365 })
+            {
+                <a class="btn btn-light @(d == days ? "active" : "")" asp-route-days="@d">@(d == 365 ? "1 y" : d + " d")</a>
+            }
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-light @(Model.Grouping == ReportGrouping.Day ? "active" : "")" asp-route-days="@days" asp-route-grouping="Day">Daily</a>
+            <a class="btn btn-light @(Model.Grouping == ReportGrouping.Week ? "active" : "")" asp-route-days="@days" asp-route-grouping="Week">Weekly</a>
+            <a class="btn btn-light @(Model.Grouping == ReportGrouping.Month ? "active" : "")" asp-route-days="@days" asp-route-grouping="Month">Monthly</a>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" type="button"><i class="bi bi-download"></i> Export</button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" asp-action="Export" asp-route-format="pdf" asp-route-days="@days"><i class="bi bi-filetype-pdf me-2"></i>PDF report</a></li>
+                <li><a class="dropdown-item" asp-action="Export" asp-route-format="csv" asp-route-days="@days"><i class="bi bi-filetype-csv me-2"></i>CSV data</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
 <partial name="_ProgressCharts" model="Model" />

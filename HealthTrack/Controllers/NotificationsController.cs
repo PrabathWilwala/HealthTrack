@@ -42,7 +42,7 @@ public class NotificationPreferencesViewModel
     public TimeSpan MealReminderTime { get; set; }
 }
 
-// In-app notification centre and per-user notification preferences.
+/// <summary>In-app notification centre and per-user notification preferences.</summary>
 [Authorize]
 public class NotificationsController : Controller
 {
@@ -57,7 +57,7 @@ public class NotificationsController : Controller
         _audit = audit;
     }
 
-    // Notification centre with read/unread filter, type filter and paging.
+    /// <summary>Notification centre with read/unread filter, type filter and paging.</summary>
     [HttpGet]
     public async Task<IActionResult> Index(string filter = "all", NotificationType? type = null, int page = 1)
     {
@@ -74,7 +74,7 @@ public class NotificationsController : Controller
         return View(model);
     }
 
-    // Marks a notification as read and follows its link.
+    /// <summary>Marks a notification as read and follows its link.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Open(int id)
@@ -92,7 +92,7 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Marks a notification read or unread.
+    /// <summary>Marks a notification read or unread.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkRead(int id, bool read = true)
@@ -103,7 +103,7 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Marks every notification as read.
+    /// <summary>Marks every notification as read.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> MarkAllRead()
@@ -115,7 +115,7 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Deletes a notification.
+    /// <summary>Deletes a notification.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -125,14 +125,14 @@ public class NotificationsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Lightweight JSON endpoint polled by the navigation bar badge.
+    /// <summary>Lightweight JSON endpoint polled by the navigation bar badge.</summary>
     [HttpGet]
     public async Task<IActionResult> UnreadCount()
     {
         return Json(new { count = await _notifications.GetUnreadCountAsync(User.GetUserId()) });
     }
 
-    // Shows / saves notification preferences.
+    /// <summary>Shows / saves notification preferences.</summary>
     [HttpGet]
     public async Task<IActionResult> Preferences()
     {
@@ -154,7 +154,7 @@ public class NotificationsController : Controller
         });
     }
 
-    // Shows / saves notification preferences.
+    /// <summary>Shows / saves notification preferences.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Preferences(NotificationPreferencesViewModel model)

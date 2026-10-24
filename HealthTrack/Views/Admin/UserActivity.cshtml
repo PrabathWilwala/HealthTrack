@@ -2,26 +2,32 @@
 @{
     ViewData["Title"] = "User activity";
 }
-<p><a asp-action="Users">&lt; Users</a></p>
-<h1>@Model.User.FullName</h1>
-<p>@Model.User.Role | @Model.User.Email | joined @(Model.User.JoinedUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "-")</p>
-<p><a asp-action="EditUser" asp-route-id="@Model.User.Id">Edit</a></p>
-<p>Workouts: @Model.Workouts | Meals: @Model.Meals | Measurements: @Model.Measurements | Appointments: @Model.Appointments</p>
-
-<h2>Activity log (latest 200 events)</h2>
-@if (Model.Entries.Count == 0)
-{
-    <p>No activity recorded.</p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>When</th><th>Area</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
-        <tbody>
-            @foreach (var e in Model.Entries)
-            {
-                <tr><td>@e.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss")</td><td>@e.Category</td><td>@e.Action@(e.IsSecurityEvent ? " (security)" : "")</td><td>@e.Details</td><td>@e.IpAddress</td></tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="page-header">
+    <div>
+        <a asp-action="Users" class="small fw-bold"><i class="bi bi-arrow-left"></i> Users</a>
+        <h1 class="page-title mt-1">@Model.User.FullName</h1>
+        <p class="page-subtitle">@Model.User.Role · @Model.User.Email · joined @(Model.User.JoinedUtc?.ToLocalTime().ToString("dd MMM yyyy") ?? "–")</p>
+    </div>
+    <div class="page-actions"><a class="btn btn-light" asp-action="EditUser" asp-route-id="@Model.User.Id"><i class="bi bi-pencil"></i> Edit</a></div>
+</div>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-label">Workouts</div><div class="stat-value">@Model.Workouts</div></div>
+    <div class="stat-card"><div class="stat-label">Meals</div><div class="stat-value">@Model.Meals</div></div>
+    <div class="stat-card"><div class="stat-label">Measurements</div><div class="stat-value">@Model.Measurements</div></div>
+    <div class="stat-card"><div class="stat-label">Appointments</div><div class="stat-value">@Model.Appointments</div></div>
+</div>
+<div class="card-ht">
+    <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-clock-history"></i>Activity log</h2><span class="small text-muted">Latest 200 events</span></div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>When</th><th>Area</th><th>Action</th><th>Details</th><th>IP</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.Entries)
+                {
+                    <tr class="@(e.IsSecurityEvent ? "table-warning" : "")"><td class="text-nowrap small">@e.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy HH:mm:ss")</td><td><span class="badge-soft">@e.Category</span></td><td class="fw-semibold">@e.Action</td><td class="small">@e.Details</td><td class="small text-muted">@e.IpAddress</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Entries.Count == 0) { <div class="empty-state"><p>No activity recorded.</p></div> }
+</div>

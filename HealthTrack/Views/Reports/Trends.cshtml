@@ -2,20 +2,27 @@
 @{
     ViewData["Title"] = "Trend identification";
 }
-<p><a asp-action="Index">&lt; Reports</a></p>
-<h1>Trend identification</h1>
-<p>Patterns that may need proactive intervention: inactivity, falling adherence, plateaus and weight moving away from the goal.</p>
-@if (Model.Count == 0)
-{
-    <p>No concerning trends detected. Everyone is on track!</p>
-}
-<ul>
-    @foreach (var a in Model.OrderBy(a => a.Severity == "warning" ? 0 : 1))
+<div class="page-header">
+    <div>
+        <a asp-action="Index" class="small fw-bold"><i class="bi bi-arrow-left"></i> Reports</a>
+        <h1 class="page-title mt-1">Trend identification</h1>
+        <p class="page-subtitle">Patterns that may need proactive intervention: inactivity, falling adherence, plateaus and weight moving away from the goal.</p>
+    </div>
+</div>
+<div class="card-ht">
+    @if (Model.Count == 0)
     {
-        <li>
-            @(a.Severity == "warning" ? "[Warning]" : "[Info]") <b>@a.ClientName</b>: @a.Message
-            @if (User.IsInRole(RoleNames.Trainer)) { <a href="/Trainer/Client/@a.ClientId#feedback">Give feedback</a> }
-            <a asp-action="Client" asp-route-id="@a.ClientId">Report</a>
-        </li>
+        <div class="empty-state"><i class="bi bi-emoji-smile"></i><p>No concerning trends detected. Everyone is on track!</p></div>
     }
-</ul>
+    <ul class="list-clean">
+        @foreach (var a in Model.OrderBy(a => a.Severity == "warning" ? 0 : 1))
+        {
+            <li class="list-row">
+                <span class="icon-bubble @(a.Severity == "warning" ? "amber" : "")"><i class="bi @(a.Severity == "warning" ? "bi-exclamation-triangle" : "bi-info-circle")"></i></span>
+                <div class="grow"><div class="title">@a.ClientName</div><div class="meta">@a.Message</div></div>
+                @if (User.IsInRole(RoleNames.Trainer)) { <a class="btn btn-light btn-sm" href="/Trainer/Client/@a.ClientId#feedback">Give feedback</a> }
+                <a class="btn btn-light btn-sm" asp-action="Client" asp-route-id="@a.ClientId">Report</a>
+            </li>
+        }
+    </ul>
+</div>

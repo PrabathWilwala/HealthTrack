@@ -9,8 +9,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Controllers;
 
-// Trainers create, edit, template and assign workout plans. Administrators manage
-// system-wide templates here (oversight of all plans is in AdminController).
+/// <summary>
+/// Trainers create, edit, template and assign workout plans. Administrators manage
+/// system-wide templates here (oversight of all plans is in AdminController).
+/// </summary>
 [Authorize(Roles = RoleNames.TrainerOrAdmin)]
 public class WorkoutPlansController : Controller
 {
@@ -27,7 +29,7 @@ public class WorkoutPlansController : Controller
 
     private bool IsAdmin => User.IsInRole(RoleNames.Administrator);
 
-    // Lists the trainer's plans and template library (administrators: system templates).
+    /// <summary>Lists the trainer's plans and template library (administrators: system templates).</summary>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -70,7 +72,7 @@ public class WorkoutPlansController : Controller
         });
     }
 
-    // Shows one plan.
+    /// <summary>Shows one plan.</summary>
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
@@ -80,11 +82,11 @@ public class WorkoutPlansController : Controller
         return View(plan);
     }
 
-    // Shows the editor / creates a plan with its rows.
+    /// <summary>Shows the editor / creates a plan with its rows.</summary>
     [HttpGet]
     public IActionResult Create() => View("Form", new WorkoutPlanFormViewModel { IsTemplate = IsAdmin, IsSystemTemplate = IsAdmin });
 
-    // Shows the editor / creates a plan with its rows.
+    /// <summary>Shows the editor / creates a plan with its rows.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(WorkoutPlanFormViewModel model)
@@ -101,7 +103,7 @@ public class WorkoutPlansController : Controller
         return plan.IsTemplate ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Assign), new { id = plan.Id });
     }
 
-    // Shows the editor / replaces the plan and notifies clients who follow it.
+    /// <summary>Shows the editor / replaces the plan and notifies clients who follow it.</summary>
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -131,7 +133,7 @@ public class WorkoutPlansController : Controller
         });
     }
 
-    // Shows the editor / replaces the plan and notifies clients who follow it.
+    /// <summary>Shows the editor / replaces the plan and notifies clients who follow it.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, WorkoutPlanFormViewModel model)
@@ -158,7 +160,7 @@ public class WorkoutPlansController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    // Deletes a plan the user owns.
+    /// <summary>Deletes a plan the user owns.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -173,7 +175,7 @@ public class WorkoutPlansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Creates an editable copy of a template (own or system).
+    /// <summary>Creates an editable copy of a template (own or system).</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -189,7 +191,7 @@ public class WorkoutPlansController : Controller
         return RedirectToAction(nameof(Edit), new { id = copy.Id });
     }
 
-    // Saves a copy of a plan in the template library.
+    /// <summary>Saves a copy of a plan in the template library.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -203,7 +205,7 @@ public class WorkoutPlansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Shows the client picker / assigns the plan to the selected clients.
+    /// <summary>Shows the client picker / assigns the plan to the selected clients.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpGet]
     public async Task<IActionResult> Assign(int id)
@@ -223,7 +225,7 @@ public class WorkoutPlansController : Controller
         return View("~/Views/Shared/AssignPlan.cshtml", model);
     }
 
-    // Shows the client picker / assigns the plan to the selected clients.
+    /// <summary>Shows the client picker / assigns the plan to the selected clients.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -300,7 +302,7 @@ public class WorkoutPlansController : Controller
     }
 }
 
-// Trainers create, edit, template and assign diet plans.
+/// <summary>Trainers create, edit, template and assign diet plans.</summary>
 [Authorize(Roles = RoleNames.TrainerOrAdmin)]
 public class DietPlansController : Controller
 {
@@ -317,7 +319,7 @@ public class DietPlansController : Controller
 
     private bool IsAdmin => User.IsInRole(RoleNames.Administrator);
 
-    // Lists the trainer's plans and template library (administrators: system templates).
+    /// <summary>Lists the trainer's plans and template library (administrators: system templates).</summary>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -360,7 +362,7 @@ public class DietPlansController : Controller
         });
     }
 
-    // Shows one plan.
+    /// <summary>Shows one plan.</summary>
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
@@ -370,11 +372,11 @@ public class DietPlansController : Controller
         return View(plan);
     }
 
-    // Shows the editor / creates a plan with its rows.
+    /// <summary>Shows the editor / creates a plan with its rows.</summary>
     [HttpGet]
     public IActionResult Create() => View("Form", new DietPlanFormViewModel { IsTemplate = IsAdmin, IsSystemTemplate = IsAdmin });
 
-    // Shows the editor / creates a plan with its rows.
+    /// <summary>Shows the editor / creates a plan with its rows.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(DietPlanFormViewModel model)
@@ -391,7 +393,7 @@ public class DietPlansController : Controller
         return plan.IsTemplate ? RedirectToAction(nameof(Index)) : RedirectToAction(nameof(Assign), new { id = plan.Id });
     }
 
-    // Shows the editor / replaces the plan and notifies clients who follow it.
+    /// <summary>Shows the editor / replaces the plan and notifies clients who follow it.</summary>
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -423,7 +425,7 @@ public class DietPlansController : Controller
         });
     }
 
-    // Shows the editor / replaces the plan and notifies clients who follow it.
+    /// <summary>Shows the editor / replaces the plan and notifies clients who follow it.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, DietPlanFormViewModel model)
@@ -449,7 +451,7 @@ public class DietPlansController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    // Deletes a plan the user owns.
+    /// <summary>Deletes a plan the user owns.</summary>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -464,7 +466,7 @@ public class DietPlansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Creates an editable copy of a template.
+    /// <summary>Creates an editable copy of a template.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -480,7 +482,7 @@ public class DietPlansController : Controller
         return RedirectToAction(nameof(Edit), new { id = copy.Id });
     }
 
-    // Saves a copy of a plan in the template library.
+    /// <summary>Saves a copy of a plan in the template library.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -494,7 +496,7 @@ public class DietPlansController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // Shows the client picker / assigns the plan to the selected clients.
+    /// <summary>Shows the client picker / assigns the plan to the selected clients.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpGet]
     public async Task<IActionResult> Assign(int id)
@@ -507,7 +509,7 @@ public class DietPlansController : Controller
         return View("~/Views/Shared/AssignPlan.cshtml", model);
     }
 
-    // Shows the client picker / assigns the plan to the selected clients.
+    /// <summary>Shows the client picker / assigns the plan to the selected clients.</summary>
     [Authorize(Roles = RoleNames.Trainer)]
     [HttpPost]
     [ValidateAntiForgeryToken]

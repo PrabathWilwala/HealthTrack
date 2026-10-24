@@ -4,139 +4,231 @@
     var firstName = Model.FullName.Split(' ')[0];
     var hour = DateTime.Now.Hour;
     var greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    var caloriePercent = Model.CalorieTarget > 0 ? Math.Min(100, Model.CaloriesConsumedToday * 100 / Model.CalorieTarget) : 0;
+    decimal MacroPercent(decimal value, int target) => target > 0 ? Math.Min(100, value * 100 / target) : 0;
 }
-<h1>@greeting, @firstName</h1>
-<p>@DateTime.Today.ToString("dddd, dd MMMM yyyy") - @(Model.TrainerName != null ? $"Coached by {Model.TrainerName}" : "No trainer assigned yet")</p>
-<p>
-    <a asp-controller="WorkoutLogs" asp-action="Create">Log workout</a> |
-    <a asp-controller="MealLogs" asp-action="Create">Log meal</a> |
-    <a asp-controller="Measurements" asp-action="Create">Log weight</a> |
-    <a asp-controller="Appointments" asp-action="Create">Book consultation</a>
-</p>
 
-<h2>Summary</h2>
-<table border="1" cellpadding="4">
-    <tr><th>Current weight</th><td>@Model.CurrentWeight.ToString("0.0") kg</td><td>@(Model.Goal.TargetWeight.HasValue ? $"Target {Model.Goal.TargetWeight:0.0} kg" : "No target set")</td></tr>
-    <tr><th>BMI</th><td>@Model.Bmi.ToString("0.0")</td><td>@Model.BmiCategory</td></tr>
-    <tr><th>Calories burned</th><td>@Model.CaloriesBurnedToday kcal today</td><td>@Model.CaloriesBurnedWeek kcal this week</td></tr>
-    <tr><th>Plan adherence (30 d)</th><td>@DisplayHelpers.Percent(Model.Adherence.OverallPercent)</td><td>@(Model.WorkoutsThisWeek + (Model.SessionsPerWeekTarget > 0 ? $" of {Model.SessionsPerWeekTarget}" : "")) workouts this week</td></tr>
-</table>
+<div class="welcome-banner">
+    <div>
+        <h1>@greeting, @firstName</h1>
+        <p>@DateTime.Today.ToString("dddd, dd MMMM yyyy") · @(Model.TrainerName != null ? $"Coached by {Model.TrainerName}" : "No trainer assigned yet")</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-light" asp-controller="WorkoutLogs" asp-action="Create"><i class="bi bi-plus-lg"></i> Log workout</a>
+        <a class="btn btn-light" asp-controller="MealLogs" asp-action="Create"><i class="bi bi-plus-lg"></i> Log meal</a>
+        <a class="btn btn-light" asp-controller="Measurements" asp-action="Create"><i class="bi bi-plus-lg"></i> Log weight</a>
+        <a class="btn btn-light" asp-controller="Appointments" asp-action="Create"><i class="bi bi-calendar-plus"></i> Book</a>
+    </div>
+</div>
 
-<h2>Weight trend</h2>
-<p>Last 7 days:</p>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.WeightChart7)" data-type="line" data-y-label="kg"></canvas>
-<p>Last 30 days:</p>
-<canvas width="600" height="250" data-chart="@ChartJson.Serialize(Model.WeightChart30)" data-type="line" data-y-label="kg"></canvas>
-<p>@Model.Goal.Description - <a asp-controller="Progress" asp-action="Index">Full analytics</a></p>
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="bi bi-speedometer"></i></div>
+        <div class="stat-label">Current weight</div>
+        <div class="stat-value">@Model.CurrentWeight.ToString("0.0")<small> kg</small></div>
+        <div class="stat-meta">@(Model.Goal.TargetWeight.HasValue ? $"Target {Model.Goal.TargetWeight:0.0} kg" : "No target set")</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="bi bi-person-check"></i></div>
+        <div class="stat-label">BMI</div>
+        <div class="stat-value">@Model.Bmi.ToString("0.0")</div>
+        <div class="stat-meta">@Model.BmiCategory</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber"><i class="bi bi-fire"></i></div>
+        <div class="stat-label">Calories burned</div>
+        <div class="stat-value">@Model.CaloriesBurnedToday<small> kcal today</small></div>
+        <div class="stat-meta">@Model.CaloriesBurnedWeek kcal this week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
+        <div class="stat-label">Plan adherence (30 d)</div>
+        <div class="stat-value">@DisplayHelpers.Percent(Model.Adherence.OverallPercent)</div>
+        <div class="stat-meta">@(Model.WorkoutsThisWeek + (Model.SessionsPerWeekTarget > 0 ? $" of {Model.SessionsPerWeekTarget}" : "")) workouts this week</div>
+    </div>
+</div>
 
-<h2>Today's workout</h2>
-@if (Model.WorkoutPlan == null)
-{
-    <p>No workout plan assigned yet. <a asp-controller="WorkoutLogs" asp-action="Create">Log a free workout</a></p>
-}
-else
-{
-    <p>@Model.WorkoutPlan.Title - @Model.WorkoutPlan.SessionsPerWeek sessions/week - Status: @(Model.WorkoutDoneToday ? "Completed" : "To do")</p>
-    @if (Model.TodaysExercises.Count == 0)
-    {
-        <p>Rest day - no exercises scheduled for @DateTime.Today.DayOfWeek.</p>
-    }
-    else
-    {
-        <table border="1" cellpadding="4">
-            <thead><tr><th>Exercise</th><th>Details</th><th>Done</th><th></th></tr></thead>
-            <tbody>
-                @foreach (var e in Model.TodaysExercises)
-                {
-                    var done = Model.TodaysWorkouts.Any(w => string.Equals(w.ExerciseType, e.Name, StringComparison.OrdinalIgnoreCase));
-                    <tr>
-                        <td>@e.Name</td>
-                        <td>@(e.Sets > 0 ? $"{e.Sets} x {e.Reps}" : "")@(e.Sets > 0 && e.DurationMinutes > 0 ? ", " : "")@(e.DurationMinutes > 0 ? $"{e.DurationMinutes} min" : "")</td>
-                        <td>@(done ? "Yes" : "No")</td>
-                        <td>
-                            @if (!done)
+<div class="row g-4">
+    <div class="col-xl-8">
+        <!-- Progress snapshot -->
+        <div class="card-ht">
+            <div class="card-ht-header">
+                <h2 class="card-ht-title"><i class="bi bi-graph-down"></i>Weight trend</h2>
+                <ul class="nav nav-pills small" role="tablist">
+                    <li class="nav-item"><button class="nav-link py-1 px-2 active" data-bs-toggle="pill" data-bs-target="#w7" type="button">7 days</button></li>
+                    <li class="nav-item"><button class="nav-link py-1 px-2" data-bs-toggle="pill" data-bs-target="#w30" type="button">30 days</button></li>
+                </ul>
+            </div>
+            <div class="card-ht-body tab-content">
+                <div class="tab-pane fade show active" id="w7"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.WeightChart7)" data-type="line" data-y-label="kg"></canvas></div></div>
+                <div class="tab-pane fade" id="w30"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.WeightChart30)" data-type="line" data-y-label="kg"></canvas></div></div>
+            </div>
+            <div class="card-ht-footer d-flex justify-content-between align-items-center">
+                <span class="text-muted">@Model.Goal.Description</span>
+                <a asp-controller="Progress" asp-action="Index" class="fw-bold">Full analytics →</a>
+            </div>
+        </div>
+
+        <div class="row g-4 section-gap">
+            <!-- Today's workout -->
+            <div class="col-md-6">
+                <div class="card-ht h-100">
+                    <div class="card-ht-header">
+                        <h2 class="card-ht-title"><i class="bi bi-activity"></i>Today's workout</h2>
+                        @if (Model.WorkoutDoneToday) { <span class="badge-soft success"><i class="bi bi-check2"></i>Completed</span> }
+                        else if (Model.WorkoutPlan != null) { <span class="badge-soft warning">To do</span> }
+                    </div>
+                    @if (Model.WorkoutPlan == null)
+                    {
+                        <div class="empty-state"><i class="bi bi-clipboard2"></i><p>No workout plan assigned yet.</p><a class="btn btn-light btn-sm" asp-controller="WorkoutLogs" asp-action="Create">Log a free workout</a></div>
+                    }
+                    else
+                    {
+                        <div class="px-3 pt-2 small text-muted">@Model.WorkoutPlan.Title · @Model.WorkoutPlan.SessionsPerWeek sessions/week</div>
+                        <ul class="list-clean">
+                            @if (Model.TodaysExercises.Count == 0)
                             {
-                                <a asp-controller="WorkoutLogs" asp-action="Create" asp-route-exercise="@e.Name" asp-route-duration="@(e.DurationMinutes > 0 ? e.DurationMinutes : 30)">Log</a>
+                                <li class="list-row"><div class="grow text-muted">Rest day — no exercises scheduled for @DateTime.Today.DayOfWeek.</div></li>
                             }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-}
+                            @foreach (var e in Model.TodaysExercises)
+                            {
+                                var done = Model.TodaysWorkouts.Any(w => string.Equals(w.ExerciseType, e.Name, StringComparison.OrdinalIgnoreCase));
+                                <li class="list-row">
+                                    <span class="icon-bubble @(done ? "teal" : "")"><i class="bi @(done ? "bi-check2" : "bi-lightning-charge")"></i></span>
+                                    <div class="grow">
+                                        <div class="title">@e.Name</div>
+                                        <div class="meta">@(e.Sets > 0 ? $"{e.Sets} × {e.Reps}" : "")@(e.Sets > 0 && e.DurationMinutes > 0 ? " · " : "")@(e.DurationMinutes > 0 ? $"{e.DurationMinutes} min" : "")</div>
+                                    </div>
+                                    @if (!done)
+                                    {
+                                        <a class="btn btn-light btn-sm" asp-controller="WorkoutLogs" asp-action="Create" asp-route-exercise="@e.Name" asp-route-duration="@(e.DurationMinutes > 0 ? e.DurationMinutes : 30)">Log</a>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
 
-<h2>Today's nutrition</h2>
-<p>Calories: @Model.CaloriesConsumedToday / @Model.CalorieTarget kcal</p>
-@if (Model.ProteinTarget + Model.CarbsTarget + Model.FatTarget > 0)
-{
-    <ul>
-        <li>Protein: @Model.ProteinToday.ToString("0") / @Model.ProteinTarget g</li>
-        <li>Carbs: @Model.CarbsToday.ToString("0") / @Model.CarbsTarget g</li>
-        <li>Fat: @Model.FatToday.ToString("0") / @Model.FatTarget g</li>
-    </ul>
-}
-@if (Model.DietPlan != null)
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Meal</th><th>Food</th><th>Calories</th><th>Portion</th><th>Logged</th><th></th></tr></thead>
-        <tbody>
-            @foreach (var meal in Model.DietPlan.Meals.OrderBy(m => m.SortOrder))
-            {
-                var logged = Model.TodaysMeals.Any(m => m.MealType == meal.MealType);
-                <tr>
-                    <td>@meal.MealType</td>
-                    <td>@meal.FoodItems</td>
-                    <td>@meal.Calories kcal</td>
-                    <td>@meal.Portion</td>
-                    <td>@(logged ? "Yes" : "No")</td>
-                    <td>
-                        @if (!logged)
+            <!-- Today's diet -->
+            <div class="col-md-6">
+                <div class="card-ht h-100">
+                    <div class="card-ht-header">
+                        <h2 class="card-ht-title"><i class="bi bi-egg-fried"></i>Today's nutrition</h2>
+                        <span class="badge-soft">@Model.CaloriesConsumedToday / @Model.CalorieTarget kcal</span>
+                    </div>
+                    <div class="card-ht-body">
+                        <div class="progress mb-3" role="progressbar" aria-valuenow="@caloriePercent" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width:@caloriePercent%"></div>
+                        </div>
+                        @if (Model.ProteinTarget + Model.CarbsTarget + Model.FatTarget > 0)
                         {
-                            <a asp-controller="MealLogs" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Log</a>
+                            <div class="macro-row"><span>Protein</span><div class="progress"><div class="progress-bar" style="width:@MacroPercent(Model.ProteinToday, Model.ProteinTarget).ToString("0")%"></div></div><span class="text-end">@Model.ProteinToday.ToString("0") / @Model.ProteinTarget g</span></div>
+                            <div class="macro-row"><span>Carbs</span><div class="progress"><div class="progress-bar bg-info" style="width:@MacroPercent(Model.CarbsToday, Model.CarbsTarget).ToString("0")%"></div></div><span class="text-end">@Model.CarbsToday.ToString("0") / @Model.CarbsTarget g</span></div>
+                            <div class="macro-row"><span>Fat</span><div class="progress"><div class="progress-bar bg-warning" style="width:@MacroPercent(Model.FatToday, Model.FatTarget).ToString("0")%"></div></div><span class="text-end">@Model.FatToday.ToString("0") / @Model.FatTarget g</span></div>
                         }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No diet plan assigned. Meals you log still count towards your personal target.</p>
-}
+                    </div>
+                    @if (Model.DietPlan != null)
+                    {
+                        <ul class="list-clean border-top">
+                            @foreach (var meal in Model.DietPlan.Meals.OrderBy(m => m.SortOrder))
+                            {
+                                var logged = Model.TodaysMeals.Any(m => m.MealType == meal.MealType);
+                                <li class="list-row">
+                                    <span class="badge-soft @(logged ? "success" : "")">@meal.MealType</span>
+                                    <div class="grow"><div class="title text-truncate">@meal.FoodItems</div><div class="meta">@meal.Calories kcal · @meal.Portion</div></div>
+                                    @if (!logged)
+                                    {
+                                        <a class="btn btn-light btn-sm" asp-controller="MealLogs" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Log</a>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="empty-state pt-0"><p>No diet plan assigned. Meals you log still count towards your personal target.</p></div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h2>Upcoming appointments</h2>
-<p><a asp-controller="Appointments" asp-action="Index">All appointments</a></p>
-@if (Model.UpcomingAppointments.Count == 0)
-{
-    <p>No upcoming consultations. <a asp-controller="Appointments" asp-action="Create">Book a consultation</a></p>
-}
-else
-{
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Date</th><th>Purpose</th><th>With</th><th>Status</th></tr></thead>
-        <tbody>
-            @foreach (var item in Model.UpcomingAppointments)
+    <div class="col-xl-4">
+        <!-- Upcoming appointments -->
+        <div class="card-ht">
+            <div class="card-ht-header">
+                <h2 class="card-ht-title"><i class="bi bi-calendar-event"></i>Upcoming appointments</h2>
+                <a class="small fw-bold" asp-controller="Appointments" asp-action="Index">All</a>
+            </div>
+            @if (Model.UpcomingAppointments.Count == 0)
             {
-                <tr>
-                    <td>@item.Appointment.StartTime.ToString("ddd dd MMM HH:mm")</td>
-                    <td><a asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Appointment.Id">@item.Appointment.Purpose</a></td>
-                    <td>@item.OtherPartyName</td>
-                    <td><partial name="_AppointmentStatus" model="item.Appointment" /></td>
-                </tr>
+                <div class="empty-state"><i class="bi bi-calendar"></i><p>No upcoming consultations.</p><a class="btn btn-primary btn-sm" asp-controller="Appointments" asp-action="Create">Book a consultation</a></div>
             }
-        </tbody>
-    </table>
-}
+            <ul class="list-clean">
+                @foreach (var item in Model.UpcomingAppointments)
+                {
+                    <li class="list-row">
+                        <div class="date-tile"><div class="d">@item.Appointment.StartTime.Day</div><div class="m">@item.Appointment.StartTime.ToString("MMM")</div></div>
+                        <div class="grow">
+                            <a class="title d-block text-decoration-none text-reset" asp-controller="Appointments" asp-action="Details" asp-route-id="@item.Appointment.Id">@item.Appointment.Purpose</a>
+                            <div class="meta">@item.Appointment.StartTime.ToString("ddd HH:mm") · @item.OtherPartyName</div>
+                        </div>
+                        <partial name="_AppointmentStatus" model="item.Appointment" />
+                    </li>
+                }
+            </ul>
+        </div>
 
-@if (Model.RecentFeedback.Count > 0)
-{
-    <h2>Latest from your trainer</h2>
-    <ul>
-        @foreach (var f in Model.RecentFeedback)
+        <!-- Quick actions -->
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-lightning"></i>Quick actions</h2></div>
+            <div class="card-ht-body">
+                <div class="quick-actions">
+                    <a class="quick-action" asp-controller="WorkoutLogs" asp-action="Create"><i class="bi bi-activity"></i>Log a workout</a>
+                    <a class="quick-action" asp-controller="MealLogs" asp-action="Create"><i class="bi bi-egg-fried"></i>Log a meal</a>
+                    <a class="quick-action" asp-controller="Measurements" asp-action="Create"><i class="bi bi-heart-pulse"></i>Record weight</a>
+                    <a class="quick-action" asp-controller="Appointments" asp-action="Create"><i class="bi bi-calendar-plus"></i>Book consultation</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+      @*   <div class="card-ht">
+            <div class="card-ht-header">
+                <h2 class="card-ht-title"><i class="bi bi-bell"></i>Recent notifications</h2>
+                <a class="small fw-bold" asp-controller="Notifications" asp-action="Index">All</a>
+            </div>
+            @if (Model.RecentNotifications.Count == 0)
+            {
+                <div class="empty-state"><i class="bi bi-bell-slash"></i><p>No notifications yet.</p></div>
+            }
+            <ul class="list-clean">
+                @foreach (var n in Model.RecentNotifications)
+                {
+                    <li class="list-row">
+                        <span class="icon-bubble"><i class="bi @DisplayHelpers.NotificationIcon(n.Type)"></i></span>
+                        <div class="grow">
+                            <div class="title @(n.IsRead ? "fw-semibold" : "")">@n.Title</div>
+                            <div class="meta">@DateHelpers.TimeAgo(n.CreatedAtUtc)</div>
+                        </div>
+                        @if (!n.IsRead) { <span class="status-dot text-primary"></span> }
+                    </li>
+                }
+            </ul>
+        </div> *@
+
+        @if (Model.RecentFeedback.Count > 0)
         {
-            <li>"@f.Feedback.Message" - @f.TrainerName, @DateHelpers.TimeAgo(f.Feedback.CreatedAtUtc)</li>
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-chat-heart"></i>Latest from your trainer</h2></div>
+                <ul class="list-clean">
+                    @foreach (var f in Model.RecentFeedback)
+                    {
+                        <li class="list-row"><div class="grow"><div>“@f.Feedback.Message”</div><div class="meta mt-1">@f.TrainerName · @DateHelpers.TimeAgo(f.Feedback.CreatedAtUtc)</div></div></li>
+                    }
+                </ul>
+            </div>
         }
-    </ul>
-}
+    </div>
+</div>

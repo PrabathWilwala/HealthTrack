@@ -4,8 +4,10 @@ using HealthTrack.Models;
 
 namespace HealthTrack.Services.Reporting;
 
-// Minimal, dependency-free PDF writer for text reports (headings, paragraphs,
-// key/value pairs and tables) on A4 pages using the standard Helvetica fonts.
+/// <summary>
+/// Minimal, dependency-free PDF writer for text reports (headings, paragraphs,
+/// key/value pairs and tables) on A4 pages using the standard Helvetica fonts.
+/// </summary>
 public sealed class SimplePdfDocument
 {
     private const float PageWidth = 595f;   // A4 in points
@@ -32,7 +34,7 @@ public sealed class SimplePdfDocument
         _y -= 18;
     }
 
-    // Adds a section heading.
+    /// <summary>Adds a section heading.</summary>
     public SimplePdfDocument Heading(string text)
     {
         EnsureSpace(34);
@@ -42,7 +44,7 @@ public sealed class SimplePdfDocument
         return this;
     }
 
-    // Adds word-wrapped body text.
+    /// <summary>Adds word-wrapped body text.</summary>
     public SimplePdfDocument Paragraph(string text)
     {
         foreach (var line in Wrap(text, 10, ContentWidth))
@@ -55,7 +57,7 @@ public sealed class SimplePdfDocument
         return this;
     }
 
-    // Adds a two-column list of labels and values.
+    /// <summary>Adds a two-column list of labels and values.</summary>
     public SimplePdfDocument KeyValues(IEnumerable<(string Key, string Value)> pairs)
     {
         foreach (var (key, value) in pairs)
@@ -69,7 +71,7 @@ public sealed class SimplePdfDocument
         return this;
     }
 
-    // Adds a table with a shaded header row; rows flow onto new pages automatically.
+    /// <summary>Adds a table with a shaded header row; rows flow onto new pages automatically.</summary>
     public SimplePdfDocument Table(IReadOnlyList<string> headers, IEnumerable<IReadOnlyList<string>> rows)
     {
         var rowList = rows.ToList();
@@ -117,7 +119,7 @@ public sealed class SimplePdfDocument
         return this;
     }
 
-    // Serialises the document to PDF 1.4 bytes.
+    /// <summary>Serialises the document to PDF 1.4 bytes.</summary>
     public byte[] Build()
     {
         var pdf = new StringBuilder();
@@ -204,7 +206,7 @@ public sealed class SimplePdfDocument
 
     private static string F(float value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
-    // Escapes PDF string delimiters and replaces non-ASCII characters.
+    /// <summary>Escapes PDF string delimiters and replaces non-ASCII characters.</summary>
     private static string Escape(string text)
     {
         var sb = new StringBuilder(text.Length);
@@ -227,7 +229,7 @@ public sealed class SimplePdfDocument
         return sb.ToString();
     }
 
-    // Approximate Helvetica width (average glyph ≈ 0.52 em).
+    /// <summary>Approximate Helvetica width (average glyph ≈ 0.52 em).</summary>
     private static float TextWidth(string text, float size) => text.Length * size * 0.52f;
 
     private static string Fit(string text, float size, float maxWidth)
@@ -273,10 +275,10 @@ public sealed class SimplePdfDocument
     }
 }
 
-// RFC 4180 CSV writer with protection against spreadsheet formula injection.
+/// <summary>RFC 4180 CSV writer with protection against spreadsheet formula injection.</summary>
 public static class CsvBuilder
 {
-    // Writes a valid PDF file (CSV/ICS variants return UTF-8 bytes).
+    /// <summary>Writes a valid PDF file (CSV/ICS variants return UTF-8 bytes).</summary>
     public static byte[] Build(IReadOnlyList<string> headers, IEnumerable<IReadOnlyList<string?>> rows)
     {
         var sb = new StringBuilder();
@@ -305,10 +307,10 @@ public static class CsvBuilder
     }
 }
 
-// Creates an iCalendar (.ics) file so an appointment can be added to any calendar app.
+/// <summary>Creates an iCalendar (.ics) file so an appointment can be added to any calendar app.</summary>
 public static class IcsBuilder
 {
-    // Writes a valid PDF file (CSV/ICS variants return UTF-8 bytes).
+    /// <summary>Writes a valid PDF file (CSV/ICS variants return UTF-8 bytes).</summary>
     public static byte[] Build(Appointment appointment, string summary, string description, string organizerName)
     {
         static string Utc(DateTime local) => local.ToUniversalTime().ToString("yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);

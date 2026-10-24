@@ -3,72 +3,93 @@
     var isEdit = Model.Id.HasValue;
     ViewData["Title"] = isEdit ? "Edit meal" : "Log a meal";
 }
-<h1>@ViewData["Title"]</h1>
-<p>Record what you ate and its nutritional values.</p>
-
-@if (Model.PlanMeals.Count > 0 && !isEdit)
-{
-    <h3>From your plan</h3>
-    <ul>
-        @foreach (var meal in Model.PlanMeals)
-        {
-            <li>@meal.MealType - @meal.Calories kcal - @meal.FoodItems <a asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Use</a></li>
-        }
-    </ul>
-}
-
-<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>
-        <label asp-for="MealType"></label><br />
-        <select asp-for="MealType" asp-items="Html.GetEnumSelectList<MealType>()"></select>
-    </p>
-    <p>
-        <label asp-for="LogDate"></label><br />
-        <input asp-for="LogDate" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="LogDate"></span>
-    </p>
-    <p>
-        <label asp-for="Portion"></label><br />
-        <input asp-for="Portion" />
-    </p>
-    <p>
-        <label asp-for="FoodItems"></label><br />
-        <input asp-for="FoodItems" size="50" />
-        <span asp-validation-for="FoodItems"></span>
-    </p>
-    <p>
-        <label asp-for="Calories">Calories (kcal)</label><br />
-        <input asp-for="Calories" type="number" min="0" max="5000" />
-        <span asp-validation-for="Calories"></span>
-    </p>
-    <p>
-        <label asp-for="ProteinG"></label><br />
-        <input asp-for="ProteinG" type="number" step="0.1" min="0" max="500" />
-        <span asp-validation-for="ProteinG"></span>
-    </p>
-    <p>
-        <label asp-for="CarbsG"></label><br />
-        <input asp-for="CarbsG" type="number" step="0.1" min="0" max="800" />
-        <span asp-validation-for="CarbsG"></span>
-    </p>
-    <p>
-        <label asp-for="FatG"></label><br />
-        <input asp-for="FatG" type="number" step="0.1" min="0" max="300" />
-        <span asp-validation-for="FatG"></span>
-    </p>
-    <p>
-        <label asp-for="Notes"></label><br />
-        <textarea asp-for="Notes" rows="2" cols="60"></textarea>
-    </p>
-    @if (Model.ActivePlanTitle != null)
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <p class="page-subtitle">Record what you ate and its nutritional values.</p>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="card-ht">
+            <div class="card-ht-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="MealType" class="form-label"></label>
+                        <select asp-for="MealType" class="form-select" asp-items="Html.GetEnumSelectList<MealType>()"></select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="LogDate" class="form-label"></label>
+                        <input asp-for="LogDate" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="LogDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Portion" class="form-label"></label>
+                        <input asp-for="Portion" class="form-control" placeholder="e.g. 1 plate" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="FoodItems" class="form-label"></label>
+                        <input asp-for="FoodItems" class="form-control" placeholder="e.g. Rice, chicken curry, salad" />
+                        <span asp-validation-for="FoodItems" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="Calories" class="form-label">Calories (kcal)</label>
+                        <input asp-for="Calories" class="form-control" type="number" min="0" max="5000" />
+                        <span asp-validation-for="Calories" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="ProteinG" class="form-label"></label>
+                        <input asp-for="ProteinG" class="form-control" type="number" step="0.1" min="0" max="500" />
+                        <span asp-validation-for="ProteinG" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="CarbsG" class="form-label"></label>
+                        <input asp-for="CarbsG" class="form-control" type="number" step="0.1" min="0" max="800" />
+                        <span asp-validation-for="CarbsG" class="text-danger"></span>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label asp-for="FatG" class="form-label"></label>
+                        <input asp-for="FatG" class="form-control" type="number" step="0.1" min="0" max="300" />
+                        <span asp-validation-for="FatG" class="text-danger"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                    </div>
+                    @if (Model.ActivePlanTitle != null)
+                    {
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input asp-for="LinkToPlan" class="form-check-input" />
+                                <label asp-for="LinkToPlan" class="form-check-label">Part of my diet plan “@Model.ActivePlanTitle”</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="card-ht-footer d-flex justify-content-between">
+                <a class="btn btn-light" asp-action="Index">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> @(isEdit ? "Save changes" : "Log meal")</button>
+            </div>
+        </form>
+    </div>
+    @if (Model.PlanMeals.Count > 0 && !isEdit)
     {
-        <p>
-            <input asp-for="LinkToPlan" />
-            <label asp-for="LinkToPlan">Part of my diet plan "@Model.ActivePlanTitle"</label>
-        </p>
+        <div class="col-xl-4">
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-basket"></i>From your plan</h2></div>
+                <ul class="list-clean">
+                    @foreach (var meal in Model.PlanMeals)
+                    {
+                        <li class="list-row">
+                            <div class="grow"><div class="title">@meal.MealType · @meal.Calories kcal</div><div class="meta">@meal.FoodItems</div></div>
+                            <a class="btn btn-light btn-sm" asp-action="Create" asp-route-fromPlanMeal="@meal.Id">Use</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
     }
-    <button type="submit">@(isEdit ? "Save changes" : "Log meal")</button>
-    <a asp-action="Index">Cancel</a>
-</form>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

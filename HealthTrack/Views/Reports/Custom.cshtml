@@ -19,81 +19,102 @@
         return "?" + string.Join("&", parts);
     }
 }
-<h1>Custom report builder</h1>
-<p>Choose metrics, a date range, a grouping and an optional user segment.</p>
-@if (Model != null)
-{
-    <p>Export: <a href="@ExportUrl("csv")">CSV</a> | <a href="@ExportUrl("pdf")">PDF</a></p>
-}
-<form method="get">
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Custom report builder</h1>
+        <p class="page-subtitle">Choose metrics, a date range, a grouping and an optional user segment.</p>
+    </div>
+    @if (Model != null)
+    {
+        <div class="page-actions">
+            <a class="btn btn-light" href="@ExportUrl("csv")"><i class="bi bi-filetype-csv"></i> CSV</a>
+            <a class="btn btn-primary" href="@ExportUrl("pdf")"><i class="bi bi-filetype-pdf"></i> PDF</a>
+        </div>
+    }
+</div>
+<form method="get" class="card-ht mb-4">
     <input type="hidden" name="run" value="true" />
-    <fieldset>
-        <legend>Metrics</legend>
-        @foreach (var m in metrics)
-        {
-            <input type="checkbox" name="metrics" value="@m" id="@("m" + (int)m)" checked="@request.Metrics.Contains(m)" />
-            <label for="@("m" + (int)m)">@AnalyticsService.MetricName(m)</label><br />
-        }
-    </fieldset>
-    <p>
-        <label for="from">From</label>
-        <input type="date" id="from" name="from" value="@request.From.ToString("yyyy-MM-dd")" />
-        <label for="to">To</label>
-        <input type="date" id="to" name="to" value="@request.To.ToString("yyyy-MM-dd")" />
-    </p>
-    <p>
-        <label for="grouping">Group by</label>
-        <select id="grouping" name="grouping">
-            @foreach (var g in Enum.GetValues<ReportGrouping>())
-            {
-                if (g == request.Grouping) { <option value="@g" selected>@g</option> }
-                else { <option value="@g">@g</option> }
-            }
-        </select>
-    </p>
-    <p>
-        <label for="trainerId">Segment: trainer</label>
-        <select id="trainerId" name="trainerId">
-            <option value="">All users</option>
-            @foreach (var t in trainers)
-            {
-                if (t.UserId == request.TrainerId) { <option value="@t.UserId" selected>Clients of @t.FullName</option> }
-                else { <option value="@t.UserId">Clients of @t.FullName</option> }
-            }
-        </select>
-    </p>
-    <p>
-        <label for="gender">Segment: gender</label>
-        <select id="gender" name="gender">
-            <option value="">Any</option>
-            @foreach (var gender in new[] { "Female", "Male", "Non-binary", "Other", "Prefer not to say" })
-            {
-                if (gender == request.Gender) { <option selected>@gender</option> }
-                else { <option>@gender</option> }
-            }
-        </select>
-    </p>
-    <button type="submit">Run report</button>
+    <div class="card-ht-body">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <label class="form-label">Metrics</label>
+                <div class="row g-1">
+                    @foreach (var m in metrics)
+                    {
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="metrics" value="@m" id="@("m" + (int)m)" checked="@request.Metrics.Contains(m)" />
+                                <label class="form-check-label small" for="@("m" + (int)m)">@AnalyticsService.MetricName(m)</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-3">
+                    <div class="col-sm-6"><label class="form-label" for="from">From</label><input class="form-control" type="date" id="from" name="from" value="@request.From.ToString("yyyy-MM-dd")" /></div>
+                    <div class="col-sm-6"><label class="form-label" for="to">To</label><input class="form-control" type="date" id="to" name="to" value="@request.To.ToString("yyyy-MM-dd")" /></div>
+                    <div class="col-sm-4">
+                        <label class="form-label" for="grouping">Group by</label>
+                        <select class="form-select" id="grouping" name="grouping">
+                            @foreach (var g in Enum.GetValues<ReportGrouping>())
+                            {
+                                if (g == request.Grouping) { <option value="@g" selected>@g</option> }
+                                else { <option value="@g">@g</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label" for="trainerId">Segment: trainer</label>
+                        <select class="form-select" id="trainerId" name="trainerId">
+                            <option value="">All users</option>
+                            @foreach (var t in trainers)
+                            {
+                                if (t.UserId == request.TrainerId) { <option value="@t.UserId" selected>Clients of @t.FullName</option> }
+                                else { <option value="@t.UserId">Clients of @t.FullName</option> }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label" for="gender">Segment: gender</label>
+                        <select class="form-select" id="gender" name="gender">
+                            <option value="">Any</option>
+                            @foreach (var gender in new[] { "Female", "Male", "Non-binary", "Other", "Prefer not to say" })
+                            {
+                                if (gender == request.Gender) { <option selected>@gender</option> }
+                                else { <option>@gender</option> }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary mt-4" type="submit"><i class="bi bi-play-fill"></i> Run report</button>
+            </div>
+        </div>
+    </div>
 </form>
 
 @if (Model != null)
 {
-    <h2>Results (@Model.SegmentDescription)</h2>
-    <canvas width="800" height="350" data-chart="@ChartJson.Serialize(Model.Chart)" data-type="@(request.Grouping == ReportGrouping.Day ? "line" : "bar")"></canvas>
-    <table border="1" cellpadding="4">
-        <thead><tr><th>Period</th>@foreach (var s in Model.Series) { <th>@AnalyticsService.MetricName(s.Metric)</th> }</tr></thead>
-        <tbody>
-            @for (var i = 0; i < Model.Periods.Count; i++)
-            {
-                <tr><td>@Model.Periods[i]</td>@foreach (var s in Model.Series) { <td>@(s.Values[i]?.ToString("0.#") ?? "-")</td> }</tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr><th>Total / avg.</th>@foreach (var s in Model.Series)
-            {
-                var vals = s.Values.Where(v => v.HasValue).Select(v => v!.Value).ToList();
-                <th>@(vals.Count == 0 ? "-" : (s.Metric == ReportMetric.AverageWeight ? vals.Average().ToString("0.#") : vals.Sum().ToString("0.#")))</th>
-            }</tr>
-        </tfoot>
-    </table>
+    <div class="card-ht">
+        <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-graph-up"></i>Results</h2><span class="badge-soft primary">@Model.SegmentDescription</span></div>
+        <div class="card-ht-body"><div class="chart-box lg"><canvas data-chart="@ChartJson.Serialize(Model.Chart)" data-type="@(request.Grouping == ReportGrouping.Day ? "line" : "bar")"></canvas></div></div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>Period</th>@foreach (var s in Model.Series) { <th>@AnalyticsService.MetricName(s.Metric)</th> }</tr></thead>
+                <tbody>
+                    @for (var i = 0; i < Model.Periods.Count; i++)
+                    {
+                        <tr><td class="fw-semibold">@Model.Periods[i]</td>@foreach (var s in Model.Series) { <td>@(s.Values[i]?.ToString("0.#") ?? "–")</td> }</tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold"><td>Total / avg.</td>@foreach (var s in Model.Series)
+                    {
+                        var vals = s.Values.Where(v => v.HasValue).Select(v => v!.Value).ToList();
+                        <td>@(vals.Count == 0 ? "–" : (s.Metric == ReportMetric.AverageWeight ? vals.Average().ToString("0.#") : vals.Sum().ToString("0.#")))</td>
+                    }</tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
 }

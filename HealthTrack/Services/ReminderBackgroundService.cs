@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Services;
 
-// Hosted background worker that periodically generates automated notifications:
-// appointment reminders (24 h and 1 h before), workout and meal reminders,
-// low-adherence alerts and daily client-activity summaries for trainers.
-// Every reminder carries a dedup key, so running the job often never creates duplicates.
+/// <summary>
+/// Hosted background worker that periodically generates automated notifications:
+/// appointment reminders (24 h and 1 h before), workout and meal reminders,
+/// low-adherence alerts and daily client-activity summaries for trainers.
+/// Every reminder carries a dedup key, so running the job often never creates duplicates.
+/// </summary>
 public sealed class ReminderBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
@@ -58,7 +60,7 @@ public sealed class ReminderBackgroundService : BackgroundService
         }
     }
 
-    // Runs every reminder rule once. Public so it can be triggered manually by an administrator.
+    /// <summary>Runs every reminder rule once. Public so it can be triggered manually by an administrator.</summary>
     public async Task RunOnceAsync()
     {
         using var scope = _scopeFactory.CreateScope();

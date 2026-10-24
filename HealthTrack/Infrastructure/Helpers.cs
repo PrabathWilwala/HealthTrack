@@ -52,8 +52,10 @@ public static class BmiCalculator
     };
 }
 
-// Estimates calories burned from MET values (metabolic equivalents):
-// kcal = MET × body weight (kg) × duration (hours).
+/// <summary>
+/// Estimates calories burned from MET values (metabolic equivalents):
+/// kcal = MET × body weight (kg) × duration (hours).
+/// </summary>
 public static class CalorieEstimator
 {
     public static int Estimate(IntensityLevel intensity, int minutes, decimal weightKg)

@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Data
 {
-    // EF Core database context: ASP.NET Core Identity tables plus all HealthTrack tables.
+    /// <summary>
+    /// EF Core database context: ASP.NET Core Identity tables plus all HealthTrack tables.
+    /// </summary>
     public class ApplicationDbContext : IdentityDbContext
     {
-        // Data Protection purpose string used for encrypting health data at rest.
+        /// <summary>Data Protection purpose string used for encrypting health data at rest.</summary>
         public const string HealthDataProtectionPurpose = "HealthTrack.HealthData.v1";
 
         private readonly IDataProtector _healthDataProtector;
@@ -319,7 +321,9 @@ namespace HealthTrack.Data
             ApplyEncryption(builder);
         }
 
-        // Finds every string property marked with [Encrypted] and attaches the encrypting converter.
+        /// <summary>
+        /// Finds every string property marked with [Encrypted] and attaches the encrypting converter.
+        /// </summary>
         private void ApplyEncryption(ModelBuilder builder)
         {
             var converter = new EncryptedStringConverter(_healthDataProtector);

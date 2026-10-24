@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HealthTrack.Models;
 
-// Effort level used by workout plans and workout logs.
+/// <summary>Effort level used by workout plans and workout logs.</summary>
 public enum IntensityLevel
 {
     Low = 1,
@@ -10,7 +10,7 @@ public enum IntensityLevel
     High = 3
 }
 
-// Meal slots used by diet plans and meal logs.
+/// <summary>Meal slots used by diet plans and meal logs.</summary>
 public enum MealType
 {
     Breakfast = 1,
@@ -19,7 +19,7 @@ public enum MealType
     Snack = 4
 }
 
-// Lifecycle of an appointment between a client and a trainer.
+/// <summary>Lifecycle of an appointment between a client and a trainer.</summary>
 public enum AppointmentStatus
 {
     Pending = 0,
@@ -29,7 +29,7 @@ public enum AppointmentStatus
     Completed = 4
 }
 
-// Which kind of client record a piece of trainer feedback refers to.
+/// <summary>Which kind of client record a piece of trainer feedback refers to.</summary>
 public enum FeedbackTarget
 {
     General = 0,
@@ -38,7 +38,7 @@ public enum FeedbackTarget
     Measurement = 3
 }
 
-// Category of an in-app notification. Used to apply user preferences.
+/// <summary>Category of an in-app notification. Used to apply user preferences.</summary>
 public enum NotificationType
 {
     [Display(Name = "Workout reminder")] WorkoutReminder = 1,
@@ -56,7 +56,7 @@ public enum NotificationType
     [Display(Name = "Announcement")] Broadcast = 13
 }
 
-// How often a trainer wants to hear about client log entries.
+/// <summary>How often a trainer wants to hear about client log entries.</summary>
 public enum ClientLogAlertFrequency
 {
     [Display(Name = "Off")] Off = 0,

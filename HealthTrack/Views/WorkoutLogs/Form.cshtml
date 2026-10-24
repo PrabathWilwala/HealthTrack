@@ -6,51 +6,65 @@
     var userId = User.GetUserId();
     var weight = Db.ClientProfiles.Where(c => c.UserId == userId).Select(c => c.WeightKg).FirstOrDefault();
 }
-<h1>@ViewData["Title"]</h1>
-<p>Record the type, length and intensity of your session.</p>
-<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post">
-    <div asp-validation-summary="ModelOnly"></div>
-    <p>
-        <label asp-for="ExerciseType"></label><br />
-        <input asp-for="ExerciseType" list="exerciseSuggestions" autofocus />
-        <datalist id="exerciseSuggestions">
-            @foreach (var s in Model.SuggestedExercises) { <option value="@s"></option> }
-        </datalist>
-        <span asp-validation-for="ExerciseType"></span>
-    </p>
-    <p>
-        <label asp-for="LogDate"></label><br />
-        <input asp-for="LogDate" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="LogDate"></span>
-    </p>
-    <p>
-        <label asp-for="DurationMinutes"></label><br />
-        <input asp-for="DurationMinutes" type="number" min="1" max="600" />
-        <span asp-validation-for="DurationMinutes"></span>
-    </p>
-    <p>
-        <label asp-for="Intensity"></label><br />
-        <select asp-for="Intensity" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
-    </p>
-    <p>
-        <label asp-for="CaloriesBurned"></label><br />
-        <input asp-for="CaloriesBurned" type="number" min="0" max="5000" />
-        <small>Leave empty to use the estimate: <b id="calorieEstimate" data-weight="@weight">0</b> kcal</small>
-        <span asp-validation-for="CaloriesBurned"></span>
-    </p>
-    <p>
-        <label asp-for="Notes"></label><br />
-        <textarea asp-for="Notes" rows="2" cols="60"></textarea>
-        <span asp-validation-for="Notes"></span>
-    </p>
-    @if (Model.ActivePlanTitle != null)
-    {
-        <p>
-            <input asp-for="LinkToPlan" />
-            <label asp-for="LinkToPlan">Part of my plan "@Model.ActivePlanTitle" (counts towards adherence)</label>
-        </p>
-    }
-    <button type="submit">@(isEdit ? "Save changes" : "Log workout")</button>
-    <a asp-action="Index">Cancel</a>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">@ViewData["Title"]</h1>
+        <p class="page-subtitle">Record the type, length and intensity of your session.</p>
+    </div>
+</div>
+<div class="row"><div class="col-xl-8">
+<form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="card-ht">
+    <div class="card-ht-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="ExerciseType" class="form-label"></label>
+                <input asp-for="ExerciseType" class="form-control" list="exerciseSuggestions" placeholder="e.g. Jogging" autofocus />
+                <datalist id="exerciseSuggestions">
+                    @foreach (var s in Model.SuggestedExercises) { <option value="@s"></option> }
+                </datalist>
+                <span asp-validation-for="ExerciseType" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="LogDate" class="form-label"></label>
+                <input asp-for="LogDate" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="LogDate" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="DurationMinutes" class="form-label"></label>
+                <input asp-for="DurationMinutes" class="form-control" type="number" min="1" max="600" />
+                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Intensity" class="form-label"></label>
+                <select asp-for="Intensity" class="form-select" asp-items="Html.GetEnumSelectList<IntensityLevel>()"></select>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="CaloriesBurned" class="form-label"></label>
+                <input asp-for="CaloriesBurned" class="form-control" type="number" min="0" max="5000" placeholder="Auto" />
+                <div class="form-text">Leave empty to use the estimate: <strong id="calorieEstimate" data-weight="@weight">0</strong> kcal</div>
+                <span asp-validation-for="CaloriesBurned" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="How did it feel?"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            @if (Model.ActivePlanTitle != null)
+            {
+                <div class="col-12">
+                    <div class="form-check">
+                        <input asp-for="LinkToPlan" class="form-check-input" />
+                        <label asp-for="LinkToPlan" class="form-check-label">Part of my plan “@Model.ActivePlanTitle” (counts towards adherence)</label>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card-ht-footer d-flex justify-content-between">
+        <a class="btn btn-light" asp-action="Index">Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> @(isEdit ? "Save changes" : "Log workout")</button>
+    </div>
 </form>
+</div></div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

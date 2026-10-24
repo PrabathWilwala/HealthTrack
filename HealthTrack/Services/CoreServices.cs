@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HealthTrack.Services;
 
-// Outcome of a business operation: success, or a user-friendly error message.
+/// <summary>Outcome of a business operation: success, or a user-friendly error message.</summary>
 public sealed record ServiceResult(bool Succeeded, string? Error)
 {
-    // Creates a successful result.
+    /// <summary>Creates a successful result.</summary>
     public static ServiceResult Ok() => new(true, null);
-    // Creates a failed result carrying a user-friendly error message.
+    /// <summary>Creates a failed result carrying a user-friendly error message.</summary>
     public static ServiceResult Fail(string error) => new(false, error);
 }
 
@@ -20,7 +20,7 @@ public sealed record ServiceResult(bool Succeeded, string? Error)
 // Audit logging
 // ============================================================================
 
-// Writes security-relevant and activity events to the AuditLogs table.
+/// <summary>Writes security-relevant and activity events to the AuditLogs table.</summary>
 public interface IAuditService
 {
     Task LogAsync(string category, string action, string? details = null,
@@ -40,7 +40,7 @@ public sealed class AuditService : IAuditService
         _logger = logger;
     }
 
-    // Writes an audit entry (user, IP address, category, action, details). Never throws.
+    /// <summary>Writes an audit entry (user, IP address, category, action, details). Never throws.</summary>
     public async Task LogAsync(string category, string action, string? details = null,
         bool isSecurityEvent = false, string? userId = null, string? userName = null)
     {
@@ -79,7 +79,7 @@ public sealed class AuditService : IAuditService
 // Email
 // ============================================================================
 
-// SMTP configuration read from the "Email" section of appsettings.json.
+/// <summary>SMTP configuration read from the "Email" section of appsettings.json.</summary>
 public sealed class EmailSettings
 {
     public string? SmtpHost { get; set; }
@@ -96,8 +96,10 @@ public interface IAppEmailSender
     Task SendAsync(string toAddress, string subject, string htmlBody);
 }
 
-// Sends email through SMTP when configured. Otherwise every message is saved as an .html file
-// under App_Data/Emails so the flows (verification, password reset) can be tested locally.
+/// <summary>
+/// Sends email through SMTP when configured. Otherwise every message is saved as an .html file
+/// under App_Data/Emails so the flows (verification, password reset) can be tested locally.
+/// </summary>
 public sealed class EmailSender : IAppEmailSender
 {
     private readonly EmailSettings _settings;
@@ -111,7 +113,7 @@ public sealed class EmailSender : IAppEmailSender
         _logger = logger;
     }
 
-    // Sends an HTML email via SMTP, or saves it to App_Data/Emails when SMTP is not configured.
+    /// <summary>Sends an HTML email via SMTP, or saves it to App_Data/Emails when SMTP is not configured.</summary>
     public async Task SendAsync(string toAddress, string subject, string htmlBody)
     {
         try
@@ -172,7 +174,7 @@ public static class SettingKeys
     public const string MaxCancellationsPerMonth = "Appointments.MaxCancellationsPerMonth";
     public const string AdherenceAlertThreshold = "Notifications.AdherenceAlertThreshold";
 
-    // Defaults used when a setting has never been saved.
+    /// <summary>Defaults used when a setting has never been saved.</summary>
     public static readonly IReadOnlyDictionary<string, string> Defaults = new Dictionary<string, string>
     {
         [MinBookingNoticeHours] = "2",
@@ -197,7 +199,7 @@ public sealed class SettingsService : ISettingsService
         _db = db;
     }
 
-    // Reads an integer policy setting, falling back to its default value.
+    /// <summary>Reads an integer policy setting, falling back to its default value.</summary>
     public async Task<int> GetIntAsync(string key)
     {
         var setting = await _db.SystemSettings.AsNoTracking().FirstOrDefaultAsync(s => s.Key == key);
@@ -205,7 +207,7 @@ public sealed class SettingsService : ISettingsService
         return int.TryParse(raw, out var value) ? value : 0;
     }
 
-    // Creates or updates a policy setting.
+    /// <summary>Creates or updates a policy setting.</summary>
     public async Task SetAsync(string key, string value)
     {
         var setting = await _db.SystemSettings.FirstOrDefaultAsync(s => s.Key == key);
@@ -240,7 +242,7 @@ public sealed class UserDirectory : IUserDirectory
         _db = db;
     }
 
-    // Maps user ids to the best available display name (profile full name, else username).
+    /// <summary>Maps user ids to the best available display name (profile full name, else username).</summary>
     public async Task<Dictionary<string, string>> GetDisplayNamesAsync(IEnumerable<string> userIds)
     {
         var ids = userIds.Where(id => !string.IsNullOrEmpty(id)).Distinct().ToList();
@@ -270,14 +272,14 @@ public sealed class UserDirectory : IUserDirectory
         return result;
     }
 
-    // Returns the display name of one user.
+    /// <summary>Returns the display name of one user.</summary>
     public async Task<string> GetDisplayNameAsync(string userId)
     {
         var names = await GetDisplayNamesAsync(new[] { userId });
         return names.TryGetValue(userId, out var name) ? name : "User";
     }
 
-    // Lists approved trainers with their specialisations and current number of clients.
+    /// <summary>Lists approved trainers with their specialisations and current number of clients.</summary>
     public async Task<List<TrainerOption>> GetApprovedTrainersAsync()
     {
         var trainers = await _db.TrainerProfiles.AsNoTracking()
@@ -298,7 +300,7 @@ public sealed class UserDirectory : IUserDirectory
             .ToList();
     }
 
-    // Returns the ids of every client assigned to the given trainer.
+    /// <summary>Returns the ids of every client assigned to the given trainer.</summary>
     public Task<List<string>> GetClientIdsForTrainerAsync(string trainerId) =>
         _db.ClientProfiles.AsNoTracking()
             .Where(c => c.TrainerId == trainerId)

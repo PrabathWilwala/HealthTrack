@@ -25,7 +25,7 @@ public class AppointmentRequestViewModel
     public List<TrainerOption> Trainers { get; set; } = new();
     public string? AssignedTrainerId { get; set; }
 
-    // Human-readable weekly availability per trainer id.
+    /// <summary>Human-readable weekly availability per trainer id.</summary>
     public Dictionary<string, List<string>> Availability { get; set; } = new();
 }
 
@@ -89,7 +89,7 @@ public class CalendarDay
 
 public class CalendarViewModel
 {
-    // "day", "week" or "month".
+    /// <summary>"day", "week" or "month".</summary>
     public string View { get; set; } = "month";
     public DateTime Date { get; set; } = DateTime.Today;
     public string Title { get; set; } = string.Empty;

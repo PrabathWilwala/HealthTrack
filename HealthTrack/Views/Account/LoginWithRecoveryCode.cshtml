@@ -2,17 +2,26 @@
 @{
     ViewData["Title"] = "Recovery code";
 }
-<h1>Sign in with a recovery code</h1>
-<p>Enter one of the recovery codes you saved when you turned on two-factor authentication. Each code works once.</p>
-<form asp-action="LoginWithRecoveryCode" method="post">
-    <div asp-validation-summary="ModelOnly" role="alert"></div>
-    <input asp-for="ReturnUrl" type="hidden" />
-    <p>
-        <label asp-for="RecoveryCode">Recovery code</label><br />
-        <input asp-for="RecoveryCode" autocomplete="off" autofocus />
-        <span asp-validation-for="RecoveryCode"></span>
-    </p>
-    <button type="submit">Sign in</button>
-</form>
-<p><a asp-action="Login">Back to sign in</a></p>
+<link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+<div class="ht-auth-page">
+    <section class="ht-auth-card">
+        <partial name="_AuthBrand" />
+        <header class="ht-auth-heading">
+            <p class="ht-eyebrow">ACCOUNT RECOVERY</p>
+            <h1>Sign in with a recovery code</h1>
+            <p>Enter one of the recovery codes you saved when you turned on two-factor authentication. Each code works once.</p>
+        </header>
+        <form asp-action="LoginWithRecoveryCode" method="post">
+            <div asp-validation-summary="ModelOnly" class="ht-validation-summary" role="alert"></div>
+            <input asp-for="ReturnUrl" type="hidden" />
+            <div class="ht-field">
+                <label asp-for="RecoveryCode">Recovery code</label>
+                <input asp-for="RecoveryCode" class="ht-control" autocomplete="off" placeholder="XXXXX-XXXXX" autofocus />
+                <span asp-validation-for="RecoveryCode" class="ht-field-error"></span>
+            </div>
+            <button type="submit" class="ht-primary-button">Sign in</button>
+            <p class="ht-auth-switch"><a asp-action="Login">Back to sign in</a></p>
+        </form>
+    </section>
+</div>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

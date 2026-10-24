@@ -5,73 +5,71 @@
     var isTrainer = Model.Role == RoleNames.Trainer;
     var isAdmin = Model.Role == RoleNames.Administrator;
 }
-<h1>Notification preferences</h1>
-<p>Choose what you're notified about and how. Security alerts and announcements are always delivered.</p>
-<form asp-action="Preferences" method="post">
-    <h3>Channels</h3>
-    <p>
-        <input asp-for="EmailNotifications" />
-        <label asp-for="EmailNotifications"></label><br />
-        <small>In-app notifications are always on. Email requires SMTP to be configured by the administrator.</small>
-    </p>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Notification preferences</h1>
+        <p class="page-subtitle">Choose what you're notified about and how. Security alerts and announcements are always delivered.</p>
+    </div>
+</div>
+<div class="row"><div class="col-xl-8">
+<form asp-action="Preferences" method="post" class="card-ht">
+    <div class="card-ht-body">
+        <h3 class="h6 mb-3">Channels</h3>
+        <div class="form-check form-switch mb-4">
+            <input asp-for="EmailNotifications" class="form-check-input" role="switch" />
+            <label asp-for="EmailNotifications" class="form-check-label"></label>
+            <div class="form-text">In-app notifications are always on. Email requires SMTP to be configured by the administrator.</div>
+        </div>
 
-    <h3>What to notify me about</h3>
-    @if (isClient)
-    {
-        <p>
-            <input asp-for="WorkoutReminders" />
-            <label asp-for="WorkoutReminders"></label>
-            - <label for="WorkoutReminderTime">Remind me after</label>
-            <input type="time" id="WorkoutReminderTime" name="WorkoutReminderTime" value="@Model.WorkoutReminderTime.ToString("hh\\:mm")" />
-        </p>
-        <p>
-            <input asp-for="MealReminders" />
-            <label asp-for="MealReminders"></label>
-            - <label for="MealReminderTime">Remind me after</label>
-            <input type="time" id="MealReminderTime" name="MealReminderTime" value="@Model.MealReminderTime.ToString("hh\\:mm")" />
-        </p>
-        <p><input asp-for="PlanUpdates" /> <label asp-for="PlanUpdates"></label></p>
-        <p><input asp-for="FeedbackAlerts" /> <label asp-for="FeedbackAlerts"></label></p>
-    }
-    else
-    {
-        <input type="hidden" name="WorkoutReminders" value="@Model.WorkoutReminders.ToString().ToLower()" />
-        <input type="hidden" name="MealReminders" value="@Model.MealReminders.ToString().ToLower()" />
-        <input type="hidden" name="PlanUpdates" value="@Model.PlanUpdates.ToString().ToLower()" />
-        <input type="hidden" name="FeedbackAlerts" value="@Model.FeedbackAlerts.ToString().ToLower()" />
-        <input type="hidden" name="WorkoutReminderTime" value="@Model.WorkoutReminderTime.ToString("hh\\:mm")" />
-        <input type="hidden" name="MealReminderTime" value="@Model.MealReminderTime.ToString("hh\\:mm")" />
-    }
-    <p>
-        <input asp-for="AppointmentAlerts" />
-        <label asp-for="AppointmentAlerts"></label>
-        <small>(includes reminders 24 hours and 1 hour before)</small>
-    </p>
-    @if (isTrainer)
-    {
-        <p>
-            <input asp-for="AdherenceAlerts" />
-            <label asp-for="AdherenceAlerts"></label>
-            <small>(when a client's weekly adherence falls below the threshold)</small>
-        </p>
-        <p>
-            <label asp-for="ClientLogAlerts"></label><br />
-            <select asp-for="ClientLogAlerts" asp-items="Html.GetEnumSelectList<ClientLogAlertFrequency>()"></select>
-            <small>Get notified when clients log workouts, meals or measurements.</small>
-        </p>
-    }
-    else
-    {
-        <input type="hidden" name="AdherenceAlerts" value="@Model.AdherenceAlerts.ToString().ToLower()" />
-        <input type="hidden" name="ClientLogAlerts" value="@((int)Model.ClientLogAlerts)" />
-    }
-    @if (isAdmin || isTrainer)
-    {
-        <p><input asp-for="SystemAlerts" /> <label asp-for="SystemAlerts"></label></p>
-    }
-    else
-    {
-        <input type="hidden" name="SystemAlerts" value="@Model.SystemAlerts.ToString().ToLower()" />
-    }
-    <button type="submit">Save preferences</button>
+        <h3 class="h6 mb-3">What to notify me about</h3>
+        <div class="row g-3">
+            @if (isClient)
+            {
+                <div class="col-md-6">
+                    <div class="form-check form-switch"><input asp-for="WorkoutReminders" class="form-check-input" role="switch" /><label asp-for="WorkoutReminders" class="form-check-label"></label></div>
+                    <div class="d-flex align-items-center gap-2 mt-1 ms-4"><label class="small text-muted" for="WorkoutReminderTime">Remind me after</label><input type="time" class="form-control form-control-sm" style="max-width:130px" id="WorkoutReminderTime" name="WorkoutReminderTime" value="@Model.WorkoutReminderTime.ToString("hh\\:mm")" /></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch"><input asp-for="MealReminders" class="form-check-input" role="switch" /><label asp-for="MealReminders" class="form-check-label"></label></div>
+                    <div class="d-flex align-items-center gap-2 mt-1 ms-4"><label class="small text-muted" for="MealReminderTime">Remind me after</label><input type="time" class="form-control form-control-sm" style="max-width:130px" id="MealReminderTime" name="MealReminderTime" value="@Model.MealReminderTime.ToString("hh\\:mm")" /></div>
+                </div>
+                <div class="col-md-6"><div class="form-check form-switch"><input asp-for="PlanUpdates" class="form-check-input" role="switch" /><label asp-for="PlanUpdates" class="form-check-label"></label></div></div>
+                <div class="col-md-6"><div class="form-check form-switch"><input asp-for="FeedbackAlerts" class="form-check-input" role="switch" /><label asp-for="FeedbackAlerts" class="form-check-label"></label></div></div>
+            }
+            else
+            {
+                <input type="hidden" name="WorkoutReminders" value="@Model.WorkoutReminders.ToString().ToLower()" />
+                <input type="hidden" name="MealReminders" value="@Model.MealReminders.ToString().ToLower()" />
+                <input type="hidden" name="PlanUpdates" value="@Model.PlanUpdates.ToString().ToLower()" />
+                <input type="hidden" name="FeedbackAlerts" value="@Model.FeedbackAlerts.ToString().ToLower()" />
+                <input type="hidden" name="WorkoutReminderTime" value="@Model.WorkoutReminderTime.ToString("hh\\:mm")" />
+                <input type="hidden" name="MealReminderTime" value="@Model.MealReminderTime.ToString("hh\\:mm")" />
+            }
+            <div class="col-md-6"><div class="form-check form-switch"><input asp-for="AppointmentAlerts" class="form-check-input" role="switch" /><label asp-for="AppointmentAlerts" class="form-check-label"></label><div class="form-text">Includes reminders 24 hours and 1 hour before.</div></div></div>
+            @if (isTrainer)
+            {
+                <div class="col-md-6"><div class="form-check form-switch"><input asp-for="AdherenceAlerts" class="form-check-input" role="switch" /><label asp-for="AdherenceAlerts" class="form-check-label"></label><div class="form-text">When a client's weekly adherence falls below the threshold.</div></div></div>
+                <div class="col-md-6">
+                    <label asp-for="ClientLogAlerts" class="form-label"></label>
+                    <select asp-for="ClientLogAlerts" class="form-select" asp-items="Html.GetEnumSelectList<ClientLogAlertFrequency>()"></select>
+                    <div class="form-text">Get notified when clients log workouts, meals or measurements.</div>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" name="AdherenceAlerts" value="@Model.AdherenceAlerts.ToString().ToLower()" />
+                <input type="hidden" name="ClientLogAlerts" value="@((int)Model.ClientLogAlerts)" />
+            }
+            @if (isAdmin || isTrainer)
+            {
+                <div class="col-md-6"><div class="form-check form-switch"><input asp-for="SystemAlerts" class="form-check-input" role="switch" /><label asp-for="SystemAlerts" class="form-check-label"></label></div></div>
+            }
+            else
+            {
+                <input type="hidden" name="SystemAlerts" value="@Model.SystemAlerts.ToString().ToLower()" />
+            }
+        </div>
+    </div>
+    <div class="card-ht-footer text-end"><button type="submit" class="btn btn-primary">Save preferences</button></div>
 </form>
+</div></div>

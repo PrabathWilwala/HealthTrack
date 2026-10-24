@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HealthTrack.Models;
 
-// An in-app notification shown in the notification centre.
+/// <summary>An in-app notification shown in the notification centre.</summary>
 public class Notification
 {
     public int Id { get; set; }
@@ -23,14 +23,14 @@ public class Notification
 
     public bool IsRead { get; set; }
 
-    // Optional key that prevents the same automated reminder being sent twice.
+    /// <summary>Optional key that prevents the same automated reminder being sent twice.</summary>
     [StringLength(150)]
     public string? DedupKey { get; set; }
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// Per-user notification settings. A missing row means "use the defaults".
+/// <summary>Per-user notification settings. A missing row means "use the defaults".</summary>
 public class NotificationPreference
 {
     [Required, StringLength(450)]
@@ -46,18 +46,18 @@ public class NotificationPreference
 
     public ClientLogAlertFrequency ClientLogAlerts { get; set; } = ClientLogAlertFrequency.DailyDigest;
 
-    // Also deliver notifications by email.
+    /// <summary>Also deliver notifications by email.</summary>
     public bool EmailNotifications { get; set; }
 
-    // Time of day after which a workout reminder is sent if nothing was logged.
+    /// <summary>Time of day after which a workout reminder is sent if nothing was logged.</summary>
     public TimeSpan WorkoutReminderTime { get; set; } = new(18, 0, 0);
 
-    // Time of day after which a meal reminder is sent if nothing was logged.
+    /// <summary>Time of day after which a meal reminder is sent if nothing was logged.</summary>
     public TimeSpan MealReminderTime { get; set; } = new(13, 0, 0);
 
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
-    // Decides whether a notification of the given type should be delivered.
+    /// <summary>Decides whether a notification of the given type should be delivered.</summary>
     public bool Allows(NotificationType type) => type switch
     {
         NotificationType.WorkoutReminder => WorkoutReminders,
@@ -75,7 +75,7 @@ public class NotificationPreference
     };
 }
 
-// Editable text used for automated notifications. Tokens look like {ClientName}.
+/// <summary>Editable text used for automated notifications. Tokens look like {ClientName}.</summary>
 public class NotificationTemplate
 {
     public int Id { get; set; }
@@ -95,7 +95,7 @@ public class NotificationTemplate
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// Security and activity audit trail entry.
+/// <summary>Security and activity audit trail entry.</summary>
 public class AuditLog
 {
     public int Id { get; set; }
@@ -106,7 +106,7 @@ public class AuditLog
     [StringLength(256)]
     public string? UserName { get; set; }
 
-    // Feature area, e.g. "Auth", "Workout", "Admin". Used for usage statistics.
+    /// <summary>Feature area, e.g. "Auth", "Workout", "Admin". Used for usage statistics.</summary>
     [Required, StringLength(50)]
     public string Category { get; set; } = string.Empty;
 
@@ -124,7 +124,7 @@ public class AuditLog
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-// Simple key/value store for administrator-managed policies.
+/// <summary>Simple key/value store for administrator-managed policies.</summary>
 public class SystemSetting
 {
     [Required, StringLength(100)]
