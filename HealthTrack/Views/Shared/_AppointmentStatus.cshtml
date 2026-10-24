@@ -1,6 +1,6 @@
 @model Appointment
-<span>@Model.Status</span>
+<span class="badge-soft @DisplayHelpers.StatusClass(Model.Status)"><span class="status-dot"></span>@Model.Status</span>
 @if (Model.ProposedStartTime != null)
 {
-    <span>(Reschedule requested: @Model.ProposedStartTime.Value.ToString("ddd dd MMM, HH:mm"))</span>
+    <span class="badge-soft teal ms-1" title="Proposed: @Model.ProposedStartTime.Value.ToString("ddd dd MMM, HH:mm")"><i class="bi bi-arrow-repeat"></i>Reschedule requested</span>
 }

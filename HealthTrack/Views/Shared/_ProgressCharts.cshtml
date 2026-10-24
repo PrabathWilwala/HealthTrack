@@ -1,58 +1,90 @@
 @model ClientProgressReport
 @* Shared progress analytics used by the client's Progress page and the trainer/admin client report. *@
-<h3>Summary</h3>
-<table border="1" cellpadding="4">
-    <tr><th>Current weight</th><td>@Model.CurrentWeight.ToString("0.0") kg</td><td>Change in period: @DisplayHelpers.Signed(Model.WeightChange, " kg")</td></tr>
-    <tr><th>BMI</th><td>@Model.CurrentBmi.ToString("0.0")</td><td>@Model.BmiCategory, height @Model.HeightCm.ToString("0") cm</td></tr>
-    <tr><th>Calories burned</th><td>@Model.TotalCaloriesBurned.ToString("N0") kcal</td><td>@Model.TotalWorkouts sessions, @Model.TotalWorkoutMinutes min</td></tr>
-    <tr><th>Avg. daily intake</th><td>@Model.AverageDailyIntake.ToString("N0") kcal</td><td>Target @Model.CalorieTarget kcal</td></tr>
-</table>
+<div class="stat-grid">
+    <div class="stat-card"><div class="stat-icon"><i class="bi bi-speedometer"></i></div><div class="stat-label">Current weight</div><div class="stat-value">@Model.CurrentWeight.ToString("0.0")<small> kg</small></div><div class="stat-meta">Change in period: @DisplayHelpers.Signed(Model.WeightChange, " kg")</div></div>
+    <div class="stat-card"><div class="stat-icon teal"><i class="bi bi-calculator"></i></div><div class="stat-label">BMI</div><div class="stat-value">@Model.CurrentBmi.ToString("0.0")</div><div class="stat-meta">@Model.BmiCategory · height @Model.HeightCm.ToString("0") cm</div></div>
+    <div class="stat-card"><div class="stat-icon amber"><i class="bi bi-fire"></i></div><div class="stat-label">Calories burned</div><div class="stat-value">@Model.TotalCaloriesBurned.ToString("N0")<small> kcal</small></div><div class="stat-meta">@Model.TotalWorkouts sessions · @Model.TotalWorkoutMinutes min</div></div>
+    <div class="stat-card"><div class="stat-icon green"><i class="bi bi-egg-fried"></i></div><div class="stat-label">Avg. daily intake</div><div class="stat-value">@Model.AverageDailyIntake.ToString("N0")<small> kcal</small></div><div class="stat-meta">Target @Model.CalorieTarget kcal</div></div>
+</div>
 
-<h3>Weight trend (by @Model.Grouping.ToString().ToLower())</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.WeightChart)" data-type="line" data-y-label="kg"></canvas>
-
-<h3>Goal progress</h3>
-<p>Progress: @DisplayHelpers.Percent(Model.Goal.Percent)</p>
-<p>@Model.Goal.Description</p>
-<p>
-    Start: @Model.Goal.StartWeight.ToString("0.0") kg |
-    Now: @Model.Goal.CurrentWeight.ToString("0.0") kg |
-    Target: @(Model.Goal.TargetWeight?.ToString("0.0") ?? "-") kg
-</p>
-<p>
-    Workout adherence: @DisplayHelpers.Percent(Model.Adherence.WorkoutPercent) |
-    Diet adherence: @DisplayHelpers.Percent(Model.Adherence.DietPercent)
-</p>
-
-<h3>BMI trend</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.BmiChart)" data-type="line"></canvas>
-
-<h3>Calories burned</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.CaloriesBurnedChart)" data-type="bar" data-y-label="kcal"></canvas>
-
-<h3>Calorie intake vs target</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.NutritionChart)" data-type="bar" data-y-label="kcal"></canvas>
-
-<h3>Macronutrients vs targets</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.MacroChart)" data-type="bar" data-y-label="g / day"></canvas>
-
-<h3>Workout frequency (per week)</h3>
-<canvas width="700" height="300" data-chart="@ChartJson.Serialize(Model.WorkoutFrequencyChart)" data-type="bar" data-y-label="sessions"></canvas>
-
-<h3>This month vs last month</h3>
-<table border="1" cellpadding="4">
-    <thead><tr><th>Metric</th><th>Last month</th><th>This month</th><th>Change</th></tr></thead>
-    <tbody>
-        @foreach (var c in Model.MonthComparison)
-        {
-            <tr>
-                <td>@c.Metric</td>
-                <td>@(c.Previous?.ToString("0.#") ?? "-") @c.Unit</td>
-                <td>@(c.Current?.ToString("0.#") ?? "-") @c.Unit</td>
-                <td>@(c.Change.HasValue ? c.Change.Value.ToString("+0.#;-0.#;0") : "-")
-                    @if (c.IsImprovement == true) { <text>(better)</text> } else if (c.IsImprovement == false) { <text>(worse)</text> }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="card-ht">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-graph-down"></i>Weight trend</h2><span class="small text-muted">by @Model.Grouping.ToString().ToLower()</span></div>
+            <div class="card-ht-body"><div class="chart-box"><canvas data-chart="@ChartJson.Serialize(Model.WeightChart)" data-type="line" data-y-label="kg"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-trophy"></i>Goal progress</h2></div>
+            <div class="card-ht-body text-center">
+                <div class="ring mx-auto mb-3" style="--value:@(Model.Goal.Percent ?? 0);--color:var(--ht-teal)"><span>@DisplayHelpers.Percent(Model.Goal.Percent)</span></div>
+                <p class="mb-2">@Model.Goal.Description</p>
+                <div class="d-flex justify-content-around small">
+                    <div><div class="small-caps">Start</div><strong>@Model.Goal.StartWeight.ToString("0.0") kg</strong></div>
+                    <div><div class="small-caps">Now</div><strong>@Model.Goal.CurrentWeight.ToString("0.0") kg</strong></div>
+                    <div><div class="small-caps">Target</div><strong>@(Model.Goal.TargetWeight?.ToString("0.0") ?? "–") kg</strong></div>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-around small">
+                    <div><div class="small-caps">Workout adherence</div><strong class="fs-5">@DisplayHelpers.Percent(Model.Adherence.WorkoutPercent)</strong></div>
+                    <div><div class="small-caps">Diet adherence</div><strong class="fs-5">@DisplayHelpers.Percent(Model.Adherence.DietPercent)</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calculator"></i>BMI trend</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.BmiChart)" data-type="line"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-fire"></i>Calories burned</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.CaloriesBurnedChart)" data-type="bar" data-y-label="kcal"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-egg-fried"></i>Calorie intake vs target</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.NutritionChart)" data-type="bar" data-y-label="kcal"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-pie-chart"></i>Macronutrients vs targets</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.MacroChart)" data-type="bar" data-y-label="g / day"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calendar-week"></i>Workout frequency (per week)</h2></div>
+            <div class="card-ht-body"><div class="chart-box sm"><canvas data-chart="@ChartJson.Serialize(Model.WorkoutFrequencyChart)" data-type="bar" data-y-label="sessions"></canvas></div></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-ht h-100">
+            <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-arrow-left-right"></i>This month vs last month</h2></div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead><tr><th>Metric</th><th>Last month</th><th>This month</th><th>Change</th></tr></thead>
+                    <tbody>
+                        @foreach (var c in Model.MonthComparison)
+                        {
+                            var css = c.IsImprovement == true ? "trend-up" : c.IsImprovement == false ? "trend-down" : "";
+                            <tr>
+                                <td class="fw-semibold">@c.Metric</td>
+                                <td>@(c.Previous?.ToString("0.#") ?? "–") @c.Unit</td>
+                                <td>@(c.Current?.ToString("0.#") ?? "–") @c.Unit</td>
+                                <td class="@css">@(c.Change.HasValue ? c.Change.Value.ToString("+0.#;-0.#;0") : "–")
+                                    @if (c.IsImprovement == true) { <i class="bi bi-arrow-up-right"></i> } else if (c.IsImprovement == false) { <i class="bi bi-arrow-down-right"></i> }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

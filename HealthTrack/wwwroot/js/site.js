@@ -3,20 +3,28 @@
 // - Confirms destructive actions (forms with data-confirm)
 // - Signs users out automatically after inactivity
 // - Adds/removes rows in the plan editors
-// - Keeps the unread notification count up to date
+// - Keeps the notification badge up to date
 (function () {
     'use strict';
+
+    var palette = ['#2563eb', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#0ea5e9', '#10b981', '#64748b'];
 
     // ------------------------------------------------------------------ charts
     function renderCharts() {
         if (typeof Chart === 'undefined') {
             document.querySelectorAll('canvas[data-chart]').forEach(function (c) {
                 var note = document.createElement('p');
+                note.className = 'text-muted small mb-0';
                 note.textContent = 'Charts need an internet connection (Chart.js CDN).';
                 c.replaceWith(note);
             });
             return;
         }
+
+        Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+        Chart.defaults.color = '#667085';
+        Chart.defaults.plugins.legend.labels.boxWidth = 10;
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
 
         document.querySelectorAll('canvas[data-chart]').forEach(function (canvas) {
             var data;
@@ -26,9 +34,35 @@
             var stacked = canvas.hasAttribute('data-stacked');
             var yLabel = canvas.getAttribute('data-y-label');
             var suggestedMax = canvas.getAttribute('data-max');
-            var isPie = type === 'doughnut' || type === 'pie';
 
-            (data.datasets || []).forEach(function (ds) {
+            var isPie = type === 'doughnut' || type === 'pie';
+            (data.datasets || []).forEach(function (ds, i) {
+                var color = palette[i % palette.length];
+                if (isPie) {
+                    ds.backgroundColor = palette.slice(0, (ds.data || []).length);
+                    ds.borderColor = '#fff';
+                    ds.borderWidth = 2;
+                    if (ds.type == null) delete ds.type;
+                    return;
+                }
+                var dsType = ds.type || type;
+                ds.borderColor = color;
+                ds.backgroundColor = dsType === 'line' ? color + '22' : color + 'cc';
+                ds.borderWidth = dsType === 'line' ? 2.5 : 0;
+                ds.borderRadius = dsType === 'bar' ? 6 : 0;
+                ds.pointRadius = dsType === 'line' ? 2.5 : 0;
+                ds.pointHoverRadius = 5;
+                ds.tension = 0.35;
+                ds.spanGaps = true;
+                ds.fill = dsType === 'line' && i === 0 && (data.datasets.length === 1);
+                if (ds.label && /target/i.test(ds.label)) {
+                    ds.borderDash = [6, 5];
+                    ds.pointRadius = 0;
+                    ds.fill = false;
+                    ds.borderColor = '#94a3b8';
+                    ds.backgroundColor = '#94a3b8';
+                    ds.borderWidth = 2;
+                }
                 if (ds.type == null) delete ds.type;
             });
 
@@ -36,15 +70,16 @@
                 type: type,
                 data: data,
                 options: {
-                    responsive: false,
-                    animation: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     indexAxis: horizontal ? 'y' : 'x',
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: isPie || (data.datasets || []).length > 1, position: 'bottom' } },
                     scales: isPie ? {} : {
-                        x: { stacked: stacked },
+                        x: { stacked: stacked, grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
                         y: {
-                            stacked: stacked, beginAtZero: type === 'bar',
-                            suggestedMax: suggestedMax ? Number(suggestedMax) : undefined,
-                            title: { display: !!yLabel, text: yLabel || '' }
+                            stacked: stacked, beginAtZero: type === 'bar', suggestedMax: suggestedMax ? Number(suggestedMax) : undefined,
+                            grid: { color: '#eef1f6' }, title: { display: !!yLabel, text: yLabel || '' }
                         }
                     }
                 }
@@ -63,21 +98,34 @@
         });
     }
 
+    // ------------------------------------------------------------------ sidebar
+    function wireSidebar() {
+        document.querySelectorAll('[data-sidebar-toggle]').forEach(function (b) {
+            b.addEventListener('click', function () { document.body.classList.toggle('sidebar-open'); });
+        });
+        document.querySelectorAll('[data-sidebar-close]').forEach(function (b) {
+            b.addEventListener('click', function () { document.body.classList.remove('sidebar-open'); });
+        });
+    }
+
     // ------------------------------------------------------------------ inactivity sign-out
     function wireIdleTimeout() {
         var minutes = parseInt(document.body.getAttribute('data-idle-minutes') || '0', 10);
         var form = document.getElementById('idleLogoutForm');
-        var warning = document.getElementById('idleWarning');
-        var countdown = document.getElementById('idleCountdown');
+        var modalEl = document.getElementById('idleModal');
         if (!minutes || !form) return;
 
         var limit = minutes * 60 * 1000;
         var warnAt = limit - 60 * 1000;
         var last = Date.now();
+        var warned = false;
+        var modal = modalEl && window.bootstrap ? new bootstrap.Modal(modalEl) : null;
+        var countdown = document.getElementById('idleCountdown');
 
         function activity() {
             last = Date.now();
-            if (warning) warning.hidden = true;
+            if (warned && modal) { modal.hide(); }
+            warned = false;
         }
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(function (evt) {
             window.addEventListener(evt, activity, { passive: true });
@@ -88,18 +136,19 @@
             if (idle >= limit) {
                 form.submit();
             } else if (idle >= warnAt) {
-                if (warning) warning.hidden = false;
+                if (!warned && modal) { modal.show(); }
+                warned = true;
                 if (countdown) countdown.textContent = Math.ceil((limit - idle) / 1000);
             }
         }, 1000);
     }
 
     // ------------------------------------------------------------------ dynamic rows (plan editors)
-    // A container [data-rows] holds [data-row] children and a <template data-row-template>.
+    // A container [data-rows] holds .row-editor children and a <template data-row-template>.
     // Inputs use the placeholder __i__ which is replaced by the row index.
     function reindex(container) {
         var prefix = container.getAttribute('data-rows');
-        container.querySelectorAll('[data-row]').forEach(function (row, index) {
+        container.querySelectorAll('.row-editor').forEach(function (row, index) {
             row.querySelectorAll('[name]').forEach(function (input) {
                 input.name = input.name.replace(new RegExp(prefix + '\\[(\\d+|__i__)\\]'), prefix + '[' + index + ']');
                 if (input.id) input.id = input.id.replace(/_(\d+|__i__)__/, '_' + index + '__');
@@ -107,7 +156,7 @@
             row.querySelectorAll('[data-valmsg-for]').forEach(function (span) {
                 span.setAttribute('data-valmsg-for', span.getAttribute('data-valmsg-for').replace(/\[(\d+|__i__)\]/, '[' + index + ']'));
             });
-            var label = row.querySelector('[data-row-number]');
+            var label = row.querySelector('.row-number');
             if (label) label.textContent = index + 1;
         });
         updateTotals(container);
@@ -134,11 +183,11 @@
                 });
             }
             container.addEventListener('click', function (e) {
-                var btn = e.target.closest('[data-remove-row]');
+                var btn = e.target.closest('.remove-row');
                 if (!btn) return;
-                var rows = container.querySelectorAll('[data-row]');
+                var rows = container.querySelectorAll('.row-editor');
                 if (rows.length <= 1) { alert('At least one row is required.'); return; }
-                btn.closest('[data-row]').remove();
+                btn.closest('.row-editor').remove();
                 reindex(container);
             });
             container.addEventListener('input', function () { updateTotals(container); });
@@ -146,16 +195,17 @@
         });
     }
 
-    // ------------------------------------------------------------------ unread notification count polling
+    // ------------------------------------------------------------------ notification badge polling
     function wireNotificationPolling() {
-        var counter = document.querySelector('[data-unread-count]');
-        if (!counter) return;
+        var badge = document.querySelector('[data-unread-badge]');
+        if (!badge) return;
         setInterval(function () {
             fetch('/Notifications/UnreadCount', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
                 .then(function (r) { return r.ok ? r.json() : null; })
                 .then(function (data) {
                     if (!data) return;
-                    counter.textContent = data.count > 99 ? '99+' : data.count;
+                    badge.textContent = data.count > 99 ? '99+' : data.count;
+                    badge.hidden = data.count === 0;
                 })
                 .catch(function () { /* offline: ignore */ });
         }, 60000);
@@ -170,7 +220,7 @@
             input.addEventListener('input', function () {
                 var term = input.value.toLowerCase();
                 table.querySelectorAll('tbody tr').forEach(function (tr) {
-                    tr.hidden = tr.textContent.toLowerCase().indexOf(term) < 0;
+                    tr.style.display = tr.textContent.toLowerCase().indexOf(term) >= 0 ? '' : 'none';
                 });
             });
         });
@@ -208,6 +258,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         renderCharts();
         wireConfirmations();
+        wireSidebar();
         wireIdleTimeout();
         wireRowEditors();
         wireNotificationPolling();

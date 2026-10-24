@@ -1,21 +1,27 @@
 @* Flash messages set through TempData by controllers. *@
 @{
-    var messages = new (string Key, string Label)[]
+    var messages = new (string Key, string Css, string Icon)[]
     {
-        ("Success", "Success"),
-        ("Error", "Error"),
-        ("Warning", "Warning"),
-        ("Info", "Info")
+        ("Success", "alert-success", "bi-check-circle"),
+        ("Error", "alert-danger", "bi-exclamation-octagon"),
+        ("Warning", "alert-warning", "bi-exclamation-triangle"),
+        ("Info", "alert-info", "bi-info-circle")
     };
 }
-@foreach (var (key, label) in messages)
+@foreach (var (key, css, icon) in messages)
 {
     if (TempData[key] is string text && !string.IsNullOrWhiteSpace(text))
     {
-        <p role="alert"><b>@label:</b> @text</p>
+        <div class="alert @css alert-dismissible fade show d-flex align-items-start gap-2" role="alert">
+            <i class="bi @icon mt-1"></i>
+            <div>@text</div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
 }
 @if (TempData["DevLink"] is string devLink)
 {
-    <p role="alert"><b>Development mode:</b> no real email was sent. <a href="@devLink">Open the confirmation link</a>.</p>
+    <div class="alert alert-info" role="alert">
+        <strong>Development mode:</strong> no real email was sent. <a href="@devLink">Open the confirmation link</a>.
+    </div>
 }

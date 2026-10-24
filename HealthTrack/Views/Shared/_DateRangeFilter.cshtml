@@ -1,10 +1,14 @@
 @model DateRange
-<form method="get">
-    <label for="from">From</label>
-    <input type="date" id="from" name="from" value="@Model.From.ToString("yyyy-MM-dd")" />
-    <label for="to">To</label>
-    <input type="date" id="to" name="to" value="@Model.To.ToString("yyyy-MM-dd")" />
-    <button type="submit">Filter</button>
-    <a href="?from=@DateTime.Today.AddDays(-6).ToString("yyyy-MM-dd")&to=@DateTime.Today.ToString("yyyy-MM-dd")">Last 7 days</a> |
-    <a href="?from=@DateTime.Today.AddDays(-29).ToString("yyyy-MM-dd")&to=@DateTime.Today.ToString("yyyy-MM-dd")">Last 30 days</a>
+<form method="get" class="filter-bar">
+    <div>
+        <label class="form-label" for="from">From</label>
+        <input type="date" class="form-control" id="from" name="from" value="@Model.From.ToString("yyyy-MM-dd")" />
+    </div>
+    <div>
+        <label class="form-label" for="to">To</label>
+        <input type="date" class="form-control" id="to" name="to" value="@Model.To.ToString("yyyy-MM-dd")" />
+    </div>
+    <button type="submit" class="btn btn-light"><i class="bi bi-funnel"></i> Filter</button>
+    <a class="btn btn-link" href="?from=@DateTime.Today.AddDays(-6).ToString("yyyy-MM-dd")&to=@DateTime.Today.ToString("yyyy-MM-dd")">Last 7 days</a>
+    <a class="btn btn-link" href="?from=@DateTime.Today.AddDays(-29).ToString("yyyy-MM-dd")&to=@DateTime.Today.ToString("yyyy-MM-dd")">Last 30 days</a>
 </form>

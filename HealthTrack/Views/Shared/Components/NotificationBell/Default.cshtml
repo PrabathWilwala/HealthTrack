@@ -2,5 +2,42 @@
 @{
     var unread = (int)(ViewData["UnreadCount"] ?? 0);
 }
-<a asp-controller="Notifications" asp-action="Index">Notifications</a>
-(<span data-unread-count>@(unread > 99 ? "99+" : unread.ToString())</span> unread)
+<div class="dropdown">
+    <button class="btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+        <i class="bi bi-bell"></i>
+        <span class="bell-badge" data-unread-badge hidden="@(unread == 0)">@(unread > 99 ? "99+" : unread.ToString())</span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end bell-menu">
+        <div class="d-flex justify-content-between align-items-center px-2 pt-1 pb-2">
+            <strong>Notifications</strong>
+            <a class="small" asp-controller="Notifications" asp-action="Preferences">Settings</a>
+        </div>
+        @if (Model.Count == 0)
+        {
+            <div class="empty-state py-3"><i class="bi bi-bell-slash"></i><p>You're all caught up.</p></div>
+        }
+        @foreach (var n in Model)
+        {
+            <form asp-controller="Notifications" asp-action="Open" asp-route-id="@n.Id" method="post">
+                <button type="submit" class="bell-item w-100 text-start border-0 @(n.IsRead ? "" : "unread")">
+                    <div class="d-flex gap-2">
+                        <i class="bi @DisplayHelpers.NotificationIcon(n.Type) text-primary"></i>
+                        <div>
+                            <div class="title">@n.Title</div>
+                            <div class="meta">@DateHelpers.TimeAgo(n.CreatedAtUtc)</div>
+                        </div>
+                    </div>
+                </button>
+            </form>
+        }
+        <div class="border-top mt-2 pt-2 px-2 d-flex justify-content-between">
+            <a class="small fw-bold" asp-controller="Notifications" asp-action="Index">View all</a>
+            @if (unread > 0)
+            {
+                <form asp-controller="Notifications" asp-action="MarkAllRead" method="post">
+                    <button class="btn btn-link btn-sm p-0" type="submit">Mark all read</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

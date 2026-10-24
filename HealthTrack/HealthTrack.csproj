@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\" />
+    <Folder Include="wwwroot\lib\bootstrap\dist\" />
   </ItemGroup>
 
 </Project>

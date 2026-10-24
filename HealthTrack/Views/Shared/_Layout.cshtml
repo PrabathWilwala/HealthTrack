@@ -6,8 +6,20 @@
     var isTrainer = User.IsInRole(RoleNames.Trainer);
     var isClient = User.IsInRole(RoleNames.Client);
     var roleName = isAdmin ? "Administrator" : isTrainer ? "Trainer" : isClient ? "Client" : "";
-    var useMenu = signedIn && roleName != "";
+    // Authentication pages render their own full-page card and never use the app shell.
+    var useShell = signedIn && roleName != "" && ViewData["NoShell"] == null;
+    // Administrators get a stricter inactivity timeout.
     var idleMinutes = isAdmin ? 10 : 20;
+}
+@functions {
+    private string Nav(string controllerName, params string[] actions)
+    {
+        var c = ViewContext.RouteData.Values["controller"]?.ToString();
+        var a = ViewContext.RouteData.Values["action"]?.ToString();
+        var match = string.Equals(c, controllerName, StringComparison.OrdinalIgnoreCase) &&
+                    (actions.Length == 0 || actions.Any(x => string.Equals(x, a, StringComparison.OrdinalIgnoreCase)));
+        return match ? "nav-link active" : "nav-link";
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -15,111 +27,199 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - HealthTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
-<body data-idle-minutes="@(useMenu ? idleMinutes : 0)">
-    <header>
-        <h2><a asp-controller="Home" asp-action="Index">HealthTrack</a></h2>
-        @if (useMenu)
-        {
-            <p>
-                Signed in as <b>@User.Identity?.Name</b> (@roleName) |
-                @await Component.InvokeAsync("NotificationBell") |
-                <a asp-controller="Profile" asp-action="Index">My profile</a> |
-                <a asp-controller="Profile" asp-action="TwoFactor">Two-factor authentication</a> |
-                <a asp-controller="Profile" asp-action="ChangePassword">Change password</a> |
-                <a asp-controller="Notifications" asp-action="Preferences">Notification settings</a> |
-                <a asp-controller="Profile" asp-action="Privacy">Privacy &amp; my data</a>
-            </p>
-            <form asp-controller="Account" asp-action="Logout" method="post">
-                <button type="submit">Sign out</button>
-            </form>
+<body data-idle-minutes="@(useShell ? idleMinutes : 0)">
+@if (useShell)
+{
+    <div class="app-shell">
+        <aside class="app-sidebar" id="appSidebar" aria-label="Main navigation">
+            <a class="sidebar-brand" asp-controller="Account" asp-action="Dashboard">
+             @*    <span class="brand-mark">H</span> *@
+                    <img class="brand-mark" src="~/images/logo.png" />
+                <span>
+                    <span class="brand-name d-block">HealthTrack</span>
+                    <span class="brand-role">Your workspace</span>
+                </span>
+            </a>
 
-            <p>Menu:</p>
             @if (isClient)
             {
-                <ul>
-                    <li><a asp-controller="Client" asp-action="Dashboard">Dashboard</a></li>
-                    <li><a asp-controller="Progress" asp-action="Index">Progress &amp; analytics</a></li>
-                    <li><a asp-controller="Client" asp-action="Plans">My plans</a></li>
-                    <li><a asp-controller="WorkoutLogs" asp-action="Index">Workouts</a></li>
-                    <li><a asp-controller="MealLogs" asp-action="Index">Meals</a></li>
-                    <li><a asp-controller="Measurements" asp-action="Index">Measurements</a></li>
-                    <li><a asp-controller="Appointments" asp-action="Index">Appointments</a></li>
-                    <li><a asp-controller="Client" asp-action="Feedback">Feedback &amp; notes</a></li>
-                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                <div class="sidebar-section">Overview</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Client", "Dashboard")" asp-controller="Client" asp-action="Dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+                    <li><a class="@Nav("Progress")" asp-controller="Progress" asp-action="Index"><i class="bi bi-graph-up-arrow"></i>Progress &amp; analytics</a></li>
+                    <li><a class="@Nav("Client", "Plans")" asp-controller="Client" asp-action="Plans"><i class="bi bi-clipboard2-pulse"></i>My plans</a></li>
+                </ul>
+                <div class="sidebar-section">Log</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("WorkoutLogs")" asp-controller="WorkoutLogs" asp-action="Index"><i class="bi bi-activity"></i>Workouts</a></li>
+                    <li><a class="@Nav("MealLogs")" asp-controller="MealLogs" asp-action="Index"><i class="bi bi-egg-fried"></i>Meals</a></li>
+                    <li><a class="@Nav("Measurements")" asp-controller="Measurements" asp-action="Index"><i class="bi bi-heart-pulse"></i>Measurements</a></li>
+                </ul>
+                <div class="sidebar-section">Care</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Appointments")" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-event"></i>Appointments</a></li>
+                    <li><a class="@Nav("Client", "Feedback")" asp-controller="Client" asp-action="Feedback"><i class="bi bi-chat-heart"></i>Feedback &amp; notes</a></li>
                 </ul>
             }
             else if (isTrainer)
             {
-                <ul>
-                    <li><a asp-controller="Trainer" asp-action="Dashboard">Dashboard</a></li>
-                    <li><a asp-controller="Trainer" asp-action="Clients">My clients</a></li>
-                    <li><a asp-controller="WorkoutPlans" asp-action="Index">Workout plans</a></li>
-                    <li><a asp-controller="DietPlans" asp-action="Index">Diet plans</a></li>
-                    <li><a asp-controller="Appointments" asp-action="Index">Appointments</a></li>
-                    <li><a asp-controller="Appointments" asp-action="Calendar">Calendar</a></li>
-                    <li><a asp-controller="Trainer" asp-action="Availability">Availability</a></li>
-                    <li><a asp-controller="Reports" asp-action="Index">Reports</a></li>
-                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                <div class="sidebar-section">Overview</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Trainer", "Dashboard")" asp-controller="Trainer" asp-action="Dashboard"><i class="bi bi-grid-1x2"></i>Dashboard</a></li>
+                    <li><a class="@Nav("Trainer", "Clients", "Client")" asp-controller="Trainer" asp-action="Clients"><i class="bi bi-people"></i>My clients</a></li>
+                </ul>
+                <div class="sidebar-section">Programmes</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("WorkoutPlans")" asp-controller="WorkoutPlans" asp-action="Index"><i class="bi bi-activity"></i>Workout plans</a></li>
+                    <li><a class="@Nav("DietPlans")" asp-controller="DietPlans" asp-action="Index"><i class="bi bi-basket"></i>Diet plans</a></li>
+                </ul>
+                <div class="sidebar-section">Schedule</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Appointments", "Index", "Details", "Complete", "Reschedule")" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i>Appointments</a></li>
+                    <li><a class="@Nav("Appointments", "Calendar")" asp-controller="Appointments" asp-action="Calendar"><i class="bi bi-calendar3"></i>Calendar</a></li>
+                    <li><a class="@Nav("Trainer", "Availability")" asp-controller="Trainer" asp-action="Availability"><i class="bi bi-clock"></i>Availability</a></li>
+                </ul>
+                <div class="sidebar-section">Insights</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Reports")" asp-controller="Reports" asp-action="Index"><i class="bi bi-bar-chart-line"></i>Reports</a></li>
                 </ul>
             }
             else if (isAdmin)
             {
-                <ul>
-                    <li><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
-                    <li><a asp-controller="Admin" asp-action="Users">Users</a></li>
-                    <li><a asp-controller="Admin" asp-action="Plans">All plans</a></li>
-                    <li><a asp-controller="WorkoutPlans" asp-action="Index">Workout templates</a></li>
-                    <li><a asp-controller="DietPlans" asp-action="Index">Diet templates</a></li>
-                    <li><a asp-controller="Admin" asp-action="Appointments">Appointments</a></li>
-                    <li><a asp-controller="Reports" asp-action="Overview">System report</a></li>
-                    <li><a asp-controller="Reports" asp-action="Custom">Report builder</a></li>
-                    <li><a asp-controller="Reports" asp-action="Index">All reports</a></li>
-                    <li><a asp-controller="Admin" asp-action="Broadcast">Broadcasts</a></li>
-                    <li><a asp-controller="Admin" asp-action="Templates">Notification templates</a></li>
-                    <li><a asp-controller="Admin" asp-action="AuditLog">Audit log</a></li>
-                    <li><a asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                <div class="sidebar-section">Overview</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Admin", "Dashboard")" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-speedometer2"></i>Dashboard</a></li>
+                    <li><a class="@Nav("Admin", "Users", "CreateUser", "EditUser", "AssignTrainer", "UserActivity")" asp-controller="Admin" asp-action="Users"><i class="bi bi-people"></i>Users</a></li>
+                </ul>
+                <div class="sidebar-section">Oversight</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Admin", "Plans")" asp-controller="Admin" asp-action="Plans"><i class="bi bi-clipboard2-check"></i>All plans</a></li>
+                    <li><a class="@Nav("WorkoutPlans")" asp-controller="WorkoutPlans" asp-action="Index"><i class="bi bi-collection"></i>Workout templates</a></li>
+                    <li><a class="@Nav("DietPlans")" asp-controller="DietPlans" asp-action="Index"><i class="bi bi-basket"></i>Diet templates</a></li>
+                    <li><a class="@Nav("Admin", "Appointments")" asp-controller="Admin" asp-action="Appointments"><i class="bi bi-calendar-range"></i>Appointments</a></li>
+                </ul>
+                <div class="sidebar-section">Insights</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Reports", "Overview")" asp-controller="Reports" asp-action="Overview"><i class="bi bi-bar-chart-line"></i>System report</a></li>
+                    <li><a class="@Nav("Reports", "Custom")" asp-controller="Reports" asp-action="Custom"><i class="bi bi-sliders"></i>Report builder</a></li>
+                    <li><a class="@Nav("Reports", "Index", "Engagement", "Routines", "Comparative", "Trends", "FeedbackEffectiveness", "Client")" asp-controller="Reports" asp-action="Index"><i class="bi bi-file-earmark-bar-graph"></i>All reports</a></li>
+                </ul>
+                <div class="sidebar-section">System</div>
+                <ul class="sidebar-nav">
+                    <li><a class="@Nav("Admin", "Broadcast")" asp-controller="Admin" asp-action="Broadcast"><i class="bi bi-megaphone"></i>Broadcasts</a></li>
+                    <li><a class="@Nav("Admin", "Templates", "EditTemplate")" asp-controller="Admin" asp-action="Templates"><i class="bi bi-envelope-paper"></i>Notification templates</a></li>
+                    <li><a class="@Nav("Admin", "AuditLog")" asp-controller="Admin" asp-action="AuditLog"><i class="bi bi-journal-text"></i>Audit log</a></li>
                 </ul>
             }
-        }
-        else if (signedIn)
-        {
-            <p>
-                <a asp-controller="Account" asp-action="Dashboard">Dashboard</a>
-            </p>
-            <form asp-controller="Account" asp-action="Logout" method="post"><button type="submit">Sign out</button></form>
-        }
-        else
-        {
-            <p>
-                <a asp-controller="Account" asp-action="Login">Sign in</a> |
-                <a asp-controller="Account" asp-action="Register">Create account</a>
-            </p>
-        }
-    </header>
-    <hr />
 
+            <div class="sidebar-section">Account</div>
+            <ul class="sidebar-nav">
+                <li><a class="@Nav("Notifications")" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell"></i>Notifications</a></li>
+                <li><a class="@Nav("Profile")" asp-controller="Profile" asp-action="Index"><i class="bi bi-person-gear"></i>Profile &amp; security</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                
+            </div>
+        </aside>
+        <div class="app-overlay" data-sidebar-close></div>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <button type="button" class="btn-icon d-lg-none" data-sidebar-toggle aria-label="Open navigation"><i class="bi bi-list"></i></button>
+                <div class="topbar-title">@ViewData["Title"]</div>
+                <div class="topbar-actions">
+                    @await Component.InvokeAsync("NotificationBell")
+                    <div class="dropdown">
+                        <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="avatar">@DisplayHelpers.Initials(User.Identity?.Name)</span>
+                            <span class="name">@User.Identity?.Name</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Signed in as @roleName</h6></li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person me-2"></i>My profile</a></li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="TwoFactor"><i class="bi bi-shield-lock me-2"></i>Two-factor authentication</a></li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="ChangePassword"><i class="bi bi-key me-2"></i>Change password</a></li>
+                            <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Preferences"><i class="bi bi-sliders me-2"></i>Notification settings</a></li>
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Privacy"><i class="bi bi-file-lock2 me-2"></i>Privacy &amp; my data</a></li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Sign out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <main class="app-content" role="main">
+                <partial name="_Alerts" />
+                @RenderBody()
+            </main>
+            <footer class="app-footer">
+                &copy; 2026 HealthTrack · <a asp-controller="Home" asp-action="Privacy">Privacy policy</a>
+            </footer>
+        </div>
+    </div>
+
+    <form id="idleLogoutForm" asp-controller="Account" asp-action="Logout" method="post" class="d-none">
+        <input type="hidden" name="timedOut" value="true" />
+    </form>
+    <div class="modal fade" id="idleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-2">
+                <div class="modal-body text-center">
+                    <div class="icon-bubble amber mx-auto mb-3"><i class="bi bi-hourglass-split"></i></div>
+                    <h5>Are you still there?</h5>
+                    <p class="text-muted mb-3">For your security you will be signed out in <strong id="idleCountdown">60</strong> seconds.</p>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Stay signed in</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <nav class="navbar navbar-expand public-nav">
+        <div class="container">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">H</span>HealthTrack</a>
+            <div class="ms-auto d-flex gap-2">
+                @if (signedIn)
+                {
+                    <a class="btn btn-light btn-sm" asp-controller="Account" asp-action="Dashboard">Dashboard</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-light btn-sm" type="submit">Sign out</button></form>
+                }
+                else
+                {
+                    <a class="btn btn-light btn-sm" asp-controller="Account" asp-action="Login">Sign in</a>
+                    <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">Create account</a>
+                }
+            </div>
+        </div>
+    </nav>
     <main role="main">
-        <partial name="_Alerts" />
+        <div class="container pt-3"><partial name="_Alerts" /></div>
         @RenderBody()
     </main>
-
-    <hr />
-    <footer>
-        <p>&copy; 2026 HealthTrack - Personal Health &amp; Fitness Management | <a asp-controller="Home" asp-action="Privacy">Privacy policy</a></p>
-    </footer>
-
-    @if (useMenu)
-    {
-        <form id="idleLogoutForm" asp-controller="Account" asp-action="Logout" method="post" hidden>
-            <input type="hidden" name="timedOut" value="true" />
-        </form>
-        <div id="idleWarning" hidden>
-            <p><b>Are you still there?</b> For your security you will be signed out in <span id="idleCountdown">60</span> seconds. Move the mouse or press a key to stay signed in.</p>
+    <footer class="public-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>&copy; 2026 HealthTrack – Personal Health &amp; Fitness Management</span>
+            <a asp-controller="Home" asp-action="Privacy">Privacy policy</a>
         </div>
-    }
+    </footer>
+}
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

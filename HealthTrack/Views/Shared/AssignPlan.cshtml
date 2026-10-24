@@ -3,48 +3,64 @@
     ViewData["Title"] = "Assign plan";
     var controller = Model.PlanType == "Workout" ? "WorkoutPlans" : "DietPlans";
 }
-<p><a asp-controller="@controller" asp-action="Details" asp-route-id="@Model.PlanId">&lt; Back to @Model.PlanTitle</a></p>
-<h1>Assign "@Model.PlanTitle"</h1>
-<p>Choose clients and a schedule. A client's current @Model.PlanType.ToLower() plan will be replaced, and they will be notified.</p>
-
+<div class="page-header">
+    <div>
+        <a asp-controller="@controller" asp-action="Details" asp-route-id="@Model.PlanId" class="small fw-bold"><i class="bi bi-arrow-left"></i> @Model.PlanTitle</a>
+        <h1 class="page-title mt-1">Assign “@Model.PlanTitle”</h1>
+        <p class="page-subtitle">Choose clients and a schedule. A client's current @Model.PlanType.ToLower() plan will be replaced, and they will be notified.</p>
+    </div>
+</div>
 <form asp-controller="@controller" asp-action="Assign" method="post">
     <input type="hidden" asp-for="PlanId" />
-    <div asp-validation-summary="All"></div>
-
-    <h3>Clients</h3>
-    @if (Model.Clients.Count == 0)
-    {
-        <p>You don't have any clients yet. An administrator assigns clients to trainers.</p>
-    }
-    else
-    {
-        <p>Filter: <input type="search" data-table-filter="#clientTable" /></p>
-        <table border="1" cellpadding="4" id="clientTable">
-            <thead><tr><th>Select</th><th>Client</th><th>Current @Model.PlanType.ToLower() plan</th></tr></thead>
-            <tbody>
-                @foreach (var c in Model.Clients)
+    <div asp-validation-summary="All" class="alert alert-danger"></div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-people"></i>Clients</h2>
+                    <input type="search" class="form-control form-control-sm" style="max-width:220px" placeholder="Filter…" data-table-filter="#clientTable" />
+                </div>
+                @if (Model.Clients.Count == 0)
                 {
-                    var isChecked = Model.ClientIds.Contains(c.ClientId);
-                    <tr>
-                        <td><input type="checkbox" name="ClientIds" value="@c.ClientId" id="@("c_" + c.ClientId)" checked="@isChecked" /></td>
-                        <td><label for="@("c_" + c.ClientId)">@c.Name</label></td>
-                        <td>@(c.CurrentPlan ?? "None")</td>
-                    </tr>
+                    <div class="empty-state"><i class="bi bi-person-x"></i><p>You don't have any clients yet. An administrator assigns clients to trainers.</p></div>
                 }
-            </tbody>
-        </table>
-    }
-
-    <h3>Schedule</h3>
-    <p>
-        <label asp-for="StartDate"></label><br />
-        <input asp-for="StartDate" />
-        <span asp-validation-for="StartDate"></span>
-    </p>
-    <p>
-        <label asp-for="EndDate"></label><br />
-        <input asp-for="EndDate" />
-        <span asp-validation-for="EndDate"></span>
-    </p>
-    <button type="submit">Assign plan</button>
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="clientTable">
+                            <thead><tr><th style="width:40px"></th><th>Client</th><th>Current @Model.PlanType.ToLower() plan</th></tr></thead>
+                            <tbody>
+                                @foreach (var c in Model.Clients)
+                                {
+                                    var isChecked = Model.ClientIds.Contains(c.ClientId);
+                                    <tr>
+                                        <td><input class="form-check-input" type="checkbox" name="ClientIds" value="@c.ClientId" id="@("c_" + c.ClientId)" checked="@isChecked" /></td>
+                                        <td><label for="@("c_" + c.ClientId)" class="fw-semibold">@c.Name</label></td>
+                                        <td class="small text-muted">@(c.CurrentPlan ?? "None")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card-ht">
+                <div class="card-ht-header"><h2 class="card-ht-title"><i class="bi bi-calendar-range"></i>Schedule</h2></div>
+                <div class="card-ht-body">
+                    <div class="mb-3">
+                        <label asp-for="StartDate" class="form-label"></label>
+                        <input asp-for="StartDate" class="form-control" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="EndDate" class="form-label"></label>
+                        <input asp-for="EndDate" class="form-control" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                    <button type="submit" class="btn btn-teal w-100"><i class="bi bi-person-check"></i> Assign plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
